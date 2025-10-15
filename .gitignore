@@ -1,0 +1,30 @@
+# Google Apps Script 環境
+.clasp.json
+.claspignore
+
+# 機密情報（Script Properties）
+# 以下の値は環境変数やScript Propertiesで管理
+# NOTION_API_TOKEN
+# NOTION_TASK_DB_ID
+# NOTION_PRODUCT_DB_ID
+# NOTION_PROJECT_DB_ID
+# SLACK_BOT_TOKEN
+
+# ログファイル
+*.log
+
+# 一時ファイル
+.DS_Store
+Thumbs.db
+
+# IDE設定
+.vscode/
+.idea/
+
+# Node.js（もし使用する場合）
+node_modules/
+package-lock.json
+
+# バックアップファイル
+*.bak
+*.backup
