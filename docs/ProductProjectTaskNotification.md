@@ -42,33 +42,33 @@ NotionのタスクDBから特定のプロダクト・プロジェクトに紐づ
 ### 2.3 対象プロダクト・プロジェクト
 
 #### 2.3.1 対象プロダクト（product_scrum_master_mapping.md参照）
-| プロダクト名 | スクラムマスター | メールアドレス | プロダクト開発チャンネルID | スクラムマスターSlackユーザーID |
-|-------------|-----------------|----------------|---------------------------|-----------------------------|
-| Sakuden | 居原田 崇史 | takashi.iharada@playground.live | C4TU3K80K | U08TLQTUJ21 |
-| Eitoku(MOALA認証) | 渡部 愛菜 | aina.watanabe@playground.live | C01EGQMSZKL | U048M5NP6M6 |
-| Tanyu(MOALA認証+ ) | 渡部 愛菜 | aina.watanabe@playground.live | C08DJQCDY4F | U048M5NP6M6 |
-| Zeami (BioQR) | 花輪 真輝 | masaki.hanawa@playground.live | C07G1TDVDS5 | U05HPC0BL3V |
-| Hokushin(MLS) | 井口 新一郎 | shinichiro.inokuchi@playground.live | 未設定 | U04HB81EUTS |
-| Karaku | 井口 新一郎 | shinichiro.inokuchi@playground.live | C06RCNLQXPE | U04HB81EUTS |
-| Karaku Web | 渡部 愛菜 | aina.watanabe@playground.live | C07ENRL7EAF | U048M5NP6M6 |
-| Karaku Admin | 渡部 愛菜 | aina.watanabe@playground.live | C05UTQG55GR | U048M5NP6M6 |
-| Juko (MA) | 花輪 真輝 | masaki.hanawa@playground.live | C055TBXD3PC | U05HPC0BL3V |
-| Duchamp(MP) | 渡部 愛菜 | aina.watanabe@playground.live | C03K2GKH2P9 | U048M5NP6M6 |
-| Pollock(MP2) | 渡部 愛菜 | aina.watanabe@playground.live | C08TSQCTEUT | U048M5NP6M6 |
-| Rick (MS) | 花輪 真輝 | masaki.hanawa@playground.live | C0685K9KVH9 | U05HPC0BL3V |
-| 抽選プロダクト | 花輪 真輝 | masaki.hanawa@playground.live | C07EN5VTL94 | U05HPC0BL3V |
+| プロダクト名 | スクラムマスター | メールアドレス | プロダクト開発チャンネルID | スクラムマスターSlackユーザーID | NotionプロダクトID |
+|-------------|-----------------|----------------|---------------------------|-----------------------------|-------------------|
+| Sakuden | 居原田 崇史 | takashi.iharada@playground.live | C4TU3K80K | U08TLQTUJ21 | 279c8633-ba79-43df-b2a7-b958c82fb421 |
+| Eitoku(MOALA認証) | 渡部 愛菜 | aina.watanabe@playground.live | C01EGQMSZKL | U048M5NP6M6 | 12f13b08-0876-4e05-aaeb-6cb339af831b |
+| Tanyu(MOALA認証+ ) | 渡部 愛菜 | aina.watanabe@playground.live | C08DJQCDY4F | U048M5NP6M6 | 1a07d6b7-b8c6-80c6-9cd0-ece4910b6d6c |
+| Zeami (BioQR) | 花輪 真輝 | masaki.hanawa@playground.live | C07G1TDVDS5 | U05HPC0BL3V | 99631441-6e85-4abe-9696-876b14f22ba9 |
+| Hokushin(MLS) | 井口 新一郎 | shinichiro.inokuchi@playground.live | C01BLD36T6K | U04HB81EUTS | 9a799499-f3fe-431a-b4dc-208f58753f6b |
+| Karaku | 井口 新一郎 | shinichiro.inokuchi@playground.live | C06RCNLQXPE | U04HB81EUTS | 584877b3-396a-4b94-8264-89a3b16c3d2b |
+| Karaku Web | 渡部 愛菜 | aina.watanabe@playground.live | C07ENRL7EAF | U048M5NP6M6 | ee279157-c6db-451e-81be-f3be2472cd47 |
+| Karaku Admin | 居原田 崇史 | takashi.iharada@playground.live | C05UTQG55GR | U08TLQTUJ21 | 9386fe40-2ffc-484d-9fbd-b9adfbc96f48 |
+| Juko (MA) | 花輪 真輝 | masaki.hanawa@playground.live | C055TBXD3PC | U05HPC0BL3V | cafa03fe-bdc1-474a-912f-7697c04bce0e |
+| Duchamp(MP) | 渡部 愛菜 | aina.watanabe@playground.live | C03K2GKH2P9 | U048M5NP6M6 | f7d71ec6-e5ee-4bf8-90a6-0b30c4f4a02c |
+| Pollock(MP2) | 渡部 愛菜 | aina.watanabe@playground.live | C08TSQCTEUT | U048M5NP6M6 | 2007d6b7-b8c6-8091-a919-d5132be0d9b4 |
+| Rick (MS) | 花輪 真輝 | masaki.hanawa@playground.live | C0685K9KVH9 | U05HPC0BL3V | 87a38014-bb2d-4409-86f2-0c204f65248d |
+| 抽選プロダクト | 花輪 真輝 | masaki.hanawa@playground.live | C07EN5VTL94 | U05HPC0BL3V | 22d7d6b7-b8c6-80d9-ac9a-fec255bf5418 |
 
 #### 2.3.2 対象プロジェクト（product_project_mapping.md参照）
-| プロジェクト名 | PjM | メールアドレス | プロジェクトチャンネルID | PjM SlackユーザーID |
-|---------------|-----|----------------|---------------------------|--------------------|
-| Sakura | 花輪 真輝 | masaki.hanawa@playground.live |  | U05HPC0BL3V |
-| Mukuge Phase 1 | 鈴木 遼 | ryo.suzuki@playground.live | C097UBAK886 | U9ZFLRRG9 |
-| HIROMITSU KITAYAMA LIVE TOUR 2025「波紋-HAMON-」 | 鈴木 遼 | ryo.suzuki@playground.live | C08Q0V8UKMH | U9ZFLRRG9 |
-| BE:FIRST 2nd Fan Meeting -Hello My "BESTY" vol.2- | 鈴木 遼 | ryo.suzuki@playground.live | C08NGHKS1B4 | U9ZFLRRG9 |
-| Animate Girls Festival 2025 karaku/MA連携 | 井口 新一郎 | shinichiro.inokuchi@playground.live |  | U04HB81EUTS |
-| MLS保守 | 井口 新一郎 | shinichiro.inokuchi@playground.live | C01BLD36T6K | U04HB81EUTS |
-| UpfrontID連携 | 井口 新一郎 | shinichiro.inokuchi@playground.live |  | U04HB81EUTS |
-| 東京ドーム | 井口 新一郎 | shinichiro.inokuchi@playground.live | C03MHJR5RSR | U04HB81EUTS |
+| プロジェクト名 | PjM | メールアドレス | プロジェクトチャンネルID | PjM SlackユーザーID | NotionプロジェクトID |
+|---------------|-----|----------------|---------------------------|--------------------|---------------------|
+| Sakura | 花輪 真輝 | masaki.hanawa@playground.live |  | U05HPC0BL3V | 24e7d6b7-b8c6-801e-a9a3-caf1963d09ad |
+| Mukuge Phase 1 | 鈴木 遼 | ryo.suzuki@playground.live | C097UBAK886 | U9ZFLRRG9 | 23e7d6b7-b8c6-8077-8c70-fdafbdda9aa3 |
+| HIROMITSU KITAYAMA LIVE TOUR 2025「波紋-HAMON-」 | 鈴木 遼 | ryo.suzuki@playground.live | C08Q0V8UKMH | U9ZFLRRG9 | 1d87d6b7-b8c6-8036-9fe0-f5ed597229bb |
+| BE:FIRST 2nd Fan Meeting -Hello My "BESTY" vol.2- | 鈴木 遼 | ryo.suzuki@playground.live | C08NGHKS1B4 | U9ZFLRRG9 | 1b37d6b7-b8c6-8053-a197-d9ac8b71ffcf |
+| Animate Girls Festival 2025 karaku/MA連携 | 井口 新一郎 | shinichiro.inokuchi@playground.live | C09EP48KGDC | U04HB81EUTS | 1a77d6b7-b8c6-80ae-a651-e2e410f7d207 |
+| MLS保守 | 井口 新一郎 | shinichiro.inokuchi@playground.live | C01BLD36T6K | U04HB81EUTS | df8ca670-4e41-4c6f-a747-eda6f4a685e4 |
+| UpfrontID連携 | 井口 新一郎 | shinichiro.inokuchi@playground.live | C09FG28S9A4 | U04HB81EUTS | 9920cadd-2423-4505-bffd-732c728acc2b |
+| 東京ドーム | 井口 新一郎 | shinichiro.inokuchi@playground.live | C03MHJR5RSR | U04HB81EUTS | 18d3ac08-8d5e-407a-8074-0b9f5efc1e9b |
 
 ### 2.4 取得データ項目
 以下のタスク情報を取得する：
