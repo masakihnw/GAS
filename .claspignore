@@ -1,0 +1,37 @@
+# アーカイブフォルダは clasp 管理対象外
+gas/archive/
+gas/archive/**
+
+# Python関連ファイル
+python/
+python/**
+*.py
+
+# Pythonvenv環境
+.venv/
+.venv/**
+__pycache__/
+__pycache__/**
+*.pyc
+
+# Node.js関連
+node_modules/
+node_modules/**
+
+# Git関連
+.git/
+.git/**
+
+# その他の除外ファイル
+.DS_Store
+.cursorrules
+README.md
+README_*.md
+*ガイド.md
+*運用ルール.md
+*セットアップガイド.md
+uv.lock
+pyproject.toml
+.python-version
+client_secret_gas_common.json
+テンプレート_*

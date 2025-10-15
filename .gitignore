@@ -1,6 +1,5 @@
 # Google Apps Script 環境
-.clasp.json
-.claspignore
+# .clasp.json と .claspignore は開発に必要なので管理対象に含める
 
 # 機密情報（Script Properties）
 # 以下の値は環境変数やScript Propertiesで管理
