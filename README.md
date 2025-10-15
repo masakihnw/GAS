@@ -7,10 +7,12 @@ Google Apps Script (GAS) を使用したタスク通知ボットの開発・管�
 ```
 gas/
 ├── code/
-│   ├── Code.js              # 開発中のメインファイル（開発完了後は空にする）
-│   └── archives/            # 開発完了したスクリプトの保管場所
-│       ├── ARCHIVES_RULES.md # archivesフォルダのルール
-│       └── task_notifier.js # タスク通知ボット（完成版）
+│   └── Code.js              # 開発中のメインファイル（開発完了後は空にする）
+├── scripts/                 # 完成したスクリプト（機能別）
+│   └── task-notifier/      # タスク通知ボット
+│       ├── task_notifier.js # メインスクリプト
+│       ├── ARCHIVES_RULES.md # アーカイブルール
+│       └── README.md       # 機能説明
 ├── docs/                    # ドキュメント
 ├── .gitignore              # Git除外設定
 └── README.md               # このファイル
@@ -24,8 +26,9 @@ gas/
 - 動作確認
 
 ### 2. 完成フェーズ
-- 開発完了後、`code/Code.js` の内容を `code/archives/` に移動
+- 開発完了後、`code/Code.js` の内容を `scripts/機能名/` に移動
 - ファイル名は機能を表す名前に変更（例：`task_notifier.js`）
+- 機能別READMEファイルを作成
 - `code/Code.js` を空の状態に戻す
 - archivesルールに従って変更日時を記載
 
@@ -60,13 +63,14 @@ gas/
 3. 動作確認
 
 ### 完成時
-1. `code/Code.js` を `code/archives/` に移動
+1. `code/Code.js` を `scripts/機能名/` に移動
 2. ファイル名を適切に変更
-3. archivesルールに従って変更日時記載
-4. Git でコミット・プッシュ
+3. 機能別READMEファイルを作成
+4. archivesルールに従って変更日時記載
+5. Git でコミット・プッシュ
 
 ## アーカイブルール
-- archivesフォルダ内のファイル変更時は必ず変更日時を記載
+- scriptsフォルダ内のファイル変更時は必ず変更日時を記載
 - フォーマット: `// Last Modified: YYYY-MM-DD HH:MM:SS`
 - 変更理由も併記: `// Change: 変更内容の簡潔な説明`
 
