@@ -62,13 +62,13 @@ NotionのタスクDBから特定のプロダクト・プロジェクトに紐づ
 | プロジェクト名 | PjM | メールアドレス | プロジェクトチャンネルID | PjM SlackユーザーID |
 |---------------|-----|----------------|---------------------------|--------------------|
 | Sakura | 花輪 真輝 | masaki.hanawa@playground.live |  | U05HPC0BL3V |
-| Mukuge | 渡部 愛菜 | aina.watanabe@playground.live |  | U048M5NP6M6 |
-| Mukuge Phase 1 | 鈴木 遼 | ryo.suzuki@playground.live |  | U9ZFLRRG9 |
-| HIROMITSU KITAYAMA LIVE TOUR 2025「波紋-HAMON-」 | 鈴木 遼 | ryo.suzuki@playground.live |  | U9ZFLRRG9 |
-| BE:FIRST 2nd Fan Meeting -Hello My "BESTY" vol.2- | 鈴木 遼 | ryo.suzuki@playground.live |  | U9ZFLRRG9 |
+| Mukuge Phase 1 | 鈴木 遼 | ryo.suzuki@playground.live | C097UBAK886 | U9ZFLRRG9 |
+| HIROMITSU KITAYAMA LIVE TOUR 2025「波紋-HAMON-」 | 鈴木 遼 | ryo.suzuki@playground.live | C08Q0V8UKMH | U9ZFLRRG9 |
+| BE:FIRST 2nd Fan Meeting -Hello My "BESTY" vol.2- | 鈴木 遼 | ryo.suzuki@playground.live | C08NGHKS1B4 | U9ZFLRRG9 |
 | Animate Girls Festival 2025 karaku/MA連携 | 井口 新一郎 | shinichiro.inokuchi@playground.live |  | U04HB81EUTS |
-| MLS保守 | 井口 新一郎 | shinichiro.inokuchi@playground.live |  | U04HB81EUTS |
+| MLS保守 | 井口 新一郎 | shinichiro.inokuchi@playground.live | C01BLD36T6K | U04HB81EUTS |
 | UpfrontID連携 | 井口 新一郎 | shinichiro.inokuchi@playground.live |  | U04HB81EUTS |
+| 東京ドーム | 井口 新一郎 | shinichiro.inokuchi@playground.live | C03MHJR5RSR | U04HB81EUTS |
 
 ### 2.4 取得データ項目
 以下のタスク情報を取得する：

@@ -51,29 +51,30 @@ const CONFIG = {
 
 // 設定データは外部ファイルから読み込み（GAS環境では直接定義）
 const PRODUCT_MAPPING = {
-  'Sakuden': { channelId: 'C09ARFHBLBX', mentionUserId: 'U08TLQTUJ21' },
-  'Eitoku(MOALA認証)': { channelId: 'C09ARFHBLBX', mentionUserId: 'U048M5NP6M6' },
-  'Tanyu(MOALA認証+ )': { channelId: 'C09ARFHBLBX', mentionUserId: 'U048M5NP6M6' },
-  'Zeami (BioQR)': { channelId: 'C09ARFHBLBX', mentionUserId: 'U05HPC0BL3V' },
-  'Hokushin(MLS)': { channelId: 'C09ARFHBLBX', mentionUserId: 'U04HB81EUTS' },
-  'Karaku': { channelId: 'C09ARFHBLBX', mentionUserId: 'U04HB81EUTS' },
-  'Karaku Web': { channelId: 'C09ARFHBLBX', mentionUserId: 'U048M5NP6M6' },
-  'Karaku Admin': { channelId: 'C09ARFHBLBX', mentionUserId: 'U08TLQTUJ21' },
-  'Juko (MA)': { channelId: 'C09ARFHBLBX', mentionUserId: 'U05HPC0BL3V' },
-  'Duchamp(MP)': { channelId: 'C09ARFHBLBX', mentionUserId: 'U048M5NP6M6' },
-  'Pollock(MP2)': { channelId: 'C09ARFHBLBX', mentionUserId: 'U048M5NP6M6' },
-  'Rick (MS)': { channelId: 'C09ARFHBLBX', mentionUserId: 'U05HPC0BL3V' },
-  '抽選プロダクト': { channelId: 'C09ARFHBLBX', mentionUserId: 'U05HPC0BL3V' }
+  'Sakuden': { channelId: 'C4TU3K80K', mentionUserId: 'U08TLQTUJ21' },
+  'Eitoku(MOALA認証)': { channelId: 'C01EGQMSZKL', mentionUserId: 'U048M5NP6M6' },
+  'Tanyu(MOALA認証+ )': { channelId: 'C08DJQCDY4F', mentionUserId: 'U048M5NP6M6' },
+  'Zeami (BioQR)': { channelId: 'C07G1TDVDS5', mentionUserId: 'U05HPC0BL3V' },
+  'Hokushin(MLS)': { channelId: '', mentionUserId: 'U04HB81EUTS' },
+  'Karaku': { channelId: 'C06RCNLQXPE', mentionUserId: 'U04HB81EUTS' },
+  'Karaku Web': { channelId: 'C07ENRL7EAF', mentionUserId: 'U048M5NP6M6' },
+  'Karaku Admin': { channelId: 'C05UTQG55GR', mentionUserId: 'U08TLQTUJ21' },
+  'Juko (MA)': { channelId: 'C055TBXD3PC', mentionUserId: 'U05HPC0BL3V' },
+  'Duchamp(MP)': { channelId: 'C03K2GKH2P9', mentionUserId: 'U048M5NP6M6' },
+  'Pollock(MP2)': { channelId: 'C08TSQCTEUT', mentionUserId: 'U048M5NP6M6' },
+  'Rick (MS)': { channelId: 'C0685K9KVH9', mentionUserId: 'U05HPC0BL3V' },
+  '抽選プロダクト': { channelId: 'C07EN5VTL94', mentionUserId: 'U05HPC0BL3V' }
 };
 
 const PROJECT_MAPPING = {
-  'Mukuge Phase 1': { channelId: 'C09ARFHBLBX', mentionUserId: 'U9ZFLRRG9' },
-  'HIROMITSU KITAYAMA LIVE TOUR 2025「波紋-HAMON-」': { channelId: 'C09ARFHBLBX', mentionUserId: 'U9ZFLRRG9' },
-  'BE:FIRST 2nd Fan Meeting -Hello My "BESTY" vol.2-': { channelId: 'C09ARFHBLBX', mentionUserId: 'U9ZFLRRG9' },
-  'Animate Girls Festival 2025 karaku/MA連携': { channelId: 'C09ARFHBLBX', mentionUserId: 'U04HB81EUTS' },
-  'MLS保守': { channelId: 'C09ARFHBLBX', mentionUserId: 'U04HB81EUTS' },
-  'UpfrontID連携': { channelId: 'C09ARFHBLBX', mentionUserId: 'U04HB81EUTS' },
-  '東京ドーム': { channelId: 'C09ARFHBLBX', mentionUserId: 'U04HB81EUTS' }
+  'Sakura': { channelId: '', mentionUserId: 'U05HPC0BL3V' },
+  'Mukuge Phase 1': { channelId: 'C097UBAK886', mentionUserId: 'U9ZFLRRG9' },
+  'HIROMITSU KITAYAMA LIVE TOUR 2025「波紋-HAMON-」': { channelId: 'C08Q0V8UKMH', mentionUserId: 'U9ZFLRRG9' },
+  'BE:FIRST 2nd Fan Meeting -Hello My "BESTY" vol.2-': { channelId: 'C08NGHKS1B4', mentionUserId: 'U9ZFLRRG9' },
+  'Animate Girls Festival 2025 karaku/MA連携': { channelId: '', mentionUserId: 'U04HB81EUTS' },
+  'MLS保守': { channelId: 'C01BLD36T6K', mentionUserId: 'U04HB81EUTS' },
+  'UpfrontID連携': { channelId: '', mentionUserId: 'U04HB81EUTS' },
+  '東京ドーム': { channelId: 'C03MHJR5RSR', mentionUserId: 'U04HB81EUTS' }
 };
 
 /**
@@ -313,6 +314,7 @@ function getTargetProjects() {
     
     // product_project_mapping.mdに記載されているプロジェクトのみを対象
     const targetProjectNames = [
+      'Sakura',
       'Mukuge Phase 1',
       'HIROMITSU KITAYAMA LIVE TOUR 2025「波紋-HAMON-」',
       'BE:FIRST 2nd Fan Meeting -Hello My "BESTY" vol.2-',
