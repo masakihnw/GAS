@@ -1,21 +1,44 @@
 /**
- * vibe coding 用 clasp 作業環境
- * 
- * このファイルは clasp push の動作確認用です。
- * 実際の開発コードは一時的にここで作成し、動作確認後に個人プロジェクトに移行してください。
- * 
- * 開発完了後は、このファイルを空の状態に戻してください。
- */
-
-function testFunction() {
-  console.log('clasp環境の動作確認用関数です');
-  return 'OK';
-}
-
-/**
  * タスク通知ボット - プロダクト向け（GAS × Notion × Slack）
  * 要件定義に基づく実装（DB構造に合わせて修正）
  */
+
+/**
+ * Notionプロパティ名の定数
+ */
+const NOTION_PROP = {
+  // タスク関連
+  TASK_NAME: '名前',
+  TASK_STATUS: 'Taskステータス',
+  TASK_DUE_DATE: 'Task期限',
+  TASK_ASSIGNEE: '担当者',
+  TASK_ISSUE: 'Issue',
+  TASK_ISSUE_CATEGORY: 'Issue大分類',
+  
+  // プロダクト関連
+  PRODUCT_SCRUM_MASTER: 'スクラムマスター',
+  PRODUCT_REL: 'Product',
+  
+  // プロジェクト関連
+  PROJECT_PJM: 'PjM (旧担当者)',
+  PROJECT_REL: 'Project',
+  
+  // Issue関連
+  ISSUE_TITLE: '名前',
+  ISSUE_CATEGORY: '大分類',
+  ISSUE_STATUS: 'ステータス'
+};
+
+/**
+ * Slack API関連の定数
+ */
+const SLACK_API = {
+  BASE_URL: 'https://slack.com/api',
+  CHANNELS_JOIN: '/conversations.join',
+  CHAT_POST_MESSAGE: '/chat.postMessage',
+  RETRY_ATTEMPTS: 3,
+  RETRY_DELAY_MS: 1000
+};
 
 // アプリケーション定数
 const CONSTANTS = {
@@ -36,7 +59,11 @@ const CONSTANTS = {
   STATUS: {
     COMPLETED: '完了',
     CANCELLED: 'キャンセル',
-    BACKLOG: 'バックログ'
+    BACKLOG: 'バックログ',
+    EXECUTION_COMPLETED: '実行完了'
+  },
+  ISSUE_STATUS: {
+    CANCELLED: 'キャンセル'
   }
 };
 
@@ -68,7 +95,7 @@ const PRODUCT_MAPPING = {
 };
 
 const PROJECT_MAPPING = {
-  'Sakura': { channelId: '', mentionUserId: 'U05HPC0BL3V', notionId: '24e7d6b7-b8c6-801e-a9a3-caf1963d09ad' },
+  'Sakura': { channelId: 'C097XNLSBM0', mentionUserId: 'U05HPC0BL3V', notionId: '24e7d6b7-b8c6-801e-a9a3-caf1963d09ad' },
   'Mukuge Phase 1': { channelId: 'C097UBAK886', mentionUserId: 'U9ZFLRRG9', notionId: '23e7d6b7-b8c6-8077-8c70-fdafbdda9aa3' },
   'HIROMITSU KITAYAMA LIVE TOUR 2025「波紋-HAMON-」': { channelId: 'C08Q0V8UKMH', mentionUserId: 'U9ZFLRRG9', notionId: '1d87d6b7-b8c6-8036-9fe0-f5ed597229bb' },
   'BE:FIRST 2nd Fan Meeting -Hello My "BESTY" vol.2-': { channelId: 'C08NGHKS1B4', mentionUserId: 'U9ZFLRRG9', notionId: '1b37d6b7-b8c6-8053-a197-d9ac8b71ffcf' },
@@ -77,6 +104,7 @@ const PROJECT_MAPPING = {
   'UpfrontID連携': { channelId: 'C09FG28S9A4', mentionUserId: 'U04HB81EUTS', notionId: '9920cadd-2423-4505-bffd-732c728acc2b' },
   '東京ドーム': { channelId: 'C03MHJR5RSR', mentionUserId: 'U04HB81EUTS', notionId: '18d3ac08-8d5e-407a-8074-0b9f5efc1e9b' }
 };
+
 
 /**
  * 設定値の検証
@@ -162,128 +190,380 @@ function getSlackUserIdByNotionId(notionUserId) {
 /**
  * JST時間正規化のユーティリティ関数
  */
-function getJSTDateString(date = new Date()) {
-  // JST時間で日付を取得（Asia/Tokyoタイムゾーンを使用）
-  const jstDate = new Date(date.toLocaleString("en-US", {timeZone: "Asia/Tokyo"}));
-  return jstDate.toISOString().split('T')[0];
+/**
+ * JST時刻処理の改善版
+ */
+function getJSTDate(date = new Date()) {
+  // Utilities.formatDateを使用してJST時刻を取得
+  return Utilities.formatDate(date, 'Asia/Tokyo', 'yyyy-MM-dd');
+}
+
+function getJSTToday() {
+  return getJSTDate();
 }
 
 function getJSTYesterday() {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  return getJSTDateString(yesterday);
+  return getJSTDate(yesterday);
 }
 
-function getJSTToday() {
-  return getJSTDateString();
+/**
+ * JST日付文字列をエポック時間に変換
+ */
+function toJstEpoch(dateStr) {
+  if (!dateStr) return Number.POSITIVE_INFINITY;
+  
+  // 日時形式の場合は日付部分のみを抽出
+  let dateOnly = dateStr;
+  if (dateStr.includes('T')) {
+    dateOnly = dateStr.split('T')[0];
+  }
+  
+  // 日付の妥当性をチェック
+  const testDate = new Date(dateOnly + 'T00:00:00+09:00');
+  if (isNaN(testDate.getTime())) {
+    console.warn(`無効な日付形式: ${dateStr}`);
+    return Number.POSITIVE_INFINITY;
+  }
+  
+  return new Date(dateOnly + 'T00:00:00+09:00').getTime();
 }
 
 /**
  * 日付を相対表記に変換
  */
 function formatRelativeDate(dateString) {
-  // JST時間で今日の日付を取得
-  const today = new Date();
-  const jstToday = new Date(today.toLocaleString("en-US", {timeZone: "Asia/Tokyo"}));
-  const jstTodayString = jstToday.toISOString().split('T')[0];
+  if (!dateString) return '期限なし';
   
-  const targetDate = new Date(dateString);
-  const jstTargetDate = new Date(targetDate.toLocaleString("en-US", {timeZone: "Asia/Tokyo"}));
-  const jstTargetDateString = jstTargetDate.toISOString().split('T')[0];
-  
-  // 日付文字列で比較
-  const diffTime = new Date(jstTargetDateString).getTime() - new Date(jstTodayString).getTime();
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-  const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-  const weekday = weekdays[jstTargetDate.getDay()];
-  const month = jstTargetDate.getMonth() + 1;
-  const day = jstTargetDate.getDate();
-  
-  if (diffDays === 0) {
-    return `今日(${month}/${day}${weekday})`;
-  } else if (diffDays === 1) {
-    return `明日(${month}/${day}${weekday})`;
-  } else if (diffDays === -1) {
-    return `昨日(${month}/${day}${weekday})`;
-  } else if (diffDays > 0) {
-    return `${month}/${day}(${weekday})`;
-  } else {
-    const overdueDays = Math.abs(diffDays);
-    return `${month}/${day}(${weekday}) ／ +${overdueDays}日超過`;
+  // 日時形式の場合は日付部分のみを抽出
+  let dateOnly = dateString;
+  if (dateString.includes('T')) {
+    dateOnly = dateString.split('T')[0];
   }
+  
+  // 日付の妥当性をチェック
+  const testDate = new Date(dateOnly + 'T00:00:00+09:00');
+  if (isNaN(testDate.getTime())) {
+    console.warn(`無効な日付形式: ${dateString}`);
+    return '期限なし';
+  }
+  
+  const todayStr = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd');
+  const toMs = s => new Date(s + 'T00:00:00+09:00').getTime();
+  const diffDays = Math.round((toMs(dateOnly) - toMs(todayStr)) / (1000 * 60 * 60 * 24));
+  const d = new Date(dateOnly + 'T00:00:00+09:00');
+  const weekdays = ['日','月','火','水','木','金','土'];
+  const label = `${d.getMonth()+1}/${d.getDate()}(${weekdays[d.getDay()]})`;
+  
+  if (diffDays === 0) return `今日(${label})`;
+  if (diffDays === 1) return `明日(${label})`;
+  if (diffDays > 0) return label;
+  return `${label} ／ +${Math.abs(diffDays)}日超過`;
 }
 
+
 /**
- * Project DBから対象プロジェクトを取得
+ * 日本の祝日を取得（Google Calendar API使用）
  */
-function getTargetProjects() {
+function getJapaneseHolidays(year) {
+  const calendarId = 'ja.japanese#holiday@group.v.calendar.google.com';
+  const startDate = new Date(year, 0, 1);
+  const endDate = new Date(year, 11, 31);
+  
   try {
-    console.log('対象プロジェクト取得開始');
+    const events = CalendarApp.getCalendarById(calendarId)
+      .getEvents(startDate, endDate);
     
-    const response = UrlFetchApp.fetch(`https://api.notion.com/v1/databases/${CONFIG.NOTION_PROJECT_DB_ID}/query`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${CONFIG.NOTION_API_TOKEN}`,
-        'Content-Type': 'application/json',
-        'Notion-Version': CONSTANTS.NOTION.API_VERSION
-      },
-      payload: JSON.stringify({
-        page_size: CONSTANTS.NOTION.PAGE_SIZE
-      })
+    const holidays = [];
+    events.forEach(event => {
+      const eventDate = event.getStartTime();
+      const dateStr = Utilities.formatDate(eventDate, 'Asia/Tokyo', 'yyyy-MM-dd');
+      holidays.push(dateStr);
     });
     
-    if (!response.getResponseCode().toString().startsWith('2')) {
-      throw new Error(`Project DB取得エラー: ${response.getResponseCode()} ${response.getContentText()}`);
-    }
-    
-    const data = JSON.parse(response.getContentText());
-    const allProjects = data.results.map(page => ({
-      id: page.id,
-      name: page.properties['名前']?.title?.[0]?.text?.content || '名前なし',
-      pjm: page.properties['PjM']?.people?.[0]?.name || 'PjM未設定'
-    }));
-    
-    console.log(`取得した全プロジェクト数: ${allProjects.length}`);
-    
-    // product_project_mapping.mdに記載されているプロジェクトのみを対象
-    const targetProjectNames = [
-      'Sakura',
-      'Mukuge Phase 1',
-      'HIROMITSU KITAYAMA LIVE TOUR 2025「波紋-HAMON-」',
-      'BE:FIRST 2nd Fan Meeting -Hello My "BESTY" vol.2-',
-      'Animate Girls Festival 2025 karaku/MA連携',
-      'MLS保守',
-      'UpfrontID連携',
-      '東京ドーム'
-    ];
-    
-    const targetProjects = allProjects.filter(project => 
-      targetProjectNames.includes(project.name)
-    );
-    
-    console.log(`フィルタリング後のプロジェクト数: ${targetProjects.length}`);
-    console.log('取得したプロジェクト:', targetProjects);
-    
-    return targetProjects;
-    
+    console.log(`${year}年の祝日数: ${holidays.length}件`);
+    return holidays;
   } catch (error) {
-    console.error('Project DB取得エラー:', error);
-    throw error;
+    console.warn('祝日取得エラー（固定祝日を使用）:', error);
+    return getFixedHolidays(year);
   }
 }
 
 /**
- * Product DBからプロダクト開発関連のプロダクトを取得
+ * 固定祝日（Google Calendar APIが使用できない場合のフォールバック）
+ * 年によって日付が変わる祝日も含む
  */
-function getProductDevelopmentProducts() {
-  const url = `https://api.notion.com/v1/databases/${CONFIG.NOTION_PRODUCT_DB_ID}/query`;
+function getFixedHolidays(year) {
+  const holidays = [
+    `${year}-01-01`, // 元日
+    `${year}-02-11`, // 建国記念の日
+    `${year}-02-23`, // 天皇誕生日
+    `${year}-04-29`, // 昭和の日
+    `${year}-05-03`, // 憲法記念日
+    `${year}-05-04`, // みどりの日
+    `${year}-05-05`, // こどもの日
+    `${year}-11-03`, // 文化の日
+    `${year}-11-23`  // 勤労感謝の日
+  ];
   
-  const payload = {
-    page_size: CONSTANTS.NOTION.PAGE_SIZE
+  // 年によって日付が変わる祝日を計算
+  holidays.push(...getVariableHolidays(year));
+  
+  return holidays;
+}
+
+/**
+ * 年によって日付が変わる祝日を計算
+ */
+function getVariableHolidays(year) {
+  const holidays = [];
+  
+  // 成人の日（1月第2月曜日）
+  holidays.push(getSecondMonday(year, 1));
+  
+  // 海の日（7月第3月曜日）
+  holidays.push(getThirdMonday(year, 7));
+  
+  // 山の日（8月11日、2020年から）
+  if (year >= 2020) {
+    holidays.push(`${year}-08-11`);
+  }
+  
+  // 敬老の日（9月第3月曜日）
+  holidays.push(getThirdMonday(year, 9));
+  
+  // スポーツの日（10月第2月曜日、2020年から）
+  if (year >= 2020) {
+    holidays.push(getSecondMonday(year, 10));
+  }
+  
+  // 春分の日（天文学的に計算）
+  holidays.push(getSpringEquinox(year));
+  
+  // 秋分の日（天文学的に計算）
+  holidays.push(getAutumnEquinox(year));
+  
+  // 振替休日を計算
+  holidays.push(...getSubstituteHolidays(year, holidays));
+  
+  return holidays;
+}
+
+/**
+ * 指定月の第N月曜日を取得
+ */
+function getNthMonday(year, month, nth) {
+  const firstDay = new Date(year, month - 1, 1);
+  const firstMonday = 1 + (8 - firstDay.getDay()) % 7;
+  const targetDate = firstMonday + (nth - 1) * 7;
+  return `${year}-${month.toString().padStart(2, '0')}-${targetDate.toString().padStart(2, '0')}`;
+}
+
+function getSecondMonday(year, month) {
+  return getNthMonday(year, month, 2);
+}
+
+function getThirdMonday(year, month) {
+  return getNthMonday(year, month, 3);
+}
+
+/**
+ * 春分の日を計算（簡易版）
+ */
+function getSpringEquinox(year) {
+  // 簡易計算式（実際の天文学計算ではない）
+  const baseYear = 2000;
+  const baseDate = 20.69; // 2000年の春分日
+  const leapYearOffset = Math.floor((year - baseYear) / 4) * 0.2422;
+  const day = Math.floor(baseDate + leapYearOffset);
+  return `${year}-03-${day.toString().padStart(2, '0')}`;
+}
+
+/**
+ * 秋分の日を計算（簡易版）
+ */
+function getAutumnEquinox(year) {
+  // 簡易計算式（実際の天文学計算ではない）
+  const baseYear = 2000;
+  const baseDate = 23.26; // 2000年の秋分日
+  const leapYearOffset = Math.floor((year - baseYear) / 4) * 0.2422;
+  const day = Math.floor(baseDate + leapYearOffset);
+  return `${year}-09-${day.toString().padStart(2, '0')}`;
+}
+
+/**
+ * 振替休日を計算
+ */
+function getSubstituteHolidays(year, holidays) {
+  const substituteHolidays = [];
+  
+  holidays.forEach(holiday => {
+    const date = new Date(holiday + 'T00:00:00+09:00');
+    const dayOfWeek = date.getDay();
+    
+    // 日曜日の場合は翌日が振替休日
+    if (dayOfWeek === 0) {
+      const nextDay = new Date(date);
+      nextDay.setDate(nextDay.getDate() + 1);
+      const nextDayStr = Utilities.formatDate(nextDay, 'Asia/Tokyo', 'yyyy-MM-dd');
+      
+      // 翌日が既に祝日でない場合のみ追加
+      if (!holidays.includes(nextDayStr)) {
+        substituteHolidays.push(nextDayStr);
+      }
+    }
+  });
+  
+  return substituteHolidays;
+}
+
+/**
+ * 通知しない日かどうかを判定
+ */
+function shouldSkipNotification() {
+  const today = new Date();
+  const todayStr = Utilities.formatDate(today, 'Asia/Tokyo', 'yyyy-MM-dd');
+  const year = today.getFullYear();
+  
+  // 土日判定
+  const dayOfWeek = today.getDay();
+  if (dayOfWeek === 0 || dayOfWeek === 6) {
+    console.log(`今日は${dayOfWeek === 0 ? '日曜日' : '土曜日'}のため通知をスキップします`);
+    return true;
+  }
+  
+  // 年末年始判定（12/30-1/3）
+  const month = today.getMonth() + 1;
+  const day = today.getDate();
+  
+  if ((month === 12 && day >= 30) || (month === 1 && day <= 3)) {
+    console.log(`年末年始期間（12/30-1/3）のため通知をスキップします`);
+    return true;
+  }
+  
+  // 祝日判定
+  const holidays = getJapaneseHolidays(year);
+  if (holidays.includes(todayStr)) {
+    console.log(`今日は祝日のため通知をスキップします: ${todayStr}`);
+    return true;
+  }
+  
+  // 二重送信防止
+  const lastNotifyKey = `LAST_NOTIFY_${todayStr.replace(/-/g, '')}`;
+  const lastNotifyDate = PropertiesService.getScriptProperties().getProperty(lastNotifyKey);
+  
+  if (lastNotifyDate === todayStr) {
+    console.log(`今日は既に通知済みのためスキップします: ${todayStr}`);
+    return true;
+  }
+  
+  return false;
+}
+
+/**
+ * 通知実行日を記録
+ */
+function markNotificationExecuted() {
+  const today = new Date();
+  const todayStr = Utilities.formatDate(today, 'Asia/Tokyo', 'yyyy-MM-dd');
+  const lastNotifyKey = `LAST_NOTIFY_${todayStr.replace(/-/g, '')}`;
+  
+  PropertiesService.getScriptProperties().setProperty(lastNotifyKey, todayStr);
+  console.log(`通知実行日を記録しました: ${todayStr}`);
+}
+function getTargetProjects() {
+  console.log('プロジェクトマッピングから対象プロジェクトを取得');
+  
+  const projects = Object.keys(PROJECT_MAPPING).map(projectName => {
+    const mapping = PROJECT_MAPPING[projectName];
+    return {
+      id: mapping.notionId,
+      name: projectName,
+      pjm: getPjmNameBySlackId(mapping.mentionUserId),
+      channelId: mapping.channelId,
+      mentionUserId: mapping.mentionUserId
+    };
+  });
+  
+  console.log(`対象プロジェクト数: ${projects.length}`);
+  console.log('対象プロジェクト:', projects.map(p => `${p.name} (${p.pjm})`));
+  
+  return projects;
+}
+
+/**
+ * SlackユーザーIDからPjM名を取得（簡易版）
+ */
+function getPjmNameBySlackId(slackUserId) {
+  // SlackユーザーID → 名前のマッピング（必要に応じて拡張）
+  const slackIdToName = {
+    'U05HPC0BL3V': '花輪 真輝',
+    'U9ZFLRRG9': '鈴木 遼',
+    'U04HB81EUTS': '井口 新一郎'
   };
   
-  const options = {
+  return slackIdToName[slackUserId] || 'PjM未設定';
+}
+
+/**
+ * マッピングからプロダクト開発関連のプロダクトを取得（最適化版）
+ */
+function getProductDevelopmentProducts() {
+  console.log('プロダクトマッピングから対象プロダクトを取得');
+  
+  const products = Object.keys(PRODUCT_MAPPING).map(productName => {
+    const mapping = PRODUCT_MAPPING[productName];
+    return {
+      id: mapping.notionId,
+      name: productName,
+      scrumMaster: getScrumMasterNameBySlackId(mapping.mentionUserId),
+      channelId: mapping.channelId,
+      mentionUserId: mapping.mentionUserId
+    };
+  });
+  
+  console.log(`対象プロダクト数: ${products.length}`);
+  console.log('対象プロダクト:', products.map(p => `${p.name} (${p.scrumMaster})`));
+  
+  return products;
+}
+
+/**
+ * SlackユーザーIDからスクラムマスター名を取得（簡易版）
+ */
+function getScrumMasterNameBySlackId(slackUserId) {
+  // SlackユーザーID → 名前のマッピング（必要に応じて拡張）
+  const slackIdToName = {
+    'U08TLQTUJ21': '居原田 崇史',
+    'U048M5NP6M6': '渡部 愛菜',
+    'U05HPC0BL3V': '花輪 真輝',
+    'U04HB81EUTS': '井口 新一郎'
+  };
+  
+  return slackIdToName[slackUserId] || 'スクラムマスター未設定';
+}
+
+/**
+ * Notion DBクエリをページネーション対応で実行
+ */
+function notionQueryAll(databaseId, filter = {}) {
+  const allResults = [];
+  let hasMore = true;
+  let startCursor = null;
+  
+  while (hasMore) {
+  const payload = {
+      page_size: CONSTANTS.NOTION.PAGE_SIZE,
+      ...filter
+    };
+    
+    if (startCursor) {
+      payload.start_cursor = startCursor;
+    }
+    
+    try {
+      const response = UrlFetchApp.fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${CONFIG.NOTION_API_TOKEN}`,
@@ -291,65 +571,46 @@ function getProductDevelopmentProducts() {
       'Notion-Version': CONSTANTS.NOTION.API_VERSION
     },
     payload: JSON.stringify(payload)
-  };
-  
-  try {
-    const response = UrlFetchApp.fetch(url, options);
+      });
+      
+      const statusCode = response.getResponseCode();
+      if (!statusCode.toString().startsWith('2')) {
+        console.error(`Notion DBクエリエラー: ${statusCode} - ${response.getContentText()}`);
+        throw new Error(`Notion API エラー: ${statusCode}`);
+      }
+      
     const data = JSON.parse(response.getContentText());
-    
-    console.log(`取得した全プロダクト数: ${data.results.length}`);
-    
-    // product_scrum_master_mapping.mdに記載されている13プロダクトのみを対象
-    const targetProductNames = [
-      'Sakuden',
-      'Eitoku(MOALA認証)',
-      'Tanyu(MOALA認証+ )',
-      'Zeami (BioQR)',
-      'Hokushin(MLS)',
-      'Karaku',
-      'Karaku Web',
-      'Karaku Admin',
-      'Juko (MA)',
-      'Duchamp(MP)',
-      'Pollock(MP2)',
-      'Rick (MS)',
-      '抽選プロダクト'
-    ];
-    
-    const productDevelopmentProducts = data.results
-      .map(page => ({
-        id: page.id,
-        name: page.properties.名前?.title?.[0]?.text?.content || '名前なし',
-        scrumMaster: page.properties.スクラムマスター?.people?.[0]?.name || 'スクラムマスター未設定',
-        tags: page.properties.タグ?.multi_select?.map(tag => tag.name) || []
-      }))
-      .filter(product => targetProductNames.includes(product.name));
-    
-    console.log(`フィルタリング後のプロダクト数: ${productDevelopmentProducts.length}`);
-    
-    return productDevelopmentProducts;
+      allResults.push(...data.results);
+      
+      hasMore = data.has_more;
+      startCursor = data.next_cursor;
+      
+      // レート制限対策
+      if (hasMore) {
+        Utilities.sleep(100);
+      }
+      
   } catch (error) {
-    console.error('Product DB取得エラー:', error);
+      console.error('Notion DBクエリエラー:', error);
     throw error;
   }
+  }
+  
+  console.log(`Notion DBクエリ完了: ${allResults.length}件取得`);
+  return allResults;
 }
 
 /**
- * Task DBから期限切れ・今日期限の未完了タスクを取得（統合版）
+ * Task DBから期限切れ・今日期限の未完了タスクを取得（統合版・ページネーション対応）
  */
 function getExpiredAndTodayTasks(entityId, entityType = 'product') {
-  const url = `https://api.notion.com/v1/databases/${CONFIG.NOTION_TASK_DB_ID}/query`;
-  
-  const yesterday = getJSTYesterday();
   const today = getJSTToday();
   
   // プロパティ名を動的に決定
-  const relationProperty = entityType === 'product' ? 'Product' : 'Project';
+  const relationProperty = entityType === 'product' ? NOTION_PROP.PRODUCT_REL : NOTION_PROP.PROJECT_REL;
   
-  // 期限切れタスクのフィルタ（今日より前の期限）
-  const overdueFilter = {
-    filter: {
-      and: [
+  // 基本フィルタ条件
+  const baseAnd = [
         {
           property: relationProperty,
           rollup: {
@@ -358,86 +619,79 @@ function getExpiredAndTodayTasks(entityId, entityType = 'product') {
             }
           }
         },
-        { property: "Taskステータス", status: { does_not_equal: CONSTANTS.STATUS.COMPLETED } },
-        { property: "Taskステータス", status: { does_not_equal: CONSTANTS.STATUS.CANCELLED } },
-        { property: "Taskステータス", status: { does_not_equal: CONSTANTS.STATUS.BACKLOG } },
-        { property: "Task期限", date: { before: today } }
-      ]
-    },
-    page_size: CONSTANTS.NOTION.PAGE_SIZE
+    { property: NOTION_PROP.TASK_STATUS, status: { does_not_equal: CONSTANTS.STATUS.COMPLETED } },
+    { property: NOTION_PROP.TASK_STATUS, status: { does_not_equal: CONSTANTS.STATUS.CANCELLED } },
+    { property: NOTION_PROP.TASK_STATUS, status: { does_not_equal: CONSTANTS.STATUS.BACKLOG } },
+    { property: NOTION_PROP.TASK_STATUS, status: { does_not_equal: CONSTANTS.STATUS.EXECUTION_COMPLETED } }
+  ];
+  
+  // プロダクトカテゴリフィルタ（プロダクトの場合のみ）
+  const productCategoryAnd = (entityType === 'product')
+    ? [{ property: NOTION_PROP.TASK_ISSUE_CATEGORY, rollup: { any: { select: { equals: CONSTANTS.NOTION.PRODUCT_CATEGORY } } } }]
+    : [];
+  
+  // 期限切れタスクのフィルタ（今日より前の期限）
+  const overdueFilter = { 
+    filter: { 
+      and: [...baseAnd, ...productCategoryAnd, { property: NOTION_PROP.TASK_DUE_DATE, date: { before: today } }] 
+    } 
   };
   
   // 今日期限タスクのフィルタ（今日が期限）
   const todayFilter = {
     filter: {
-      and: [
-        {
-          property: relationProperty,
-          rollup: {
-            any: {
-              relation: { contains: entityId }
-            }
-          }
-        },
-        { property: "Taskステータス", status: { does_not_equal: CONSTANTS.STATUS.COMPLETED } },
-        { property: "Taskステータス", status: { does_not_equal: CONSTANTS.STATUS.CANCELLED } },
-        { property: "Taskステータス", status: { does_not_equal: CONSTANTS.STATUS.BACKLOG } },
-        { property: "Task期限", date: { equals: today } }
-      ]
-    },
-    page_size: CONSTANTS.NOTION.PAGE_SIZE
-  };
-  
-  const options = {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${CONFIG.NOTION_API_TOKEN}`,
-      'Content-Type': 'application/json',
-      'Notion-Version': CONSTANTS.NOTION.API_VERSION
+      and: [...baseAnd, ...productCategoryAnd, { property: NOTION_PROP.TASK_DUE_DATE, date: { equals: today } }] 
     }
   };
   
   try {
-    // 期限切れタスクを取得
-    options.payload = JSON.stringify(overdueFilter);
-    const overdueResponse = UrlFetchApp.fetch(url, options);
-    const overdueData = JSON.parse(overdueResponse.getContentText());
+    // 期限切れタスクを取得（ページネーション対応）
+    const overduePages = notionQueryAll(CONFIG.NOTION_TASK_DB_ID, overdueFilter);
+    const overdueTasks = overduePages.map(page => parseTask(page)).filter(task => task !== null);
     
-    // 今日期限タスクを取得
-    options.payload = JSON.stringify(todayFilter);
-    const todayResponse = UrlFetchApp.fetch(url, options);
-    const todayData = JSON.parse(todayResponse.getContentText());
+    // 今日期限タスクを取得（ページネーション対応）
+    const todayPages = notionQueryAll(CONFIG.NOTION_TASK_DB_ID, todayFilter);
+    const todayTasks = todayPages.map(page => parseTask(page)).filter(task => task !== null);
     
-    const overdueTasks = overdueData.results.map(parseTask);
-    const todayTasks = todayData.results.map(parseTask);
-    
-    // プロダクトの場合はIssue大分類フィルタリングを適用
-    if (entityType === 'product') {
-      const filteredOverdueTasks = overdueTasks.filter(task => task.issueCategory === CONSTANTS.NOTION.PRODUCT_CATEGORY);
-      const filteredTodayTasks = todayTasks.filter(task => task.issueCategory === CONSTANTS.NOTION.PRODUCT_CATEGORY);
-      
-      return {
-        overdue: filteredOverdueTasks,
-        today: filteredTodayTasks
-      };
-    }
-    
-    // プロジェクトの場合はフィルタリングなし
     return {
       overdue: overdueTasks,
       today: todayTasks
     };
+    
   } catch (error) {
-    console.error('Task DB取得エラー:', error);
+    console.error('タスク取得エラー:', error);
     throw error;
   }
 }
 
 /**
- * Issueページのタイトルを取得
+ * Issueタイトルキャッシュを作成
  */
-function getIssueTitle(issueId) {
-  if (!issueId) return 'Issue情報なし';
+function createIssueTitleCache() {
+  const cache = new Map();
+  
+  return {
+    get: (issueId) => cache.get(issueId),
+    set: (issueId, title) => cache.set(issueId, title),
+    has: (issueId) => cache.has(issueId),
+    clear: () => cache.clear()
+  };
+}
+
+// グローバルキャッシュインスタンス
+const issueTitleCache = createIssueTitleCache();
+
+/**
+ * Issueページのタイトルとステータスを取得（キャッシュ対応）
+ */
+function getIssueInfo(issueId) {
+  if (!issueId) return { title: 'Issue情報なし', status: '' };
+  
+  // キャッシュから取得を試行
+  const cacheKey = `issue_${issueId}`;
+  if (issueTitleCache.has(cacheKey)) {
+    return issueTitleCache.get(cacheKey);
+  }
   
   try {
     const response = UrlFetchApp.fetch(`https://api.notion.com/v1/pages/${issueId}`, {
@@ -449,18 +703,28 @@ function getIssueTitle(issueId) {
       }
     });
     
-    if (response.getResponseCode().toString().startsWith('2')) {
+    const statusCode = response.getResponseCode();
+    if (statusCode.toString().startsWith('2')) {
       const data = JSON.parse(response.getContentText());
-      const title = data.properties?.名前?.title?.[0]?.text?.content || 
+      const title = data.properties?.[NOTION_PROP.ISSUE_TITLE]?.title?.[0]?.text?.content || 
                    data.properties?.タイトル?.title?.[0]?.text?.content ||
                    `Issue-${issueId.slice(-8)}`;
-      return title;
+      const status = data.properties?.[NOTION_PROP.ISSUE_STATUS]?.status?.name || '';
+      
+      const issueInfo = { title, status };
+      // キャッシュに保存
+      issueTitleCache.set(cacheKey, issueInfo);
+      return issueInfo;
+    } else {
+      console.warn(`Issue ${issueId} の情報取得エラー: ${statusCode} - ${response.getContentText()}`);
     }
   } catch (error) {
     console.error(`Issue ${issueId} の取得エラー:`, error);
   }
   
-  return `Issue-${issueId.slice(-8)}`;
+  const fallbackInfo = { title: `Issue-${issueId.slice(-8)}`, status: '' };
+  issueTitleCache.set(cacheKey, fallbackInfo);
+  return fallbackInfo;
 }
 
 /**
@@ -469,7 +733,7 @@ function getIssueTitle(issueId) {
 function parseTask(page) {
   // タスク名を取得（日付メンションに対応）
   let title = 'タイトルなし';
-  const nameProperty = page.properties.名前;
+  const nameProperty = page.properties[NOTION_PROP.TASK_NAME];
   
   if (nameProperty?.title && Array.isArray(nameProperty.title)) {
     // タイトル配列の全要素を結合
@@ -490,18 +754,23 @@ function parseTask(page) {
     }).join('');
   }
   
-  const status = page.properties['Taskステータス']?.status?.name || 'ステータスなし';
-  const dueDate = page.properties['Task期限']?.date?.start || '期限なし';
-  const assignee = page.properties['担当者']?.people?.[0]?.name || '担当者なし';
-  const assigneeId = page.properties['担当者']?.people?.[0]?.id || null;
+  const status = page.properties[NOTION_PROP.TASK_STATUS]?.status?.name || 'ステータスなし';
+  const dueDate = page.properties[NOTION_PROP.TASK_DUE_DATE]?.date?.start || '';
+  const assignee = page.properties[NOTION_PROP.TASK_ASSIGNEE]?.people?.[0]?.name || '担当者なし';
+  const assigneeId = page.properties[NOTION_PROP.TASK_ASSIGNEE]?.people?.[0]?.id || null;
   
   // Issue情報を取得（relationプロパティから）
-  const issueRelation = page.properties['Issue']?.relation || [];
+  const issueRelation = page.properties[NOTION_PROP.TASK_ISSUE]?.relation || [];
   const issueId = issueRelation.length > 0 ? issueRelation[0].id : null;
-  const issueTitle = getIssueTitle(issueId);
+  const issueInfo = getIssueInfo(issueId);
+  
+  // キャンセルされたIssueの場合はnullを返して除外
+  if (issueInfo.status === CONSTANTS.ISSUE_STATUS.CANCELLED) {
+    return null;
+  }
   
   // Issue大分類を取得（rollupプロパティから）
-  const issueCategory = page.properties['Issue大分類']?.rollup?.array?.[0]?.select?.name || '分類なし';
+  const issueCategory = page.properties[NOTION_PROP.TASK_ISSUE_CATEGORY]?.rollup?.array?.[0]?.select?.name || '分類なし';
   
   // Notionリンクを生成（正しいURL形式）
   const notionLink = `https://www.notion.so/${page.id.replace(/-/g, '')}`;
@@ -514,7 +783,8 @@ function parseTask(page) {
     assignee: assignee,
     assigneeId: assigneeId,
     notionLink: notionLink,
-    issueTitle: issueTitle,
+    issueTitle: issueInfo.title,
+    issueStatus: issueInfo.status,
     issueId: issueId,
     issueCategory: issueCategory
   };
@@ -529,10 +799,12 @@ function groupTasksByIssue(tasks) {
   tasks.forEach(task => {
     const issueKey = task.issueId || 'no-issue';
     const issueTitle = task.issueTitle || 'Issue情報なし';
+    const issueStatus = task.issueStatus || '';
     
     if (!grouped[issueKey]) {
       grouped[issueKey] = {
         issueTitle: issueTitle,
+        issueStatus: issueStatus,
         tasks: []
       };
     }
@@ -541,6 +813,115 @@ function groupTasksByIssue(tasks) {
   });
   
   return grouped;
+}
+
+/**
+ * テスト用Slack通知を送信（テスト用チャンネルに送信）
+ */
+function sendTestSlackNotification(entityName, tasks, managerName, entityType = 'product') {
+  const mapping = entityType === 'product' ? PRODUCT_MAPPING[entityName] : PROJECT_MAPPING[entityName];
+  const testChannelId = 'C09ARFHBLBX'; // テスト用チャンネル
+  
+  console.log(`テスト通知: ${entityName} → テストチャンネル (${testChannelId})`);
+  console.log(`本番通知先: ${mapping?.channelId || '未設定'}`);
+  
+  const blocks = createSlackBlocks(entityName, tasks, managerName, entityType);
+  const text = `[テスト] ${entityName} のタスク通知`;
+  
+  const success = postSlackMessage(testChannelId, blocks, text);
+  if (!success) {
+    console.error(`[テスト] ${entityName} への通知送信が失敗しました`);
+  }
+}
+
+/**
+ * Slackメッセージを投稿（リトライ機能付き）
+ */
+function postSlackMessage(channelId, blocks, text) {
+  const url = `${SLACK_API.BASE_URL}${SLACK_API.CHAT_POST_MESSAGE}`;
+  const payload = {
+    channel: channelId,
+    blocks: blocks,
+    text: text
+  };
+  
+  const options = {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${CONFIG.SLACK_BOT_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    payload: JSON.stringify(payload)
+  };
+  
+  for (let attempt = 1; attempt <= SLACK_API.RETRY_ATTEMPTS; attempt++) {
+  try {
+    const response = UrlFetchApp.fetch(url, options);
+      const statusCode = response.getResponseCode();
+    const data = JSON.parse(response.getContentText());
+    
+    if (data.ok) {
+        console.log(`Slack通知送信成功 (試行${attempt}回目)`);
+        return true;
+    } else {
+        console.warn(`Slack通知送信失敗 (試行${attempt}回目): ${statusCode} - ${data.error}`);
+        
+        if (data.error === 'not_in_channel' && attempt < SLACK_API.RETRY_ATTEMPTS) {
+          console.log('チャンネルに参加してからリトライします...');
+          joinChannel(channelId);
+          Utilities.sleep(SLACK_API.RETRY_DELAY_MS);
+          continue;
+        }
+        
+        if (attempt === SLACK_API.RETRY_ATTEMPTS) {
+          console.error('Slack通知送信が最終的に失敗しました');
+          return false;
+      }
+    }
+  } catch (error) {
+      console.error(`Slack通知送信エラー (試行${attempt}回目):`, error);
+      if (attempt === SLACK_API.RETRY_ATTEMPTS) {
+        return false;
+      }
+      Utilities.sleep(SLACK_API.RETRY_DELAY_MS);
+    }
+  }
+  
+  return false;
+}
+
+/**
+ * Slackチャンネルに参加
+ */
+function joinChannel(channelId) {
+  const url = `${SLACK_API.BASE_URL}${SLACK_API.CHANNELS_JOIN}`;
+  const payload = { channel: channelId };
+  
+  const options = {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${CONFIG.SLACK_BOT_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    payload: JSON.stringify(payload)
+  };
+  
+  try {
+    const response = UrlFetchApp.fetch(url, options);
+    const statusCode = response.getResponseCode();
+    const data = JSON.parse(response.getContentText());
+    
+    if (data.ok) {
+      console.log(`チャンネル ${channelId} への参加成功`);
+      return true;
+      } else {
+      console.warn(`チャンネル ${channelId} への参加失敗: ${statusCode} - ${data.error}`);
+      return false;
+    }
+  } catch (error) {
+    console.error(`チャンネル ${channelId} への参加エラー:`, error);
+    return false;
+  }
 }
 
 /**
@@ -554,85 +935,20 @@ function sendSlackNotification(entityName, tasks, managerName, entityType = 'pro
   }
   
   const blocks = createSlackBlocks(entityName, tasks, managerName, entityType);
+  const text = `${entityName} のタスク通知`;
   
-  const url = CONSTANTS.SLACK.API_URL;
-  const payload = {
-    channel: mapping.channelId,
-    blocks: blocks,
-    text: `${entityName} のタスク通知`
-  };
-  
-  const options = {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${CONFIG.SLACK_BOT_TOKEN}`,
-      'Content-Type': 'application/json'
-    },
-    payload: JSON.stringify(payload)
-  };
-  
-  try {
-    const response = UrlFetchApp.fetch(url, options);
-    const data = JSON.parse(response.getContentText());
-    
-    if (data.ok) {
-      console.log(`${entityName} への通知送信成功`);
-    } else {
-      console.error(`${entityName} への通知送信失敗:`, data.error);
-      
-      if (data.error === 'not_in_channel') {
-        joinChannelAndRetry(mapping.channelId, payload);
-      }
-    }
-  } catch (error) {
-    console.error(`${entityName} への通知送信エラー:`, error);
-  }
+  postSlackMessage(mapping.channelId, blocks, text);
 }
 
 /**
- * チャンネルに参加して再試行
+ * Slackブロックのフッター部分を作成
  */
-function joinChannelAndRetry(channelId, originalPayload) {
-  const joinUrl = CONSTANTS.SLACK.JOIN_URL;
-  const joinPayload = { channel: channelId };
-  
-  const joinOptions = {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${CONFIG.SLACK_BOT_TOKEN}`,
-      'Content-Type': 'application/json'
-    },
-    payload: JSON.stringify(joinPayload)
-  };
-  
-  try {
-    const joinResponse = UrlFetchApp.fetch(joinUrl, joinOptions);
-    const joinData = JSON.parse(joinResponse.getContentText());
-    
-    if (joinData.ok) {
-      const retryOptions = {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${CONFIG.SLACK_BOT_TOKEN}`,
-          'Content-Type': 'application/json'
-        },
-        payload: JSON.stringify(originalPayload)
-      };
-      
-      const retryResponse = UrlFetchApp.fetch('https://slack.com/api/chat.postMessage', retryOptions);
-      const retryData = JSON.parse(retryResponse.getContentText());
-      
-      if (retryData.ok) {
-        console.log('チャンネル参加後の再試行成功');
-      } else {
-        console.error('チャンネル参加後の再試行失敗:', retryData.error);
-      }
-    } else {
-      console.error('チャンネル参加失敗:', joinData.error);
-    }
-  } catch (error) {
-    console.error('チャンネル参加処理エラー:', error);
-  }
+function createFooterBlocks() {
+  const nowStr = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy/MM/dd HH:mm:ss');
+  return [{
+    type: "context",
+    elements: [{ type: "mrkdwn", text: `取得日時: ${nowStr}（JST）` }]
+  }];
 }
 
 /**
@@ -653,7 +969,7 @@ function createHeaderBlocks(entityName, tasks, managerName, entityType) {
       type: "header",
       text: {
         type: "plain_text",
-        text: `🚨 ${entityName} タスク通知`
+        text: `${entityName} タスク通知`
       }
     },
     {
@@ -705,11 +1021,9 @@ function createOverdueTaskBlocks(tasks) {
     }
   }];
   
-  // 期限切れタスクを超過日数でソート
-  const sortedOverdueTasks = tasks.overdue.sort((a, b) => {
-    const dateA = new Date(a.dueDate);
-    const dateB = new Date(b.dueDate);
-    return dateA.getTime() - dateB.getTime(); // 古い順（超過日数が多い順）
+  // 期限切れタスクを超過日数でソート（JST-safe）
+  const sortedOverdueTasks = tasks.overdue.slice().sort((a, b) => {
+    return toJstEpoch(a.dueDate) - toJstEpoch(b.dueDate); // 古い順（超過日数が多い順）
   });
   
   const overdueGrouped = groupTasksByIssue(sortedOverdueTasks);
@@ -721,7 +1035,7 @@ function createOverdueTaskBlocks(tasks) {
       return `• <${task.notionLink}|${task.title}>（${formatRelativeDate(task.dueDate)} ${assigneeMention} ${task.status}）`;
     }).join('\n');
     
-    const text = `*${group.issueTitle}*\n${taskList}`;
+    const text = `*${group.issueTitle}${group.issueStatus ? ` (${group.issueStatus})` : ''}*\n${taskList}`;
     
     blocks.push({
       type: "section",
@@ -766,10 +1080,10 @@ function createTodayTaskBlocks(tasks) {
     const taskList = group.tasks.map(task => {
       const slackUserId = getSlackUserIdByNotionId(task.assigneeId);
       const assigneeMention = slackUserId ? `<@${slackUserId}>` : task.assignee;
-      return `• <${task.notionLink}|${task.title}>（${formatRelativeDate(task.dueDate)} ${assigneeMention} ${task.status}）`;
+      return `• <${task.notionLink}|${task.title}>（${assigneeMention} ${task.status}）`;
     }).join('\n');
     
-    const text = `*${group.issueTitle}*\n${taskList}`;
+    const text = `*${group.issueTitle}${group.issueStatus ? ` (${group.issueStatus})` : ''}*\n${taskList}`;
     
     blocks.push({
       type: "section",
@@ -781,24 +1095,6 @@ function createTodayTaskBlocks(tasks) {
   });
   
   return blocks;
-}
-
-/**
- * フッターブロックを作成
- */
-function createFooterBlocks() {
-  const now = new Date();
-  const timestamp = now.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
-  
-  return [{
-    type: "context",
-    elements: [
-      {
-        type: "mrkdwn",
-        text: `取得日時: ${timestamp}（JST）`
-      }
-    ]
-  }];
 }
 
 /**
@@ -818,37 +1114,38 @@ function createSlackBlocks(entityName, tasks, managerName, entityType = 'product
 // ============================================================================
 
 /**
- * メイン処理関数（プロダクト用）
+ * 統合タスク通知処理
  */
-function runProductTaskNotifier() {
+function runTaskNotifier(entityType) {
   try {
     validateConfig();
-    console.log('プロダクトタスク通知開始');
+    console.log(`${entityType === 'product' ? 'プロダクト' : 'プロジェクト'}タスク通知開始`);
     
-    const products = getProductDevelopmentProducts();
-    console.log(`対象プロダクト数: ${products.length}`);
+    const entities = entityType === 'product' ? getProductDevelopmentProducts() : getTargetProjects();
+    console.log(`対象${entityType === 'product' ? 'プロダクト' : 'プロジェクト'}数: ${entities.length}`);
     
-    for (const product of products) {
-      console.log(`処理中: ${product.name} (SM: ${product.scrumMaster})`);
+    for (const entity of entities) {
+      const managerLabel = entityType === 'product' ? 'SM' : 'PjM';
+      console.log(`処理中: ${entity.name} (${managerLabel}: ${entityType === 'product' ? entity.scrumMaster : entity.pjm})`);
       
       try {
-        const tasks = getExpiredAndTodayTasks(product.id, 'product');
+        const tasks = getExpiredAndTodayTasks(entity.id, entityType);
         
         if (tasks.overdue.length > 0 || tasks.today.length > 0) {
-          console.log(`${product.name}: 期限切れ${tasks.overdue.length}件, 今日期限${tasks.today.length}件`);
-          sendSlackNotification(product.name, tasks, product.scrumMaster, 'product');
+          console.log(`${entity.name}: 期限切れ${tasks.overdue.length}件, 今日期限${tasks.today.length}件`);
+          sendSlackNotification(entity.name, tasks, entityType === 'product' ? entity.scrumMaster : entity.pjm, entityType);
         } else {
-          console.log(`${product.name}: 通知対象タスクなし`);
+          console.log(`${entity.name}: 通知対象タスクなし`);
         }
         
         Utilities.sleep(CONSTANTS.TIME.SLEEP_MS);
         
       } catch (error) {
-        console.error(`${product.name} の処理でエラー:`, error);
+        console.error(`${entity.name} の処理でエラー:`, error);
       }
     }
     
-    console.log('プロダクトタスク通知完了');
+    console.log(`${entityType === 'product' ? 'プロダクト' : 'プロジェクト'}タスク通知完了`);
     
   } catch (error) {
     console.error('メイン処理エラー:', error);
@@ -857,188 +1154,21 @@ function runProductTaskNotifier() {
 }
 
 /**
+ * メイン処理関数（プロダクト用）
+ */
+function runProductTaskNotifier() {
+  runTaskNotifier('product');
+}
+
+/**
  * プロジェクト向けメイン処理関数
  */
 function runProjectTaskNotifier() {
-  try {
-    validateConfig();
-    console.log('プロジェクトタスク通知開始');
-    
-    const projects = getTargetProjects();
-    console.log(`対象プロジェクト数: ${projects.length}`);
-    
-    for (const project of projects) {
-      console.log(`\n--- ${project.name} ---`);
-      console.log(`PjM: ${project.pjm}`);
-      
-      const tasks = getExpiredAndTodayTasks(project.id, 'project');
-      console.log(`期限切れタスク: ${tasks.overdue.length}件`);
-      console.log(`今日期限タスク: ${tasks.today.length}件`);
-      
-      if (tasks.overdue.length > 0 || tasks.today.length > 0) {
-        console.log('Slack通知を送信します...');
-        sendSlackNotification(project.name, tasks, project.pjm, 'project');
-      } else {
-        console.log('通知対象タスクがありません');
-      }
-    }
-    
-    console.log('プロジェクトタスク通知完了');
-  } catch (error) {
-    console.error('プロジェクトタスク通知エラー:', error);
-  }
+  runTaskNotifier('project');
 }
 
-/*
-// Notionワークスペースの全ユーザーIDを取得（不要になったためコメントアウト）
-function getNotionUserIds() {
-  console.log('=== Notion全ユーザーID取得開始 ===');
-  
-  try {
-    validateConfig();
-    
-    const url = 'https://api.notion.com/v1/users';
-    
-    const options = {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${CONFIG.NOTION_API_TOKEN}`,
-        'Content-Type': 'application/json',
-        'Notion-Version': CONSTANTS.NOTION.API_VERSION
-      }
-    };
-    
-    const response = UrlFetchApp.fetch(url, options);
-    
-    if (!response.getResponseCode().toString().startsWith('2')) {
-      throw new Error(`Notion Users API エラー: ${response.getResponseCode()} ${response.getContentText()}`);
-    }
-    
-    const data = JSON.parse(response.getContentText());
-    
-    console.log(`取得したユーザー数: ${data.results.length}`);
-    
-    // ユーザーID情報を整理
-    const users = data.results.map(user => ({
-      notionUserId: user.id,
-      name: user.name || '名前なし',
-      email: user.person?.email || user.bot?.owner?.user?.person?.email || 'メールなし',
-      type: user.type, // 'person' または 'bot'
-      avatar_url: user.avatar_url || null
-    }));
-    
-    console.log(`\n=== Notion全ユーザーID一覧 (${users.length}名) ===`);
-    users.forEach(user => {
-      console.log(`ID: ${user.notionUserId}`);
-      console.log(`名前: ${user.name} (${user.type})`);
-      if (user.email !== 'メールなし') {
-        console.log(`メール: ${user.email}`);
-      }
-      console.log('---');
-    });
-    
-    console.log('\n=== Notion全ユーザーID取得完了 ===');
-    return users;
-    
-  } catch (error) {
-    console.error('NotionユーザーID取得エラー:', error);
-    throw error;
-  }
-}
-*/
 
-/**
- * 特定のタスクを取得して名前の構造をデバッグする関数
- */
-function debugSpecificTask(taskId) {
-  console.log('=== 特定タスクデバッグ開始 ===');
-  console.log('タスクID:', taskId);
-  
-  try {
-    validateConfig();
-    
-    const response = UrlFetchApp.fetch(`https://api.notion.com/v1/pages/${taskId}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${CONFIG.NOTION_API_TOKEN}`,
-        'Content-Type': 'application/json',
-        'Notion-Version': CONSTANTS.NOTION.API_VERSION
-      }
-    });
-    
-    if (!response.getResponseCode().toString().startsWith('2')) {
-      throw new Error(`Notion API エラー: ${response.getResponseCode()} ${response.getContentText()}`);
-    }
-    
-    const data = JSON.parse(response.getContentText());
-    
-    console.log('=== タスク全体の構造 ===');
-    console.log('ページID:', data.id);
-    console.log('作成日時:', data.created_time);
-    console.log('更新日時:', data.last_edited_time);
-    
-    console.log('\n=== 名前プロパティの詳細 ===');
-    const nameProperty = data.properties.名前;
-    console.log('名前プロパティ:', JSON.stringify(nameProperty, null, 2));
-    
-    if (nameProperty?.title && Array.isArray(nameProperty.title)) {
-      console.log('\n=== タイトル配列の各要素 ===');
-      console.log('配列の要素数:', nameProperty.title.length);
-      
-      nameProperty.title.forEach((item, index) => {
-        console.log(`\n--- 要素${index} ---`);
-        console.log('タイプ:', item.type);
-        console.log('内容:', JSON.stringify(item, null, 2));
-        
-        if (item.text) {
-          console.log('テキスト内容:', item.text.content);
-        } else if (item.mention) {
-          console.log('メンションタイプ:', item.mention.type);
-          if (item.mention.date) {
-            console.log('日付メンション:', item.mention.date);
-          } else if (item.mention.user) {
-            console.log('ユーザーメンション:', item.mention.user);
-          }
-        }
-      });
-      
-      // 全要素を結合してタスク名を再構築
-      console.log('\n=== タスク名の再構築 ===');
-      const reconstructedTitle = nameProperty.title.map(item => {
-        if (item.text) {
-          return item.text.content || '';
-        } else if (item.mention) {
-          if (item.mention.date) {
-            // 日付メンションの場合
-            const dateStr = item.mention.date.start;
-            return `@${dateStr}`;
-          } else if (item.mention.user) {
-            // ユーザーメンションの場合
-            return `@${item.mention.user.name || 'ユーザー'}`;
-          }
-          return '';
-        }
-        return '';
-      }).join('');
-      
-      console.log('再構築されたタスク名:', reconstructedTitle);
-    }
-    
-    console.log('\n=== 他のプロパティ ===');
-    Object.keys(data.properties).forEach(key => {
-      if (key !== '名前') {
-        console.log(`${key}:`, JSON.stringify(data.properties[key], null, 2));
-      }
-    });
-    
-    console.log('\n=== 特定タスクデバッグ完了 ===');
-    return data;
-    
-  } catch (error) {
-    console.error('特定タスクデバッグエラー:', error);
-    throw error;
-  }
-}
+
 
 // ============================================================================
 // テスト用関数
@@ -1227,572 +1357,3 @@ function testAllProductsTaskNotification() {
   console.log('\n=== 全13プロダクト タスク取得・メンション動作テスト完了 ===');
   return results;
 }
-
-// ============================================================================
-// コメントアウトされた関数（処理速度に影響しないため保持）
-// ============================================================================
-
-/*
-// 共通エラーハンドリング関数
-function handleApiError(operation, error) {
-  console.error(`${operation}エラー:`, error);
-  throw error;
-}
-
-// Notion API呼び出しの共通処理
-function callNotionApi(url, options) {
-  try {
-    const response = UrlFetchApp.fetch(url, options);
-    
-    if (!response.getResponseCode().toString().startsWith('2')) {
-      throw new Error(`Notion API エラー: ${response.getResponseCode()} ${response.getContentText()}`);
-    }
-    
-    return JSON.parse(response.getContentText());
-  } catch (error) {
-    handleApiError('Notion API呼び出し', error);
-  }
-}
-
-// Slack API呼び出しの共通処理
-function callSlackApi(url, options) {
-  try {
-    const response = UrlFetchApp.fetch(url, options);
-    const data = JSON.parse(response.getContentText());
-    
-    if (!data.ok) {
-      throw new Error(`Slack API エラー: ${data.error}`);
-    }
-    
-    return data;
-  } catch (error) {
-    handleApiError('Slack API呼び出し', error);
-  }
-}
-
-// Notionワークスペースの全ユーザーを取得
-function getAllNotionUsers() {
-  console.log('=== Notion全ユーザー取得開始 ===');
-  
-  try {
-    validateConfig();
-    
-    const url = 'https://api.notion.com/v1/users';
-    
-    const options = {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${CONFIG.NOTION_API_TOKEN}`,
-        'Content-Type': 'application/json',
-        'Notion-Version': CONSTANTS.NOTION.API_VERSION
-      }
-    };
-    
-    const response = UrlFetchApp.fetch(url, options);
-    
-    if (!response.getResponseCode().toString().startsWith('2')) {
-      throw new Error(`Notion Users API エラー: ${response.getResponseCode()} ${response.getContentText()}`);
-    }
-    
-    const data = JSON.parse(response.getContentText());
-    
-    console.log(`取得したユーザー数: ${data.results.length}`);
-    
-    // ユーザー情報を整理
-    const users = data.results.map(user => ({
-      id: user.id,
-      name: user.name || '名前なし',
-      email: user.person?.email || user.bot?.owner?.user?.person?.email || 'メールなし',
-      type: user.type, // 'person' または 'bot'
-      avatar_url: user.avatar_url || null,
-      slackUserId: getSlackUserIdByNotionId(user.id),
-      canMention: getSlackUserIdByNotionId(user.id) !== null
-    }));
-    
-    console.log(`\n=== Notion全ユーザー一覧 (${users.length}名) ===`);
-    users.forEach(user => {
-      const mentionStatus = user.canMention ? '✅' : '❌';
-      const slackInfo = user.canMention ? `→ <@${user.slackUserId}>` : '(メンション不可)';
-      console.log(`${mentionStatus} ${user.name} (${user.type}) ${slackInfo}`);
-      if (user.email !== 'メールなし') {
-        console.log(`    📧 ${user.email}`);
-      }
-    });
-    
-    // 統計情報
-    const personUsers = users.filter(u => u.type === 'person');
-    const botUsers = users.filter(u => u.type === 'bot');
-    const mentionableUsers = users.filter(u => u.canMention);
-    const unmentionableUsers = users.filter(u => !u.canMention);
-    
-    console.log(`\n=== 統計 ===`);
-    console.log(`総ユーザー数: ${users.length}`);
-    console.log(`人物ユーザー: ${personUsers.length}`);
-    console.log(`Botユーザー: ${botUsers.length}`);
-    console.log(`メンション可能: ${mentionableUsers.length}`);
-    console.log(`メンション不可: ${unmentionableUsers.length}`);
-    
-    // メンション不可のユーザー詳細
-    if (unmentionableUsers.length > 0) {
-      console.log(`\n=== メンション不可のユーザー ===`);
-      unmentionableUsers.forEach(user => {
-        console.log(`❌ ${user.name} (${user.type})`);
-        if (user.email !== 'メールなし') {
-          console.log(`   📧 ${user.email}`);
-        }
-      });
-      
-      console.log(`\n=== メンション不可のユーザー名（マッピング追加用） ===`);
-      unmentionableUsers.forEach(user => {
-        console.log(`'${user.name}': 'SLACK_USER_ID',`);
-      });
-    }
-    
-    console.log('\n=== Notion全ユーザー取得完了 ===');
-    return {
-      totalUsers: users.length,
-      personUsers: personUsers.length,
-      botUsers: botUsers.length,
-      mentionableUsers: mentionableUsers.length,
-      unmentionableUsers: unmentionableUsers.length,
-      users: users
-    };
-    
-  } catch (error) {
-    console.error('Notionユーザー取得エラー:', error);
-    throw error;
-  }
-}
-
-// 担当者名の表記揺れを検出する関数
-function detectNameVariations() {
-  console.log('=== 担当者名の表記揺れ検出開始 ===');
-  
-  try {
-    validateConfig();
-    
-    const url = `https://api.notion.com/v1/databases/${CONFIG.NOTION_TASK_DB_ID}/query`;
-    
-    const payload = {
-      page_size: CONSTANTS.NOTION.PAGE_SIZE
-    };
-    
-    const options = {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${CONFIG.NOTION_API_TOKEN}`,
-        'Content-Type': 'application/json',
-        'Notion-Version': CONSTANTS.NOTION.API_VERSION
-      },
-      payload: JSON.stringify(payload)
-    };
-    
-    const response = UrlFetchApp.fetch(url, options);
-    const data = JSON.parse(response.getContentText());
-    
-    // 担当者名を収集
-    const assigneeNames = new Set();
-    data.results.forEach(page => {
-      const assignee = page.properties['担当者']?.people?.[0]?.name;
-      if (assignee) {
-        assigneeNames.add(assignee);
-      }
-    });
-    
-    console.log(`\n=== 全担当者名 (${assigneeNames.size}名) ===`);
-    Array.from(assigneeNames).sort().forEach(name => {
-      console.log(`"${name}"`);
-    });
-    
-    // 類似名の検出（簡易版）
-    const nameList = Array.from(assigneeNames);
-    const variations = [];
-    
-    for (let i = 0; i < nameList.length; i++) {
-      for (let j = i + 1; j < nameList.length; j++) {
-        const name1 = nameList[i];
-        const name2 = nameList[j];
-        
-        // 同じ姓または名を含む場合
-        const name1Parts = name1.split(/[\s　]+/);
-        const name2Parts = name2.split(/[\s　]+/);
-        
-        const hasCommonPart = name1Parts.some(part1 => 
-          name2Parts.some(part2 => 
-            part1 === part2 || 
-            part1.includes(part2) || 
-            part2.includes(part1)
-          )
-        );
-        
-        if (hasCommonPart) {
-          variations.push({
-            name1: name1,
-            name2: name2,
-            reason: '共通部分あり'
-          });
-        }
-      }
-    }
-    
-    if (variations.length > 0) {
-      console.log(`\n=== 表記揺れの可能性 (${variations.length}組) ===`);
-      variations.forEach(variation => {
-        console.log(`"${variation.name1}" ↔ "${variation.name2}" (${variation.reason})`);
-      });
-    } else {
-      console.log('\n=== 表記揺れは検出されませんでした ===');
-    }
-    
-    console.log('\n=== 担当者名の表記揺れ検出完了 ===');
-    return {
-      totalNames: assigneeNames.size,
-      variations: variations
-    };
-    
-  } catch (error) {
-    console.error('表記揺れ検出エラー:', error);
-    throw error;
-  }
-}
-
-// Notionの担当者名を全件取得してメンション可能かチェック
-function checkAllAssigneeNames() {
-  console.log('=== Notion担当者名の全件チェック開始 ===');
-  
-  try {
-    validateConfig();
-    
-    const url = `https://api.notion.com/v1/databases/${CONFIG.NOTION_TASK_DB_ID}/query`;
-    
-    const payload = {
-      page_size: CONSTANTS.NOTION.PAGE_SIZE
-    };
-    
-    const options = {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${CONFIG.NOTION_API_TOKEN}`,
-        'Content-Type': 'application/json',
-        'Notion-Version': CONSTANTS.NOTION.API_VERSION
-      },
-      payload: JSON.stringify(payload)
-    };
-    
-    const response = UrlFetchApp.fetch(url, options);
-    const data = JSON.parse(response.getContentText());
-    
-    console.log(`取得したタスク数: ${data.results.length}`);
-    
-    // 担当者名を収集
-    const assigneeNames = new Set();
-    const assigneeDetails = [];
-    
-    data.results.forEach(page => {
-      const assignee = page.properties['担当者']?.people?.[0]?.name;
-      const assigneeId = page.properties['担当者']?.people?.[0]?.id;
-      if (assignee) {
-        assigneeNames.add(assignee);
-        assigneeDetails.push({
-          taskId: page.id,
-          taskTitle: page.properties.名前?.title?.[0]?.text?.content || 'タイトルなし',
-          assignee: assignee,
-          assigneeId: assigneeId,
-          slackUserId: assigneeId ? getSlackUserIdByNotionId(assigneeId) : null,
-          canMention: assigneeId ? getSlackUserIdByNotionId(assigneeId) !== null : false
-        });
-      }
-    });
-    
-    console.log(`\n=== 担当者名一覧 (${assigneeNames.size}名) ===`);
-    Array.from(assigneeNames).sort().forEach(name => {
-      // 担当者名から対応するassigneeIdを取得
-      const assigneeDetail = assigneeDetails.find(d => d.assignee === name);
-      const slackUserId = assigneeDetail?.assigneeId ? getSlackUserIdByNotionId(assigneeDetail.assigneeId) : null;
-      const canMention = slackUserId !== null;
-      console.log(`${canMention ? '✅' : '❌'} ${name} ${canMention ? `→ <@${slackUserId}>` : '(メンション不可)'}`);
-    });
-    
-    // メンション可能/不可能の統計
-    const mentionableCount = assigneeDetails.filter(d => d.canMention).length;
-    const unmentionableCount = assigneeDetails.filter(d => !d.canMention).length;
-    
-    console.log(`\n=== 統計 ===`);
-    console.log(`メンション可能: ${mentionableCount}件`);
-    console.log(`メンション不可: ${unmentionableCount}件`);
-    
-    // メンション不可の詳細
-    if (unmentionableCount > 0) {
-      console.log(`\n=== メンション不可の担当者詳細 ===`);
-      const unmentionableDetails = assigneeDetails.filter(d => !d.canMention);
-      const unmentionableNames = [...new Set(unmentionableDetails.map(d => d.assignee))];
-      
-      unmentionableNames.forEach(name => {
-        console.log(`\n❌ ${name}:`);
-        const tasks = unmentionableDetails.filter(d => d.assignee === name);
-        tasks.forEach(task => {
-          console.log(`  - ${task.taskTitle}`);
-        });
-      });
-      
-      console.log(`\n=== メンション不可の担当者名（マッピング追加用） ===`);
-      unmentionableNames.forEach(name => {
-        console.log(`'${name}': 'SLACK_USER_ID',`);
-      });
-    }
-    
-    console.log('\n=== Notion担当者名の全件チェック完了 ===');
-    return {
-      totalNames: assigneeNames.size,
-      mentionableCount: mentionableCount,
-      unmentionableCount: unmentionableCount,
-      unmentionableNames: unmentionableCount > 0 ? [...new Set(assigneeDetails.filter(d => !d.canMention).map(d => d.assignee))] : []
-    };
-    
-  } catch (error) {
-    console.error('担当者名チェックエラー:', error);
-    throw error;
-  }
-}
-
-// Task DBの構造を確認する関数
-function debugTaskDBStructure() {
-  console.log('Task DB構造確認開始');
-  
-  const url = `https://api.notion.com/v1/databases/${CONFIG.NOTION_TASK_DB_ID}`;
-  
-  const options = {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${CONFIG.NOTION_API_TOKEN}`,
-      'Content-Type': 'application/json',
-      'Notion-Version': CONSTANTS.NOTION.API_VERSION
-    }
-  };
-  
-  try {
-    const response = UrlFetchApp.fetch(url, options);
-    const data = JSON.parse(response.getContentText());
-    
-    console.log('Task DB構造:');
-    console.log('タイトル:', data.title);
-    console.log('プロパティ一覧:');
-    
-    for (const [key, value] of Object.entries(data.properties)) {
-      console.log(`- ${key}: ${value.type}`);
-    }
-    
-    return data;
-  } catch (error) {
-    console.error('Task DB構造確認エラー:', error);
-    throw error;
-  }
-}
-
-// テスト用関数
-function testProductTaskNotifier() {
-  console.log('テスト開始');
-  
-  console.log('JST今日:', getJSTToday());
-  console.log('JST昨日:', getJSTYesterday());
-  
-  // Task DB構造を確認
-  console.log('=== Task DB構造確認 ===');
-  debugTaskDBStructure();
-  
-  const products = getProductDevelopmentProducts();
-  console.log('取得したプロダクト:', products);
-  
-  if (products.length > 0) {
-    const firstProduct = products[0];
-    console.log(`テスト対象プロダクト: ${firstProduct.name}`);
-    console.log(`スクラムマスター: ${firstProduct.scrumMaster}`);
-    
-    // カテゴリフィルタなしでタスク取得を試行
-    console.log('カテゴリフィルタなしでタスク取得テスト');
-    const tasks = getExpiredAndTodayTasksWithoutCategory(firstProduct.id);
-    console.log('取得したタスク:', tasks);
-  }
-  
-  console.log('テスト完了');
-}
-
-// カテゴリフィルタなしでタスクを取得（テスト用）
-function getExpiredAndTodayTasksWithoutCategory(productPageId) {
-  const url = `https://api.notion.com/v1/databases/${CONFIG.NOTION_TASK_DB_ID}/query`;
-  
-  const yesterday = getJSTYesterday();
-  const today = getJSTToday();
-  
-  // 期限切れタスクのフィルタ（カテゴリフィルタなし）
-  const overdueFilter = {
-    filter: {
-      and: [
-        {
-          property: "Product",
-          rollup: {
-            any: {
-              relation: { contains: productPageId }
-            }
-          }
-        },
-        { property: "Taskステータス", status: { does_not_equal: CONSTANTS.STATUS.COMPLETED } },
-        { property: "Taskステータス", status: { does_not_equal: CONSTANTS.STATUS.CANCELLED } },
-        { property: "Taskステータス", status: { does_not_equal: CONSTANTS.STATUS.BACKLOG } },
-        { property: "Task期限", date: { on_or_before: yesterday } }
-      ]
-    },
-    page_size: CONSTANTS.NOTION.PAGE_SIZE
-  };
-  
-  const options = {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${CONFIG.NOTION_API_TOKEN}`,
-      'Content-Type': 'application/json',
-      'Notion-Version': CONSTANTS.NOTION.API_VERSION
-    },
-    payload: JSON.stringify(overdueFilter)
-  };
-  
-  try {
-    const response = UrlFetchApp.fetch(url, options);
-    const data = JSON.parse(response.getContentText());
-    
-    console.log(`期限切れタスク数: ${data.results.length}`);
-    
-    return data.results.map(parseTask);
-  } catch (error) {
-    console.error('Task DB取得エラー:', error);
-    throw error;
-  }
-}
-
-// 単一プロダクトのテスト用関数
-function testSingleProduct(productName) {
-  console.log(`${productName} のテスト開始`);
-  
-  const products = getProductDevelopmentProducts();
-  const targetProduct = products.find(p => p.name === productName);
-  
-  if (!targetProduct) {
-    console.log(`プロダクト ${productName} が見つかりません`);
-    return;
-  }
-  
-  console.log(`対象プロダクト: ${targetProduct.name} (ID: ${targetProduct.id})`);
-  console.log(`スクラムマスター: ${targetProduct.scrumMaster}`);
-  
-  const tasks = getExpiredAndTodayTasks(targetProduct.id);
-  console.log('取得したタスク:', tasks);
-  
-  console.log('通知内容プレビュー:');
-  const mapping = PRODUCT_MAPPING[productName];
-  if (mapping && mapping.channelId) {
-    const blocks = createSlackBlocks(productName, tasks, targetProduct.scrumMaster);
-    console.log(JSON.stringify(blocks, null, 2));
-  } else {
-    console.log('チャンネル設定がありません');
-  }
-  
-  console.log(`${productName} のテスト完了`);
-}
-
-// 実際のSlack通知テスト（送信する）
-function testSlackNotificationSend() {
-  console.log('Slack通知送信テスト開始');
-  
-  const products = getProductDevelopmentProducts();
-  
-  // 最初のプロダクトでテスト送信
-  if (products.length > 0) {
-    const firstProduct = products[0];
-    console.log(`テスト対象プロダクト: ${firstProduct.name}`);
-    
-    const tasks = getExpiredAndTodayTasks(firstProduct.id);
-    console.log('取得したタスク:', tasks);
-    
-    // 実際にSlack通知を送信
-    if (tasks.overdue.length > 0 || tasks.today.length > 0) {
-      console.log('Slack通知を送信します...');
-      sendSlackNotification(firstProduct.name, tasks, firstProduct.scrumMaster);
-    } else {
-      console.log('通知対象タスクがありません');
-    }
-  }
-  
-  console.log('Slack通知送信テスト完了');
-}
-
-// Pollockプロダクトのタスク通知テスト
-function testPollockTaskNotification() {
-  console.log('=== Pollockプロダクト タスク通知テスト開始 ===');
-  
-  // Pollockプロダクトでテスト
-  const products = getProductDevelopmentProducts();
-  const targetProduct = products.find(p => p.name === 'Pollock(MP2)');
-  
-  if (!targetProduct) {
-    console.log('Pollock(MP2)プロダクトが見つかりません');
-    return;
-  }
-  
-  console.log(`テスト対象プロダクト: ${targetProduct.name}`);
-  
-  const tasks = getExpiredAndTodayTasks(targetProduct.id);
-  console.log(`期限切れタスク: ${tasks.overdue.length}件`);
-  console.log(`今日期限タスク: ${tasks.today.length}件`);
-  
-  if (tasks.overdue.length === 0 && tasks.today.length === 0) {
-    console.log('通知対象のタスクがありません');
-    return;
-  }
-  
-  // Issue別グループ化のSlackメッセージを生成
-  const blocks = createSlackBlocks(targetProduct.name, tasks, targetProduct.scrumMaster);
-  
-  console.log('=== Slack通知内容プレビュー ===');
-  console.log(JSON.stringify(blocks, null, 2));
-  
-  // 実際に送信
-  const mapping = PRODUCT_MAPPING[targetProduct.name];
-  if (mapping && mapping.channelId) {
-    console.log('Slack通知を送信します...');
-    sendSlackNotification(targetProduct.name, tasks, targetProduct.scrumMaster);
-    console.log('送信完了');
-  }
-  
-  console.log('=== Pollockプロダクト タスク通知テスト完了 ===');
-}
-
-// Slack通知のテスト用関数（実際には送信しない）
-function testSlackNotification() {
-  console.log('Slack通知テスト開始');
-  
-  const products = getProductDevelopmentProducts();
-  console.log(`対象プロダクト数: ${products.length}`);
-  
-  // 最初のプロダクトでテスト
-  if (products.length > 0) {
-    const firstProduct = products[0];
-    console.log(`テスト対象プロダクト: ${firstProduct.name}`);
-    
-    const tasks = getExpiredAndTodayTasks(firstProduct.id);
-    console.log('取得したタスク:', tasks);
-    
-    // 通知内容をプレビュー
-    const mapping = PRODUCT_MAPPING[firstProduct.name];
-    if (mapping && mapping.channelId) {
-      console.log('Slack通知内容プレビュー:');
-      const blocks = createSlackBlocks(firstProduct.name, tasks, firstProduct.scrumMaster);
-      console.log(JSON.stringify(blocks, null, 2));
-      
-      console.log(`送信先チャンネル: ${mapping.channelId}`);
-    } else {
-      console.log('チャンネル設定がありません');
-    }
-  }
-  
-  console.log('Slack通知テスト完了');
-}
-*/

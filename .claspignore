@@ -35,3 +35,15 @@ pyproject.toml
 .python-version
 client_secret_gas_common.json
 テンプレート_*
+
+# scriptsディレクトリを除外（Code.jsのみをpush）
+scripts/
+scripts/**
+
+# docsディレクトリを除外
+docs/
+docs/**
+
+# その他の設定ファイル
+SYSTEM_ARCHITECTURE.md
+setup_clasp.bat
