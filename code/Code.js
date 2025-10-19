@@ -1289,6 +1289,13 @@ function createSlackBlocks(entityName, tasks, managerName, entityType = 'product
 function runTaskNotifier(entityType) {
   try {
     validateConfig();
+    
+    // 土日・祝日・年末年始の通知スキップ判定
+    if (shouldSkipNotification()) {
+      console.log('今日は通知対象外の日付のため、処理を終了します');
+      return;
+    }
+    
     console.log(`${entityType === 'product' ? 'プロダクト' : 'プロジェクト'}タスク通知開始`);
     
     const entities = entityType === 'product' ? getProductDevelopmentProducts() : getTargetProjects();
@@ -1314,6 +1321,9 @@ function runTaskNotifier(entityType) {
         console.error(`${entity.name} の処理でエラー:`, error);
       }
     }
+    
+    // 通知実行日を記録
+    markNotificationExecuted();
     
     console.log(`${entityType === 'product' ? 'プロダクト' : 'プロジェクト'}タスク通知完了`);
     
