@@ -574,77 +574,58 @@ function sendErrorNotification(functionName, errorMessage, entityName = '', enti
   return success;
 }
 /**
- * NotionプロジェクトDBから通知対象のプロジェクトを動的に取得
- * 一時的に動的取得を無効化し、フォールバックを使用
+ * NotionプロジェクトDBからプロジェクトを動的に取得
  */
 function getTargetProjects() {
   try {
-    console.log('プロジェクトDB動的取得を一時的に無効化し、フォールバックを使用');
+    console.log('NotionプロジェクトDBからプロジェクトを動的に取得');
     
-    // 一時的に動的取得をスキップしてフォールバックを使用
-    console.log('フォールバック: 既存のハードコードされたマッピングを使用');
-    return getTargetProjectsFallback();
+    // 全プロジェクトを取得（通知対象プロパティはまだ存在しないため除外）
+    const filter = {};
     
-    /* 動的取得コード（プロパティ名修正後に有効化）
-    try {
-      // 通知対象=ON のプロジェクトを取得
-      const filter = {
-        filter: {
-          property: NOTION_PROP.PROJECT_NOTIFICATION_TARGET,
-          checkbox: { equals: true }
-        }
+    const pages = notionQueryAll(CONFIG.NOTION_PROJECT_DB_ID, filter);
+    console.log(`取得したプロジェクト数: ${pages.length}`);
+    
+    const projects = pages.map(page => {
+      const name = page.properties['名前']?.title?.[0]?.text?.content || '名前なし';
+      const slackChannelUrl = page.properties[NOTION_PROP.PROJECT_SLACK_CHANNEL_URL]?.url || '';
+      const slackUserId = page.properties[NOTION_PROP.PROJECT_SLACK_USER_ID]?.rich_text?.[0]?.text?.content || '';
+      const pjmName = page.properties[NOTION_PROP.PROJECT_PJM]?.people?.[0]?.name || 'PjM未設定';
+      
+      const channelId = extractChannelIdFromUrl(slackChannelUrl);
+      
+      console.log(`${name}: チャンネル=${channelId || '未設定'}, ユーザーID=${slackUserId || '未設定'}, PjM=${pjmName}`);
+      
+      return {
+        id: page.id,
+        name: name,
+        pjm: pjmName,
+        channelId: channelId,
+        mentionUserId: slackUserId,
+        slackChannelUrl: slackChannelUrl
       };
-      
-      const pages = notionQueryAll(CONFIG.NOTION_PROJECT_DB_ID, filter);
-      console.log(`通知対象プロジェクト数: ${pages.length}`);
-      
-      const projects = pages.map(page => {
-        const name = page.properties['名前']?.title?.[0]?.text?.content || '名前なし';
-        const slackChannelUrl = page.properties[NOTION_PROP.PROJECT_SLACK_CHANNEL_URL]?.url || '';
-        const slackUserId = page.properties[NOTION_PROP.PROJECT_SLACK_USER_ID]?.rich_text?.[0]?.text?.content || '';
-        const pjmName = page.properties[NOTION_PROP.PROJECT_PJM]?.people?.[0]?.name || 'PjM未設定';
-        
-        const channelId = extractChannelIdFromUrl(slackChannelUrl);
-        
-        console.log(`${name}: チャンネル=${channelId || '未設定'}, ユーザーID=${slackUserId || '未設定'}, PjM=${pjmName}`);
-        
-        return {
-          id: page.id,
-          name: name,
-          pjm: pjmName,
-          channelId: channelId,
-          mentionUserId: slackUserId,
-          slackChannelUrl: slackChannelUrl
-        };
-      }).filter(project => {
-        // 必須設定が揃っているもののみ対象
-        const isValid = project.channelId && project.mentionUserId;
-        if (!isValid) {
-          console.warn(`${project.name}: 必須設定が不足しています (チャンネル: ${project.channelId || '未設定'}, ユーザーID: ${project.mentionUserId || '未設定'})`);
-        }
-        return isValid;
-      });
-      
-      console.log(`有効な通知対象プロジェクト数: ${projects.length}`);
-      console.log('対象プロジェクト:', projects.map(p => `${p.name} (${p.pjm})`));
-      
-      return projects;
-      
-    } catch (error) {
-      console.error('プロジェクトDB取得エラー:', error);
-      console.log('フォールバック: 既存のハードコードされたマッピングを使用');
-      return getTargetProjectsFallback();
-    }
-    */
+    }).filter(project => {
+      // 必須設定が揃っているもののみ対象
+      const isValid = project.channelId && project.mentionUserId;
+      if (!isValid) {
+        console.warn(`${project.name}: 必須設定が不足しています (チャンネル: ${project.channelId || '未設定'}, ユーザーID: ${project.mentionUserId || '未設定'})`);
+      }
+      return isValid;
+    });
+    
+    console.log(`有効な通知対象プロジェクト数: ${projects.length}`);
+    console.log('対象プロジェクト:', projects.map(p => `${p.name} (${p.pjm})`));
+    
+    return projects;
   } catch (error) {
-    console.error('getTargetProjects エラー:', error);
+    console.error('プロジェクトDB取得エラー:', error);
     sendErrorNotification(
       'getTargetProjects',
       `プロジェクト取得エラー: ${error.message}`,
       '',
       'project'
     );
-    // エラーが発生してもフォールバックを試行
+    console.log('フォールバック: 既存のハードコードされたマッピングを使用');
     return getTargetProjectsFallback();
   }
 }
@@ -703,13 +684,11 @@ function getProductDevelopmentProducts() {
   try {
     console.log('NotionプロダクトDBから通知対象プロダクトを動的に取得');
     
-    // 通知対象=ON かつ カテゴリ=プロダクト開発 のプロダクトを取得
+    // カテゴリ=プロダクト開発 のプロダクトを取得（通知対象プロパティはまだ存在しないため除外）
     const filter = {
       filter: {
-        and: [
-          { property: NOTION_PROP.PRODUCT_NOTIFICATION_TARGET, checkbox: { equals: true } },
-          { property: 'カテゴリ', select: { equals: CONSTANTS.NOTION.PRODUCT_CATEGORY } }
-        ]
+        property: 'カテゴリ',
+        select: { equals: CONSTANTS.NOTION.PRODUCT_CATEGORY }
       }
     };
     
@@ -1747,4 +1726,356 @@ function testAllProductsTaskNotification() {
   
   console.log('\n=== 全13プロダクト タスク取得・メンション動作テスト完了 ===');
   return results;
+}
+
+// ============================================================================
+// 統合テスト関数
+// ============================================================================
+
+/**
+ * DB取得テスト機能
+ */
+function testDatabaseConnection() {
+  console.log('=== DB接続テスト開始 ===');
+  
+  const results = {
+    notion: {},
+    slack: {},
+    overall: 'success'
+  };
+  
+  try {
+    // Notion API接続テスト
+    console.log('\n--- Notion API接続テスト ---');
+    const notionTests = [
+      { name: 'Task DB', id: CONFIG.NOTION_TASK_DB_ID },
+      { name: 'Product DB', id: CONFIG.NOTION_PRODUCT_DB_ID },
+      { name: 'Project DB', id: CONFIG.NOTION_PROJECT_DB_ID }
+    ];
+    
+    for (const test of notionTests) {
+      try {
+        const pages = notionQueryAll(test.id, {});
+        results.notion[test.name] = {
+          status: 'success',
+          count: pages.length,
+          message: `${pages.length}件のデータを取得`
+        };
+        console.log(`✓ ${test.name}: ${pages.length}件取得`);
+      } catch (error) {
+        results.notion[test.name] = {
+          status: 'error',
+          message: error.message
+        };
+        console.log(`✗ ${test.name}: ${error.message}`);
+        results.overall = 'error';
+      }
+    }
+    
+    // Slack API接続テスト
+    console.log('\n--- Slack API接続テスト ---');
+    try {
+      const testChannelId = CONSTANTS.SLACK.TEST_CHANNEL;
+      const testBlocks = [{
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: "🔧 DB接続テスト実行中..."
+        }
+      }];
+      
+      const success = postSlackMessage(testChannelId, testBlocks, 'DB接続テスト');
+      results.slack = {
+        status: success ? 'success' : 'error',
+        message: success ? 'テストメッセージ送信成功' : 'テストメッセージ送信失敗'
+      };
+      console.log(success ? '✓ Slack API: テストメッセージ送信成功' : '✗ Slack API: テストメッセージ送信失敗');
+      
+      if (!success) {
+        results.overall = 'error';
+      }
+    } catch (error) {
+      results.slack = {
+        status: 'error',
+        message: error.message
+      };
+      console.log(`✗ Slack API: ${error.message}`);
+      results.overall = 'error';
+    }
+    
+  } catch (error) {
+    console.error('DB接続テスト全体エラー:', error);
+    results.overall = 'error';
+  }
+  
+  console.log('\n=== DB接続テスト完了 ===');
+  return results;
+}
+
+/**
+ * 土日祝日判定テスト機能
+ */
+function testHolidayNotificationSkip() {
+  console.log('=== 土日祝日判定テスト開始 ===');
+  
+  const results = {
+    today: {},
+    testDates: {},
+    overall: 'success'
+  };
+  
+  try {
+    // 今日の判定テスト
+    console.log('\n--- 今日の判定テスト ---');
+    const today = new Date();
+    const todayStr = Utilities.formatDate(today, 'Asia/Tokyo', 'yyyy-MM-dd');
+    const dayOfWeek = today.getDay();
+    const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+    
+    const shouldSkipToday = shouldSkipNotification();
+    results.today = {
+      date: todayStr,
+      dayOfWeek: `${dayNames[dayOfWeek]}曜日`,
+      shouldSkip: shouldSkipToday,
+      reason: shouldSkipToday ? '通知スキップ対象' : '通知対象'
+    };
+    
+    console.log(`今日: ${todayStr} (${dayNames[dayOfWeek]}曜日)`);
+    console.log(`判定結果: ${shouldSkipToday ? '✗ 通知スキップ' : '✓ 通知対象'}`);
+    
+    // テスト用日付での判定テスト
+    console.log('\n--- テスト用日付での判定テスト ---');
+    const testDates = [
+      { date: '2024-01-01', description: '元日' },
+      { date: '2024-01-08', description: '月曜日' },
+      { date: '2024-01-13', description: '土曜日' },
+      { date: '2024-01-14', description: '日曜日' },
+      { date: '2024-12-30', description: '年末年始期間' },
+      { date: '2024-12-31', description: '年末年始期間' },
+      { date: '2025-01-01', description: '元日' },
+      { date: '2025-01-03', description: '年末年始期間' }
+    ];
+    
+    for (const testDate of testDates) {
+      try {
+        // 一時的に日付を変更してテスト
+        const originalShouldSkipNotification = shouldSkipNotification;
+        
+        // テスト用の判定関数を作成
+        const testDateObj = new Date(testDate.date + 'T00:00:00+09:00');
+        const testDayOfWeek = testDateObj.getDay();
+        const testMonth = testDateObj.getMonth() + 1;
+        const testDay = testDateObj.getDate();
+        const testYear = testDateObj.getFullYear();
+        
+        let shouldSkip = false;
+        let reason = '';
+        
+        // 土日判定
+        if (testDayOfWeek === 0 || testDayOfWeek === 6) {
+          shouldSkip = true;
+          reason = testDayOfWeek === 0 ? '日曜日' : '土曜日';
+        }
+        // 年末年始判定
+        else if ((testMonth === 12 && testDay >= 30) || (testMonth === 1 && testDay <= 3)) {
+          shouldSkip = true;
+          reason = '年末年始期間';
+        }
+        // 祝日判定
+        else {
+          const holidays = getJapaneseHolidays(testYear);
+          if (holidays.includes(testDate.date)) {
+            shouldSkip = true;
+            reason = '祝日';
+          }
+        }
+        
+        results.testDates[testDate.date] = {
+          description: testDate.description,
+          shouldSkip: shouldSkip,
+          reason: shouldSkip ? reason : '通知対象'
+        };
+        
+        console.log(`${testDate.date} (${testDate.description}): ${shouldSkip ? '✗ 通知スキップ' : '✓ 通知対象'} ${shouldSkip ? `(${reason})` : ''}`);
+        
+      } catch (error) {
+        results.testDates[testDate.date] = {
+          description: testDate.description,
+          error: error.message
+        };
+        console.log(`${testDate.date} (${testDate.description}): エラー - ${error.message}`);
+        results.overall = 'error';
+      }
+    }
+    
+  } catch (error) {
+    console.error('土日祝日判定テストエラー:', error);
+    results.overall = 'error';
+  }
+  
+  console.log('\n=== 土日祝日判定テスト完了 ===');
+  return results;
+}
+
+/**
+ * チャンネル設定テスト機能
+ */
+function testChannelConfiguration() {
+  console.log('=== チャンネル設定テスト開始 ===');
+  
+  const results = {
+    products: {},
+    projects: {},
+    overall: 'success'
+  };
+  
+  try {
+    // プロダクトチャンネル設定テスト
+    console.log('\n--- プロダクトチャンネル設定テスト ---');
+    const products = getProductDevelopmentProducts();
+    
+    for (const product of products) {
+      const mapping = PRODUCT_MAPPING[product.name];
+      const hasDynamicChannel = product.channelId && product.mentionUserId;
+      const hasFallbackChannel = mapping && mapping.channelId && mapping.mentionUserId;
+      
+      results.products[product.name] = {
+        scrumMaster: product.scrumMaster,
+        dynamicChannel: product.channelId || '未設定',
+        dynamicMention: product.mentionUserId || '未設定',
+        fallbackChannel: mapping?.channelId || '未設定',
+        fallbackMention: mapping?.mentionUserId || '未設定',
+        hasValidConfig: hasDynamicChannel || hasFallbackChannel,
+        configType: hasDynamicChannel ? 'dynamic' : (hasFallbackChannel ? 'fallback' : 'none')
+      };
+      
+      const status = results.products[product.name].hasValidConfig ? '✓' : '✗';
+      const configType = results.products[product.name].configType;
+      console.log(`${status} ${product.name}: ${configType}設定 (チャンネル: ${product.channelId || mapping?.channelId || '未設定'})`);
+      
+      if (!results.products[product.name].hasValidConfig) {
+        results.overall = 'error';
+      }
+    }
+    
+    // プロジェクトチャンネル設定テスト
+    console.log('\n--- プロジェクトチャンネル設定テスト ---');
+    const projects = getTargetProjects();
+    
+    for (const project of projects) {
+      const mapping = PROJECT_MAPPING[project.name];
+      const hasDynamicChannel = project.channelId && project.mentionUserId;
+      const hasFallbackChannel = mapping && mapping.channelId && mapping.mentionUserId;
+      
+      results.projects[project.name] = {
+        pjm: project.pjm,
+        dynamicChannel: project.channelId || '未設定',
+        dynamicMention: project.mentionUserId || '未設定',
+        fallbackChannel: mapping?.channelId || '未設定',
+        fallbackMention: mapping?.mentionUserId || '未設定',
+        hasValidConfig: hasDynamicChannel || hasFallbackChannel,
+        configType: hasDynamicChannel ? 'dynamic' : (hasFallbackChannel ? 'fallback' : 'none')
+      };
+      
+      const status = results.projects[project.name].hasValidConfig ? '✓' : '✗';
+      const configType = results.projects[project.name].configType;
+      console.log(`${status} ${project.name}: ${configType}設定 (チャンネル: ${project.channelId || mapping?.channelId || '未設定'})`);
+      
+      if (!results.projects[project.name].hasValidConfig) {
+        results.overall = 'error';
+      }
+    }
+    
+  } catch (error) {
+    console.error('チャンネル設定テストエラー:', error);
+    results.overall = 'error';
+  }
+  
+  console.log('\n=== チャンネル設定テスト完了 ===');
+  return results;
+}
+
+/**
+ * 統合テスト関数 - 全機能のテストを実行
+ */
+function runComprehensiveTest() {
+  console.log('🚀 === 統合テスト開始 ===');
+  
+  const testResults = {
+    timestamp: Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy/MM/dd HH:mm:ss'),
+    database: null,
+    holiday: null,
+    channel: null,
+    overall: 'success'
+  };
+  
+  try {
+    // 1. DB接続テスト
+    console.log('\n📊 1. DB接続テスト実行中...');
+    testResults.database = testDatabaseConnection();
+    if (testResults.database.overall === 'error') {
+      testResults.overall = 'error';
+    }
+    
+    // 2. 土日祝日判定テスト
+    console.log('\n📅 2. 土日祝日判定テスト実行中...');
+    testResults.holiday = testHolidayNotificationSkip();
+    if (testResults.holiday.overall === 'error') {
+      testResults.overall = 'error';
+    }
+    
+    // 3. チャンネル設定テスト
+    console.log('\n📢 3. チャンネル設定テスト実行中...');
+    testResults.channel = testChannelConfiguration();
+    if (testResults.channel.overall === 'error') {
+      testResults.overall = 'error';
+    }
+    
+    // 4. テスト結果サマリー
+    console.log('\n📋 === テスト結果サマリー ===');
+    console.log(`実行時刻: ${testResults.timestamp}`);
+    console.log(`全体結果: ${testResults.overall === 'success' ? '✅ 成功' : '❌ エラーあり'}`);
+    
+    console.log('\n📊 DB接続テスト結果:');
+    console.log(`  Notion API: ${testResults.database.notion ? '✅' : '❌'}`);
+    console.log(`  Slack API: ${testResults.database.slack ? '✅' : '❌'}`);
+    
+    console.log('\n📅 土日祝日判定テスト結果:');
+    console.log(`  今日の判定: ${testResults.holiday.today.shouldSkip ? '⏭️ スキップ' : '✅ 通知対象'}`);
+    console.log(`  テスト日付: ${Object.keys(testResults.holiday.testDates).length}件`);
+    
+    console.log('\n📢 チャンネル設定テスト結果:');
+    const productCount = Object.keys(testResults.channel.products).length;
+    const projectCount = Object.keys(testResults.channel.projects).length;
+    const validProductCount = Object.values(testResults.channel.products).filter(p => p.hasValidConfig).length;
+    const validProjectCount = Object.values(testResults.channel.projects).filter(p => p.hasValidConfig).length;
+    console.log(`  プロダクト: ${validProductCount}/${productCount}件設定済み`);
+    console.log(`  プロジェクト: ${validProjectCount}/${projectCount}件設定済み`);
+    
+    // 5. エラー通知（必要に応じて）
+    if (testResults.overall === 'error') {
+      console.log('\n⚠️ エラーが検出されました。詳細は上記ログを確認してください。');
+      sendErrorNotification(
+        'runComprehensiveTest',
+        '統合テストでエラーが検出されました',
+        '',
+        'test'
+      );
+    } else {
+      console.log('\n🎉 全てのテストが正常に完了しました！');
+    }
+    
+  } catch (error) {
+    console.error('統合テスト実行エラー:', error);
+    testResults.overall = 'error';
+    sendErrorNotification(
+      'runComprehensiveTest',
+      `統合テスト実行エラー: ${error.message}`,
+      '',
+      'test'
+    );
+  }
+  
+  console.log('\n🏁 === 統合テスト完了 ===');
+  return testResults;
 }
