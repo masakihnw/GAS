@@ -1,4 +1,18 @@
 /**
+ * vibe coding 用 clasp 作業環境
+ * 
+ * このファイルは clasp push の動作確認用です。
+ * 実際の開発コードは一時的にここで作成し、動作確認後に個人プロジェクトに移行してください。
+ * 
+ * 開発完了後は、このファイルを空の状態に戻してください。
+ */
+
+function testFunction() {
+  console.log('clasp環境の動作確認用関数です');
+  return 'OK';
+}
+
+/**
  * タスク通知ボット - プロダクト向け（GAS × Notion × Slack）
  * 要件定義に基づく実装（DB構造に合わせて修正）
  */
@@ -18,10 +32,16 @@ const NOTION_PROP = {
   // プロダクト関連
   PRODUCT_SCRUM_MASTER: 'スクラムマスター',
   PRODUCT_REL: 'Product',
+  PRODUCT_NOTIFICATION_TARGET: '通知対象',
+  PRODUCT_SLACK_CHANNEL_URL: 'SlackチャンネルURL',
+  PRODUCT_SLACK_USER_ID: 'スクラムマスターSlackユーザーID',
   
   // プロジェクト関連
   PROJECT_PJM: 'PjM (旧担当者)',
   PROJECT_REL: 'Project',
+  PROJECT_NOTIFICATION_TARGET: '通知対象', // 実際のプロパティ名に応じて変更が必要
+  PROJECT_SLACK_CHANNEL_URL: 'SlackチャンネルURL',
+  PROJECT_SLACK_USER_ID: 'PjM SlackユーザーID',
   
   // Issue関連
   ISSUE_TITLE: '名前',
@@ -73,6 +93,7 @@ const CONFIG = {
   NOTION_TASK_DB_ID: PropertiesService.getScriptProperties().getProperty('NOTION_TASK_DB_ID') || '',
   NOTION_PRODUCT_DB_ID: PropertiesService.getScriptProperties().getProperty('NOTION_PRODUCT_DB_ID') || '',
   NOTION_PROJECT_DB_ID: PropertiesService.getScriptProperties().getProperty('NOTION_PROJECT_DB_ID') || '',
+  NOTION_CONFIG_DB_ID: PropertiesService.getScriptProperties().getProperty('NOTION_CONFIG_DB_ID') || '',
   SLACK_BOT_TOKEN: PropertiesService.getScriptProperties().getProperty('SLACK_BOT_TOKEN') || ''
 };
 
@@ -95,8 +116,8 @@ const PRODUCT_MAPPING = {
 };
 
 const PROJECT_MAPPING = {
-  'Sakura': { channelId: 'C097XNLSBM0', mentionUserId: 'U05HPC0BL3V', notionId: '24e7d6b7-b8c6-801e-a9a3-caf1963d09ad' },
-  'Mukuge Phase 1': { channelId: 'C097UBAK886', mentionUserId: 'U9ZFLRRG9', notionId: '23e7d6b7-b8c6-8077-8c70-fdafbdda9aa3' },
+  'Sakura': { channelId: 'C09ARFHBLBX', mentionUserId: 'U05HPC0BL3V', notionId: '24e7d6b7-b8c6-801e-a9a3-caf1963d09ad' }, // テストチャンネルに一時変更
+  'Mukuge Phase 1': { channelId: 'C09ARFHBLBX', mentionUserId: 'U9ZFLRRG9', notionId: '23e7d6b7-b8c6-8077-8c70-fdafbdda9aa3' }, // テストチャンネルに一時変更
   'HIROMITSU KITAYAMA LIVE TOUR 2025「波紋-HAMON-」': { channelId: 'C08Q0V8UKMH', mentionUserId: 'U9ZFLRRG9', notionId: '1d87d6b7-b8c6-8036-9fe0-f5ed597229bb' },
   'BE:FIRST 2nd Fan Meeting -Hello My "BESTY" vol.2-': { channelId: 'C08NGHKS1B4', mentionUserId: 'U9ZFLRRG9', notionId: '1b37d6b7-b8c6-8053-a197-d9ac8b71ffcf' },
   'Animate Girls Festival 2025 karaku/MA連携': { channelId: 'C09EP48KGDC', mentionUserId: 'U04HB81EUTS', notionId: '1a77d6b7-b8c6-80ae-a651-e2e410f7d207' },
@@ -449,7 +470,9 @@ function shouldSkipNotification() {
     return true;
   }
   
-  // 二重送信防止
+  // 二重送信防止（一時的に無効化）
+  // 実際に通知が成功した場合のみフラグを立てるように変更
+  /*
   const lastNotifyKey = `LAST_NOTIFY_${todayStr.replace(/-/g, '')}`;
   const lastNotifyDate = PropertiesService.getScriptProperties().getProperty(lastNotifyKey);
   
@@ -457,6 +480,7 @@ function shouldSkipNotification() {
     console.log(`今日は既に通知済みのためスキップします: ${todayStr}`);
     return true;
   }
+  */
   
   return false;
 }
@@ -472,8 +496,103 @@ function markNotificationExecuted() {
   PropertiesService.getScriptProperties().setProperty(lastNotifyKey, todayStr);
   console.log(`通知実行日を記録しました: ${todayStr}`);
 }
+
+/**
+ * 通知済みフラグをリセット（デバッグ用）
+ */
+function resetNotificationFlag() {
+  const today = new Date();
+  const todayStr = Utilities.formatDate(today, 'Asia/Tokyo', 'yyyy-MM-dd');
+  const lastNotifyKey = `LAST_NOTIFY_${todayStr.replace(/-/g, '')}`;
+  
+  PropertiesService.getScriptProperties().deleteProperty(lastNotifyKey);
+  console.log(`通知済みフラグをリセットしました: ${todayStr}`);
+}
+
+/**
+ * 通知済みフラグの状態を確認（デバッグ用）
+ */
+function checkNotificationFlag() {
+  const today = new Date();
+  const todayStr = Utilities.formatDate(today, 'Asia/Tokyo', 'yyyy-MM-dd');
+  const lastNotifyKey = `LAST_NOTIFY_${todayStr.replace(/-/g, '')}`;
+  const lastNotifyDate = PropertiesService.getScriptProperties().getProperty(lastNotifyKey);
+  
+  console.log(`今日の日付: ${todayStr}`);
+  console.log(`通知済みフラグ: ${lastNotifyDate ? 'ON' : 'OFF'}`);
+  console.log(`フラグの値: ${lastNotifyDate || 'なし'}`);
+  
+  return lastNotifyDate === todayStr;
+}
+/**
+ * NotionプロジェクトDBから通知対象のプロジェクトを動的に取得
+ * 一時的に動的取得を無効化し、フォールバックを使用
+ */
 function getTargetProjects() {
-  console.log('プロジェクトマッピングから対象プロジェクトを取得');
+  console.log('プロジェクトDB動的取得を一時的に無効化し、フォールバックを使用');
+  
+  // 一時的に動的取得をスキップしてフォールバックを使用
+  console.log('フォールバック: 既存のハードコードされたマッピングを使用');
+  return getTargetProjectsFallback();
+  
+  /* 動的取得コード（プロパティ名修正後に有効化）
+  try {
+    // 通知対象=ON のプロジェクトを取得
+    const filter = {
+      filter: {
+        property: NOTION_PROP.PROJECT_NOTIFICATION_TARGET,
+        checkbox: { equals: true }
+      }
+    };
+    
+    const pages = notionQueryAll(CONFIG.NOTION_PROJECT_DB_ID, filter);
+    console.log(`通知対象プロジェクト数: ${pages.length}`);
+    
+    const projects = pages.map(page => {
+      const name = page.properties['名前']?.title?.[0]?.text?.content || '名前なし';
+      const slackChannelUrl = page.properties[NOTION_PROP.PROJECT_SLACK_CHANNEL_URL]?.url || '';
+      const slackUserId = page.properties[NOTION_PROP.PROJECT_SLACK_USER_ID]?.rich_text?.[0]?.text?.content || '';
+      const pjmName = page.properties[NOTION_PROP.PROJECT_PJM]?.people?.[0]?.name || 'PjM未設定';
+      
+      const channelId = extractChannelIdFromUrl(slackChannelUrl);
+      
+      console.log(`${name}: チャンネル=${channelId || '未設定'}, ユーザーID=${slackUserId || '未設定'}, PjM=${pjmName}`);
+      
+      return {
+        id: page.id,
+        name: name,
+        pjm: pjmName,
+        channelId: channelId,
+        mentionUserId: slackUserId,
+        slackChannelUrl: slackChannelUrl
+      };
+    }).filter(project => {
+      // 必須設定が揃っているもののみ対象
+      const isValid = project.channelId && project.mentionUserId;
+      if (!isValid) {
+        console.warn(`${project.name}: 必須設定が不足しています (チャンネル: ${project.channelId || '未設定'}, ユーザーID: ${project.mentionUserId || '未設定'})`);
+      }
+      return isValid;
+    });
+    
+    console.log(`有効な通知対象プロジェクト数: ${projects.length}`);
+    console.log('対象プロジェクト:', projects.map(p => `${p.name} (${p.pjm})`));
+    
+    return projects;
+    
+  } catch (error) {
+    console.error('プロジェクトDB取得エラー:', error);
+    console.log('フォールバック: 既存のハードコードされたマッピングを使用');
+    return getTargetProjectsFallback();
+  }
+  */
+}
+
+/**
+ * フォールバック用：既存のハードコードされたプロジェクトマッピング
+ */
+function getTargetProjectsFallback() {
+  console.log('フォールバック: 既存のハードコードされたプロジェクトマッピングを使用');
   
   const projects = Object.keys(PROJECT_MAPPING).map(projectName => {
     const mapping = PROJECT_MAPPING[projectName];
@@ -486,10 +605,20 @@ function getTargetProjects() {
     };
   });
   
-  console.log(`対象プロジェクト数: ${projects.length}`);
-  console.log('対象プロジェクト:', projects.map(p => `${p.name} (${p.pjm})`));
-  
+  console.log(`フォールバック対象プロジェクト数: ${projects.length}`);
   return projects;
+}
+
+/**
+ * SlackチャンネルURLからチャンネルIDを抽出
+ */
+function extractChannelIdFromUrl(url) {
+  if (!url) return null;
+  
+  // https://playground-live.slack.com/channels/C4TU3K80K
+  // → C4TU3K80K
+  const match = url.match(/\/channels\/([A-Z0-9]+)/);
+  return match ? match[1] : null;
 }
 
 /**
@@ -507,10 +636,69 @@ function getPjmNameBySlackId(slackUserId) {
 }
 
 /**
- * マッピングからプロダクト開発関連のプロダクトを取得（最適化版）
+ * NotionプロダクトDBから通知対象のプロダクトを動的に取得
  */
 function getProductDevelopmentProducts() {
-  console.log('プロダクトマッピングから対象プロダクトを取得');
+  console.log('NotionプロダクトDBから通知対象プロダクトを動的に取得');
+  
+  try {
+    // 通知対象=ON かつ カテゴリ=プロダクト開発 のプロダクトを取得
+    const filter = {
+      filter: {
+        and: [
+          { property: NOTION_PROP.PRODUCT_NOTIFICATION_TARGET, checkbox: { equals: true } },
+          { property: 'カテゴリ', select: { equals: CONSTANTS.NOTION.PRODUCT_CATEGORY } }
+        ]
+      }
+    };
+    
+    const pages = notionQueryAll(CONFIG.NOTION_PRODUCT_DB_ID, filter);
+    console.log(`通知対象プロダクト数: ${pages.length}`);
+    
+    const products = pages.map(page => {
+      const name = page.properties['名前']?.title?.[0]?.text?.content || '名前なし';
+      const slackChannelUrl = page.properties[NOTION_PROP.PRODUCT_SLACK_CHANNEL_URL]?.url || '';
+      const slackUserId = page.properties[NOTION_PROP.PRODUCT_SLACK_USER_ID]?.rich_text?.[0]?.text?.content || '';
+      const scrumMasterName = page.properties[NOTION_PROP.PRODUCT_SCRUM_MASTER]?.people?.[0]?.name || 'スクラムマスター未設定';
+      
+      const channelId = extractChannelIdFromUrl(slackChannelUrl);
+      
+      console.log(`${name}: チャンネル=${channelId || '未設定'}, ユーザーID=${slackUserId || '未設定'}, SM=${scrumMasterName}`);
+      
+      return {
+        id: page.id,
+        name: name,
+        scrumMaster: scrumMasterName,
+        channelId: channelId,
+        mentionUserId: slackUserId,
+        slackChannelUrl: slackChannelUrl
+      };
+    }).filter(product => {
+      // 必須設定が揃っているもののみ対象
+      const isValid = product.channelId && product.mentionUserId;
+      if (!isValid) {
+        console.warn(`${product.name}: 必須設定が不足しています (チャンネル: ${product.channelId || '未設定'}, ユーザーID: ${product.mentionUserId || '未設定'})`);
+      }
+      return isValid;
+    });
+    
+    console.log(`有効な通知対象プロダクト数: ${products.length}`);
+    console.log('対象プロダクト:', products.map(p => `${p.name} (${p.scrumMaster})`));
+    
+    return products;
+    
+  } catch (error) {
+    console.error('プロダクトDB取得エラー:', error);
+    console.log('フォールバック: 既存のハードコードされたマッピングを使用');
+    return getProductDevelopmentProductsFallback();
+  }
+}
+
+/**
+ * フォールバック用：既存のハードコードされたプロダクトマッピング
+ */
+function getProductDevelopmentProductsFallback() {
+  console.log('フォールバック: 既存のハードコードされたプロダクトマッピングを使用');
   
   const products = Object.keys(PRODUCT_MAPPING).map(productName => {
     const mapping = PRODUCT_MAPPING[productName];
@@ -523,9 +711,7 @@ function getProductDevelopmentProducts() {
     };
   });
   
-  console.log(`対象プロダクト数: ${products.length}`);
-  console.log('対象プロダクト:', products.map(p => `${p.name} (${p.scrumMaster})`));
-  
+  console.log(`フォールバック対象プロダクト数: ${products.length}`);
   return products;
 }
 
@@ -818,14 +1004,22 @@ function groupTasksByIssue(tasks) {
 /**
  * テスト用Slack通知を送信（テスト用チャンネルに送信）
  */
-function sendTestSlackNotification(entityName, tasks, managerName, entityType = 'product') {
-  const mapping = entityType === 'product' ? PRODUCT_MAPPING[entityName] : PROJECT_MAPPING[entityName];
+function sendTestSlackNotification(entityName, tasks, managerName, entityType = 'product', entityData = null) {
   const testChannelId = 'C09ARFHBLBX'; // テスト用チャンネル
   
-  console.log(`テスト通知: ${entityName} → テストチャンネル (${testChannelId})`);
-  console.log(`本番通知先: ${mapping?.channelId || '未設定'}`);
+  let actualChannelId = '未設定';
+  if (entityData) {
+    actualChannelId = entityData.channelId || '未設定';
+  } else {
+    const mapping = entityType === 'product' ? PRODUCT_MAPPING[entityName] : PROJECT_MAPPING[entityName];
+    actualChannelId = mapping?.channelId || '未設定';
+  }
   
-  const blocks = createSlackBlocks(entityName, tasks, managerName, entityType);
+  console.log(`テスト通知: ${entityName} → テストチャンネル (${testChannelId})`);
+  console.log(`本番通知先: ${actualChannelId}`);
+  
+  const mentionUserId = entityData?.mentionUserId || null;
+  const blocks = createSlackBlocks(entityName, tasks, managerName, entityType, mentionUserId);
   const text = `[テスト] ${entityName} のタスク通知`;
   
   const success = postSlackMessage(testChannelId, blocks, text);
@@ -925,19 +1119,35 @@ function joinChannel(channelId) {
 }
 
 /**
- * Slack通知を送信（統合版）
+ * Slack通知を送信（統合版・動的マッピング対応）
  */
-function sendSlackNotification(entityName, tasks, managerName, entityType = 'product') {
-  const mapping = entityType === 'product' ? PRODUCT_MAPPING[entityName] : PROJECT_MAPPING[entityName];
-  if (!mapping || !mapping.channelId) {
-    console.log(`${entityType === 'product' ? 'プロダクト' : 'プロジェクト'} ${entityName} のチャンネル設定がありません`);
-    return;
+function sendSlackNotification(entityName, tasks, managerName, entityType = 'product', entityData = null) {
+  let channelId, mentionUserId;
+  
+  if (entityData) {
+    // 動的マッピングから取得
+    channelId = entityData.channelId;
+    mentionUserId = entityData.mentionUserId;
+  } else {
+    // フォールバック：既存のハードコードされたマッピング
+    const mapping = entityType === 'product' ? PRODUCT_MAPPING[entityName] : PROJECT_MAPPING[entityName];
+    if (!mapping || !mapping.channelId) {
+      console.log(`${entityType === 'product' ? 'プロダクト' : 'プロジェクト'} ${entityName} のチャンネル設定がありません`);
+      return false;
+    }
+    channelId = mapping.channelId;
+    mentionUserId = mapping.mentionUserId;
   }
   
-  const blocks = createSlackBlocks(entityName, tasks, managerName, entityType);
+  if (!channelId) {
+    console.log(`${entityType === 'product' ? 'プロダクト' : 'プロジェクト'} ${entityName} のチャンネル設定がありません`);
+    return false;
+  }
+  
+  const blocks = createSlackBlocks(entityName, tasks, managerName, entityType, mentionUserId);
   const text = `${entityName} のタスク通知`;
   
-  postSlackMessage(mapping.channelId, blocks, text);
+  return postSlackMessage(channelId, blocks, text);
 }
 
 /**
@@ -954,9 +1164,7 @@ function createFooterBlocks() {
 /**
  * Slackブロックのヘッダー部分を作成
  */
-function createHeaderBlocks(entityName, tasks, managerName, entityType) {
-  const mapping = entityType === 'product' ? PRODUCT_MAPPING[entityName] : PROJECT_MAPPING[entityName];
-  const mentionUserId = mapping?.mentionUserId;
+function createHeaderBlocks(entityName, tasks, managerName, entityType, mentionUserId = null) {
   
   const totalCount = tasks.overdue.length + tasks.today.length;
   const overdueCount = tasks.overdue.length;
@@ -1098,10 +1306,10 @@ function createTodayTaskBlocks(tasks) {
 }
 
 /**
- * Slackブロック形式のメッセージを作成（統合版）
+ * Slackブロック形式のメッセージを作成（統合版・動的マッピング対応）
  */
-function createSlackBlocks(entityName, tasks, managerName, entityType = 'product') {
-  const headerBlocks = createHeaderBlocks(entityName, tasks, managerName, entityType);
+function createSlackBlocks(entityName, tasks, managerName, entityType = 'product', mentionUserId = null) {
+  const headerBlocks = createHeaderBlocks(entityName, tasks, managerName, entityType, mentionUserId);
   const overdueBlocks = createOverdueTaskBlocks(tasks);
   const todayBlocks = createTodayTaskBlocks(tasks);
   const footerBlocks = createFooterBlocks();
@@ -1119,10 +1327,19 @@ function createSlackBlocks(entityName, tasks, managerName, entityType = 'product
 function runTaskNotifier(entityType) {
   try {
     validateConfig();
+    
+    // 土日・祝日・年末年始の通知スキップ判定
+    if (shouldSkipNotification()) {
+      console.log('今日は通知対象外の日付のため、処理を終了します');
+      return;
+    }
+    
     console.log(`${entityType === 'product' ? 'プロダクト' : 'プロジェクト'}タスク通知開始`);
     
     const entities = entityType === 'product' ? getProductDevelopmentProducts() : getTargetProjects();
     console.log(`対象${entityType === 'product' ? 'プロダクト' : 'プロジェクト'}数: ${entities.length}`);
+    
+    let notificationSent = false; // 通知送信フラグ
     
     for (const entity of entities) {
       const managerLabel = entityType === 'product' ? 'SM' : 'PjM';
@@ -1133,7 +1350,10 @@ function runTaskNotifier(entityType) {
         
         if (tasks.overdue.length > 0 || tasks.today.length > 0) {
           console.log(`${entity.name}: 期限切れ${tasks.overdue.length}件, 今日期限${tasks.today.length}件`);
-          sendSlackNotification(entity.name, tasks, entityType === 'product' ? entity.scrumMaster : entity.pjm, entityType);
+          const success = sendSlackNotification(entity.name, tasks, entityType === 'product' ? entity.scrumMaster : entity.pjm, entityType, entity);
+          if (success) {
+            notificationSent = true;
+          }
         } else {
           console.log(`${entity.name}: 通知対象タスクなし`);
         }
@@ -1143,6 +1363,14 @@ function runTaskNotifier(entityType) {
       } catch (error) {
         console.error(`${entity.name} の処理でエラー:`, error);
       }
+    }
+    
+    // 実際に通知が送信された場合のみ実行日を記録
+    if (notificationSent) {
+      markNotificationExecuted();
+      console.log('通知送信が成功したため、実行日を記録しました');
+    } else {
+      console.log('通知対象がなかったため、実行日は記録しません');
     }
     
     console.log(`${entityType === 'product' ? 'プロダクト' : 'プロジェクト'}タスク通知完了`);
@@ -1169,6 +1397,67 @@ function runProjectTaskNotifier() {
 
 
 
+
+/**
+ * NotionプロジェクトDBのプロパティ構造を確認する関数
+ */
+function debugProjectDBProperties() {
+  console.log('=== NotionプロジェクトDBプロパティ構造確認 ===');
+  
+  try {
+    // プロパティフィルタなしで全件取得
+    const pages = notionQueryAll(CONFIG.NOTION_PROJECT_DB_ID, {});
+    console.log(`取得したプロジェクト数: ${pages.length}`);
+    
+    if (pages.length > 0) {
+      const firstPage = pages[0];
+      console.log('\n--- 最初のプロジェクトのプロパティ一覧 ---');
+      
+      Object.keys(firstPage.properties).forEach(propName => {
+        const prop = firstPage.properties[propName];
+        console.log(`プロパティ名: "${propName}"`);
+        console.log(`  タイプ: ${prop.type}`);
+        console.log(`  値: ${JSON.stringify(prop)}`);
+        console.log('---');
+      });
+    }
+    
+    console.log('\n=== プロパティ構造確認完了 ===');
+    
+  } catch (error) {
+    console.error('プロパティ構造確認エラー:', error);
+  }
+}
+
+/**
+ * 動的マッピング取得テスト関数
+ */
+function testDynamicMapping() {
+  console.log('=== 動的マッピング取得テスト開始 ===');
+  
+  try {
+    console.log('\n--- プロダクトDB取得テスト ---');
+    const products = getProductDevelopmentProducts();
+    console.log(`取得したプロダクト数: ${products.length}`);
+    
+    products.forEach(product => {
+      console.log(`${product.name}: チャンネル=${product.channelId}, ユーザーID=${product.mentionUserId}, SM=${product.scrumMaster}`);
+    });
+    
+    console.log('\n--- プロジェクトDB取得テスト ---');
+    const projects = getTargetProjects();
+    console.log(`取得したプロジェクト数: ${projects.length}`);
+    
+    projects.forEach(project => {
+      console.log(`${project.name}: チャンネル=${project.channelId}, ユーザーID=${project.mentionUserId}, PjM=${project.pjm}`);
+    });
+    
+    console.log('\n=== 動的マッピング取得テスト完了 ===');
+    
+  } catch (error) {
+    console.error('テストエラー:', error);
+  }
+}
 
 // ============================================================================
 // テスト用関数
@@ -1222,7 +1511,7 @@ function testAllProjectsTaskNotification() {
       // 通知対象がある場合はテスト用チャンネルに送信
       if (hasNotificationTarget) {
         console.log('テスト用チャンネル (C09ARFHBLBX) にSlack通知を送信します...');
-        sendTestSlackNotification(project.name, tasks, project.pjm, 'project');
+        sendTestSlackNotification(project.name, tasks, project.pjm, 'project', project);
         console.log('送信完了');
       }
       
@@ -1314,7 +1603,7 @@ function testAllProductsTaskNotification() {
       // 通知対象がある場合はテスト用チャンネルに送信
       if (hasNotificationTarget) {
         console.log('テスト用チャンネル (C09ARFHBLBX) にSlack通知を送信します...');
-        sendTestSlackNotification(product.name, tasks, product.scrumMaster, 'product');
+        sendTestSlackNotification(product.name, tasks, product.scrumMaster, 'product', product);
         console.log('送信完了');
       }
       
