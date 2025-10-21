@@ -524,68 +524,129 @@ function checkNotificationFlag() {
   
   return lastNotifyDate === todayStr;
 }
+
+/**
+ * エラー通知を花輪のroomに送信
+ */
+function sendErrorNotification(functionName, errorMessage, entityName = '', entityType = '') {
+  const hanawaChannelId = 'C05HPFB4QRY'; // 花輪のroom
+  const hanawaUserId = 'U05HPC0BL3V'; // 花輪のSlackユーザーID
+  
+  const nowStr = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy/MM/dd HH:mm:ss');
+  
+  const blocks = [
+    {
+      type: "header",
+      text: {
+        type: "plain_text",
+        text: "🚨 タスク通知エラー"
+      }
+    },
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `<@${hanawaUserId}> タスク通知でエラーが発生しました`
+      }
+    },
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `*エラー詳細:*\n• 関数: \`${functionName}\`\n• エラー: ${errorMessage}\n• 対象: ${entityName || 'なし'}\n• タイプ: ${entityType || 'なし'}\n• 発生時刻: ${nowStr}（JST）`
+      }
+    },
+    {
+      type: "context",
+      elements: [{ type: "mrkdwn", text: "タスク通知ボット" }]
+    }
+  ];
+  
+  const text = `タスク通知エラー: ${functionName} - ${errorMessage}`;
+  
+  console.log(`エラー通知を花輪のroomに送信: ${functionName} - ${errorMessage}`);
+  
+  const success = postSlackMessage(hanawaChannelId, blocks, text);
+  if (!success) {
+    console.error('エラー通知の送信に失敗しました');
+  }
+  
+  return success;
+}
 /**
  * NotionプロジェクトDBから通知対象のプロジェクトを動的に取得
  * 一時的に動的取得を無効化し、フォールバックを使用
  */
 function getTargetProjects() {
-  console.log('プロジェクトDB動的取得を一時的に無効化し、フォールバックを使用');
-  
-  // 一時的に動的取得をスキップしてフォールバックを使用
-  console.log('フォールバック: 既存のハードコードされたマッピングを使用');
-  return getTargetProjectsFallback();
-  
-  /* 動的取得コード（プロパティ名修正後に有効化）
   try {
-    // 通知対象=ON のプロジェクトを取得
-    const filter = {
-      filter: {
-        property: NOTION_PROP.PROJECT_NOTIFICATION_TARGET,
-        checkbox: { equals: true }
-      }
-    };
+    console.log('プロジェクトDB動的取得を一時的に無効化し、フォールバックを使用');
     
-    const pages = notionQueryAll(CONFIG.NOTION_PROJECT_DB_ID, filter);
-    console.log(`通知対象プロジェクト数: ${pages.length}`);
-    
-    const projects = pages.map(page => {
-      const name = page.properties['名前']?.title?.[0]?.text?.content || '名前なし';
-      const slackChannelUrl = page.properties[NOTION_PROP.PROJECT_SLACK_CHANNEL_URL]?.url || '';
-      const slackUserId = page.properties[NOTION_PROP.PROJECT_SLACK_USER_ID]?.rich_text?.[0]?.text?.content || '';
-      const pjmName = page.properties[NOTION_PROP.PROJECT_PJM]?.people?.[0]?.name || 'PjM未設定';
-      
-      const channelId = extractChannelIdFromUrl(slackChannelUrl);
-      
-      console.log(`${name}: チャンネル=${channelId || '未設定'}, ユーザーID=${slackUserId || '未設定'}, PjM=${pjmName}`);
-      
-      return {
-        id: page.id,
-        name: name,
-        pjm: pjmName,
-        channelId: channelId,
-        mentionUserId: slackUserId,
-        slackChannelUrl: slackChannelUrl
-      };
-    }).filter(project => {
-      // 必須設定が揃っているもののみ対象
-      const isValid = project.channelId && project.mentionUserId;
-      if (!isValid) {
-        console.warn(`${project.name}: 必須設定が不足しています (チャンネル: ${project.channelId || '未設定'}, ユーザーID: ${project.mentionUserId || '未設定'})`);
-      }
-      return isValid;
-    });
-    
-    console.log(`有効な通知対象プロジェクト数: ${projects.length}`);
-    console.log('対象プロジェクト:', projects.map(p => `${p.name} (${p.pjm})`));
-    
-    return projects;
-    
-  } catch (error) {
-    console.error('プロジェクトDB取得エラー:', error);
+    // 一時的に動的取得をスキップしてフォールバックを使用
     console.log('フォールバック: 既存のハードコードされたマッピングを使用');
     return getTargetProjectsFallback();
+    
+    /* 動的取得コード（プロパティ名修正後に有効化）
+    try {
+      // 通知対象=ON のプロジェクトを取得
+      const filter = {
+        filter: {
+          property: NOTION_PROP.PROJECT_NOTIFICATION_TARGET,
+          checkbox: { equals: true }
+        }
+      };
+      
+      const pages = notionQueryAll(CONFIG.NOTION_PROJECT_DB_ID, filter);
+      console.log(`通知対象プロジェクト数: ${pages.length}`);
+      
+      const projects = pages.map(page => {
+        const name = page.properties['名前']?.title?.[0]?.text?.content || '名前なし';
+        const slackChannelUrl = page.properties[NOTION_PROP.PROJECT_SLACK_CHANNEL_URL]?.url || '';
+        const slackUserId = page.properties[NOTION_PROP.PROJECT_SLACK_USER_ID]?.rich_text?.[0]?.text?.content || '';
+        const pjmName = page.properties[NOTION_PROP.PROJECT_PJM]?.people?.[0]?.name || 'PjM未設定';
+        
+        const channelId = extractChannelIdFromUrl(slackChannelUrl);
+        
+        console.log(`${name}: チャンネル=${channelId || '未設定'}, ユーザーID=${slackUserId || '未設定'}, PjM=${pjmName}`);
+        
+        return {
+          id: page.id,
+          name: name,
+          pjm: pjmName,
+          channelId: channelId,
+          mentionUserId: slackUserId,
+          slackChannelUrl: slackChannelUrl
+        };
+      }).filter(project => {
+        // 必須設定が揃っているもののみ対象
+        const isValid = project.channelId && project.mentionUserId;
+        if (!isValid) {
+          console.warn(`${project.name}: 必須設定が不足しています (チャンネル: ${project.channelId || '未設定'}, ユーザーID: ${project.mentionUserId || '未設定'})`);
+        }
+        return isValid;
+      });
+      
+      console.log(`有効な通知対象プロジェクト数: ${projects.length}`);
+      console.log('対象プロジェクト:', projects.map(p => `${p.name} (${p.pjm})`));
+      
+      return projects;
+      
+    } catch (error) {
+      console.error('プロジェクトDB取得エラー:', error);
+      console.log('フォールバック: 既存のハードコードされたマッピングを使用');
+      return getTargetProjectsFallback();
+    }
+    */
+  } catch (error) {
+    console.error('getTargetProjects エラー:', error);
+    sendErrorNotification(
+      'getTargetProjects',
+      `プロジェクト取得エラー: ${error.message}`,
+      '',
+      'project'
+    );
+    // エラーが発生してもフォールバックを試行
+    return getTargetProjectsFallback();
   }
-  */
 }
 
 /**
@@ -639,9 +700,9 @@ function getPjmNameBySlackId(slackUserId) {
  * NotionプロダクトDBから通知対象のプロダクトを動的に取得
  */
 function getProductDevelopmentProducts() {
-  console.log('NotionプロダクトDBから通知対象プロダクトを動的に取得');
-  
   try {
+    console.log('NotionプロダクトDBから通知対象プロダクトを動的に取得');
+    
     // 通知対象=ON かつ カテゴリ=プロダクト開発 のプロダクトを取得
     const filter = {
       filter: {
@@ -689,6 +750,12 @@ function getProductDevelopmentProducts() {
     
   } catch (error) {
     console.error('プロダクトDB取得エラー:', error);
+    sendErrorNotification(
+      'getProductDevelopmentProducts',
+      `プロダクト取得エラー: ${error.message}`,
+      '',
+      'product'
+    );
     console.log('フォールバック: 既存のハードコードされたマッピングを使用');
     return getProductDevelopmentProductsFallback();
   }
@@ -1340,6 +1407,7 @@ function runTaskNotifier(entityType) {
     console.log(`対象${entityType === 'product' ? 'プロダクト' : 'プロジェクト'}数: ${entities.length}`);
     
     let notificationSent = false; // 通知送信フラグ
+    let errorCount = 0; // エラーカウント
     
     for (const entity of entities) {
       const managerLabel = entityType === 'product' ? 'SM' : 'PjM';
@@ -1353,6 +1421,15 @@ function runTaskNotifier(entityType) {
           const success = sendSlackNotification(entity.name, tasks, entityType === 'product' ? entity.scrumMaster : entity.pjm, entityType, entity);
           if (success) {
             notificationSent = true;
+          } else {
+            errorCount++;
+            // 個別の通知失敗をエラー通知
+            sendErrorNotification(
+              'sendSlackNotification',
+              `Slack通知送信失敗: ${entity.name}`,
+              entity.name,
+              entityType
+            );
           }
         } else {
           console.log(`${entity.name}: 通知対象タスクなし`);
@@ -1362,6 +1439,14 @@ function runTaskNotifier(entityType) {
         
       } catch (error) {
         console.error(`${entity.name} の処理でエラー:`, error);
+        errorCount++;
+        // 個別のエラーをエラー通知
+        sendErrorNotification(
+          'runTaskNotifier',
+          `${entity.name} の処理でエラー: ${error.message}`,
+          entity.name,
+          entityType
+        );
       }
     }
     
@@ -1373,10 +1458,27 @@ function runTaskNotifier(entityType) {
       console.log('通知対象がなかったため、実行日は記録しません');
     }
     
+    // エラーが発生した場合はサマリーをエラー通知
+    if (errorCount > 0) {
+      sendErrorNotification(
+        'runTaskNotifier',
+        `${entityType === 'product' ? 'プロダクト' : 'プロジェクト'}タスク通知で ${errorCount}件のエラーが発生しました`,
+        '',
+        entityType
+      );
+    }
+    
     console.log(`${entityType === 'product' ? 'プロダクト' : 'プロジェクト'}タスク通知完了`);
     
   } catch (error) {
     console.error('メイン処理エラー:', error);
+    // メイン処理のエラーをエラー通知
+    sendErrorNotification(
+      'runTaskNotifier',
+      `メイン処理エラー: ${error.message}`,
+      '',
+      entityType
+    );
     throw error;
   }
 }
