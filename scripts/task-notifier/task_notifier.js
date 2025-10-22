@@ -650,15 +650,9 @@ function getProductDevelopmentProducts() {
   try {
     console.log('NotionプロダクトDBから通知対象プロダクトを動的に取得');
     
-    // カテゴリ=プロダクト開発 のプロダクトを取得（通知対象プロパティはまだ存在しないため除外）
-    const filter = {
-      filter: {
-        property: 'カテゴリ',
-        select: { equals: CONSTANTS.NOTION.PRODUCT_CATEGORY }
-      }
-    };
-    
-    const pages = notionQueryAll(CONFIG.NOTION_PRODUCT_DB_ID, filter);
+    // プロダクトDBにはカテゴリプロパティがないため、全件取得して後でフィルタリング
+    // または、カテゴリフィルタを削除して全件取得
+    const pages = notionQueryAll(CONFIG.NOTION_PRODUCT_DB_ID, {});
     console.log(`通知対象プロダクト数: ${pages.length}`);
     
     const products = pages.map(page => {
@@ -1444,6 +1438,37 @@ function runProjectTaskNotifier() {
 
 
 
+
+/**
+ * NotionプロダクトDBのプロパティ構造を確認する関数
+ */
+function debugProductDBProperties() {
+  console.log('=== NotionプロダクトDBプロパティ構造確認 ===');
+  
+  try {
+    // プロパティフィルタなしで全件取得
+    const pages = notionQueryAll(CONFIG.NOTION_PRODUCT_DB_ID, {});
+    console.log(`取得したプロダクト数: ${pages.length}`);
+    
+    if (pages.length > 0) {
+      const firstPage = pages[0];
+      console.log('\n--- 最初のプロダクトのプロパティ一覧 ---');
+      
+      Object.keys(firstPage.properties).forEach(propName => {
+        const prop = firstPage.properties[propName];
+        console.log(`プロパティ名: "${propName}"`);
+        console.log(`  タイプ: ${prop.type}`);
+        console.log(`  値: ${JSON.stringify(prop)}`);
+        console.log('---');
+      });
+    }
+    
+    console.log('\n=== プロパティ構造確認完了 ===');
+    
+  } catch (error) {
+    console.error('プロパティ構造確認エラー:', error);
+  }
+}
 
 /**
  * NotionプロジェクトDBのプロパティ構造を確認する関数
