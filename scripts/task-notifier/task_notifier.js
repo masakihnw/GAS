@@ -617,17 +617,6 @@ function getTargetProjectsFallback() {
   return projects;
 }
 
-/**
- * SlackチャンネルURLからチャンネルIDを抽出
- */
-function extractChannelIdFromUrl(url) {
-  if (!url) return null;
-  
-  // https://playground-live.slack.com/channels/C4TU3K80K
-  // → C4TU3K80K
-  const match = url.match(/\/channels\/([A-Z0-9]+)/);
-  return match ? match[1] : null;
-}
 
 /**
  * SlackユーザーIDからPjM名を取得（簡易版）
@@ -644,66 +633,24 @@ function getPjmNameBySlackId(slackUserId) {
 }
 
 /**
- * NotionプロダクトDBから通知対象のプロダクトを動的に取得
+ * SlackユーザーIDからスクラムマスター名を取得（簡易版）
  */
-function getProductDevelopmentProducts() {
-  try {
-    console.log('NotionプロダクトDBから通知対象プロダクトを動的に取得');
-    
-    // プロダクトDBにはカテゴリプロパティがないため、全件取得して後でフィルタリング
-    // または、カテゴリフィルタを削除して全件取得
-    const pages = notionQueryAll(CONFIG.NOTION_PRODUCT_DB_ID, {});
-    console.log(`通知対象プロダクト数: ${pages.length}`);
-    
-    const products = pages.map(page => {
-      const name = page.properties['名前']?.title?.[0]?.text?.content || '名前なし';
-      const slackChannelUrl = page.properties[NOTION_PROP.PRODUCT_SLACK_CHANNEL_URL]?.url || '';
-      const slackUserId = page.properties[NOTION_PROP.PRODUCT_SLACK_USER_ID]?.rich_text?.[0]?.text?.content || '';
-      const scrumMasterName = page.properties[NOTION_PROP.PRODUCT_SCRUM_MASTER]?.people?.[0]?.name || 'スクラムマスター未設定';
-      
-      const channelId = extractChannelIdFromUrl(slackChannelUrl);
-      
-      console.log(`${name}: チャンネル=${channelId || '未設定'}, ユーザーID=${slackUserId || '未設定'}, SM=${scrumMasterName}`);
-      
-      return {
-        id: page.id,
-        name: name,
-        scrumMaster: scrumMasterName,
-        channelId: channelId,
-        mentionUserId: slackUserId,
-        slackChannelUrl: slackChannelUrl
-      };
-    }).filter(product => {
-      // 必須設定が揃っているもののみ対象
-      const isValid = product.channelId && product.mentionUserId;
-      if (!isValid) {
-        console.warn(`${product.name}: 必須設定が不足しています (チャンネル: ${product.channelId || '未設定'}, ユーザーID: ${product.mentionUserId || '未設定'})`);
-      }
-      return isValid;
-    });
-    
-    console.log(`有効な通知対象プロダクト数: ${products.length}`);
-    console.log('対象プロダクト:', products.map(p => `${p.name} (${p.scrumMaster})`));
-    
-    return products;
-    
-  } catch (error) {
-    console.error('プロダクトDB取得エラー:', error);
-    sendErrorNotification(
-      'getProductDevelopmentProducts',
-      `プロダクト取得エラー: ${error.message}`,
-      '',
-      'product'
-    );
-    console.log('フォールバック: 既存のハードコードされたマッピングを使用');
-    return getProductDevelopmentProductsFallback();
-  }
+function getScrumMasterNameBySlackId(slackUserId) {
+  // SlackユーザーID → 名前のマッピング（必要に応じて拡張）
+  const slackIdToName = {
+    'U08TLQTUJ21': '居原田 崇史',
+    'U048M5NP6M6': '渡部 愛菜',
+    'U05HPC0BL3V': '花輪 真輝',
+    'U04HB81EUTS': '井口 新一郎'
+  };
+  
+  return slackIdToName[slackUserId] || 'スクラムマスター未設定';
 }
 
 /**
- * フォールバック用：既存のハードコードされたプロダクトマッピング
+ * プロダクト開発向け通知対象プロダクトを取得（ハードコードされたマッピング使用）
  */
-function getProductDevelopmentProductsFallback() {
+function getProductDevelopmentProducts() {
   console.log('フォールバック: 既存のハードコードされたプロダクトマッピングを使用');
   
   const products = Object.keys(PRODUCT_MAPPING).map(productName => {
@@ -721,20 +668,6 @@ function getProductDevelopmentProductsFallback() {
   return products;
 }
 
-/**
- * SlackユーザーIDからスクラムマスター名を取得（簡易版）
- */
-function getScrumMasterNameBySlackId(slackUserId) {
-  // SlackユーザーID → 名前のマッピング（必要に応じて拡張）
-  const slackIdToName = {
-    'U08TLQTUJ21': '居原田 崇史',
-    'U048M5NP6M6': '渡部 愛菜',
-    'U05HPC0BL3V': '花輪 真輝',
-    'U04HB81EUTS': '井口 新一郎'
-  };
-  
-  return slackIdToName[slackUserId] || 'スクラムマスター未設定';
-}
 
 /**
  * Notion DBクエリをページネーション対応で実行
