@@ -577,57 +577,23 @@ function sendErrorNotification(functionName, errorMessage, entityName = '', enti
  * NotionプロジェクトDBからプロジェクトを動的に取得
  */
 function getTargetProjects() {
-  try {
-    console.log('NotionプロジェクトDBからプロジェクトを動的に取得');
-    
-    // 全プロジェクトを取得（通知対象プロパティはまだ存在しないため除外）
-    const filter = {};
-    
-    const pages = notionQueryAll(CONFIG.NOTION_PROJECT_DB_ID, filter);
-    console.log(`取得したプロジェクト数: ${pages.length}`);
-    
-    const projects = pages.map(page => {
-      const name = page.properties['名前']?.title?.[0]?.text?.content || '名前なし';
-      const slackChannelUrl = page.properties[NOTION_PROP.PROJECT_SLACK_CHANNEL_URL]?.url || '';
-      const slackUserId = page.properties[NOTION_PROP.PROJECT_SLACK_USER_ID]?.rich_text?.[0]?.text?.content || '';
-      const pjmName = page.properties[NOTION_PROP.PROJECT_PJM]?.people?.[0]?.name || 'PjM未設定';
-      
-      const channelId = extractChannelIdFromUrl(slackChannelUrl);
-      
-      console.log(`${name}: チャンネル=${channelId || '未設定'}, ユーザーID=${slackUserId || '未設定'}, PjM=${pjmName}`);
-      
-      return {
-        id: page.id,
-        name: name,
-        pjm: pjmName,
-        channelId: channelId,
-        mentionUserId: slackUserId,
-        slackChannelUrl: slackChannelUrl
-      };
-    }).filter(project => {
-      // 必須設定が揃っているもののみ対象
-      const isValid = project.channelId && project.mentionUserId;
-      if (!isValid) {
-        console.warn(`${project.name}: 必須設定が不足しています (チャンネル: ${project.channelId || '未設定'}, ユーザーID: ${project.mentionUserId || '未設定'})`);
-      }
-      return isValid;
-    });
-    
-    console.log(`有効な通知対象プロジェクト数: ${projects.length}`);
-    console.log('対象プロジェクト:', projects.map(p => `${p.name} (${p.pjm})`));
-    
-    return projects;
-  } catch (error) {
-    console.error('プロジェクトDB取得エラー:', error);
-    sendErrorNotification(
-      'getTargetProjects',
-      `プロジェクト取得エラー: ${error.message}`,
-      '',
-      'project'
-    );
-    console.log('フォールバック: 既存のハードコードされたマッピングを使用');
-    return getTargetProjectsFallback();
-  }
+  console.log('プロジェクトマッピングから対象プロジェクトを取得');
+  
+  const projects = Object.keys(PROJECT_MAPPING).map(projectName => {
+    const mapping = PROJECT_MAPPING[projectName];
+    return {
+      id: mapping.notionId,
+      name: projectName,
+      pjm: getPjmNameBySlackId(mapping.mentionUserId),
+      channelId: mapping.channelId,
+      mentionUserId: mapping.mentionUserId
+    };
+  });
+  
+  console.log(`対象プロジェクト数: ${projects.length}`);
+  console.log('対象プロジェクト:', projects.map(p => `${p.name} (${p.pjm})`));
+  
+  return projects;
 }
 
 /**
