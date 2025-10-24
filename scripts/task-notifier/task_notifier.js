@@ -116,8 +116,8 @@ const PRODUCT_MAPPING = {
 };
 
 const PROJECT_MAPPING = {
-  'Sakura': { channelId: 'C09ARFHBLBX', mentionUserId: 'U05HPC0BL3V', notionId: '24e7d6b7-b8c6-801e-a9a3-caf1963d09ad' }, // テストチャンネルに一時変更
-  'Mukuge Phase 1': { channelId: 'C09ARFHBLBX', mentionUserId: 'U9ZFLRRG9', notionId: '23e7d6b7-b8c6-8077-8c70-fdafbdda9aa3' }, // テストチャンネルに一時変更
+  'Sakura': { channelId: '', mentionUserId: 'U05HPC0BL3V', notionId: '24e7d6b7-b8c6-801e-a9a3-caf1963d09ad' }, // 一時停止中のため無効化
+  'Mukuge Phase 1': { channelId: 'C097UBAK886', mentionUserId: 'U9ZFLRRG9', notionId: '23e7d6b7-b8c6-8077-8c70-fdafbdda9aa3' }, // 本番チャンネルに修正
   'HIROMITSU KITAYAMA LIVE TOUR 2025「波紋-HAMON-」': { channelId: 'C08Q0V8UKMH', mentionUserId: 'U9ZFLRRG9', notionId: '1d87d6b7-b8c6-8036-9fe0-f5ed597229bb' },
   'BE:FIRST 2nd Fan Meeting -Hello My "BESTY" vol.2-': { channelId: 'C08NGHKS1B4', mentionUserId: 'U9ZFLRRG9', notionId: '1b37d6b7-b8c6-8053-a197-d9ac8b71ffcf' },
   'Animate Girls Festival 2025 karaku/MA連携': { channelId: 'C09EP48KGDC', mentionUserId: 'U04HB81EUTS', notionId: '1a77d6b7-b8c6-80ae-a651-e2e410f7d207' },
