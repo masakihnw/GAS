@@ -165,6 +165,85 @@ if (data.error === 'not_in_channel' && attempt < SLACK_API.RETRY_ATTEMPTS) {
 
 ---
 
+## エラー2: Notion API 502エラー（抽選プロダクト）
+
+- **日時**: 2025/10/27 11:10:26
+- **対象プロダクト**: 抽選プロダクト (SM: 花輪 真輝)
+- **エラーコード**: `502 - Internal Server Error (500)`
+- **影響範囲**: 抽選プロダクトの通知のみ失敗（他のプロダクトは正常に処理）
+
+### エラー詳細
+
+#### エラーログ
+```
+2025/10/27 11:10:21	デバッグ	Notion DBクエリ完了: 14件取得
+2025/10/27 11:10:26	エラー	Notion DBクエリエラー: { [Exception: Request failed for https://api.notion.com returned code 502. Truncated server response: error code: 500 (use muteHttpExceptions option to examine full response)] name: 'Exception' }
+2025/10/27 11:10:26	エラー	タスク取得エラー: { [Exception: Request failed for https://api.notion.com returned code 502. Truncated server response: error code: 500 (use muteHttpExceptions option to examine full response)] name: 'Exception' }
+2025/10/27 11:10:26	エラー	抽選プロダクト の処理でエラー: ...
+```
+
+### 原因分析
+
+#### 1. エラーの性質
+- **HTTPステータス**: 502（Bad Gateway）
+- **サーバーレスポンス**: Internal Server Error (500)
+- **原因側**: Notion APIサーバー側の問題
+- **発生タイミング**: 期限切れタスク取得（14件）後の今日期限タスク取得中
+
+#### 2. 根本原因
+**Notion APIサーバーの一時的な障害**
+
+- 1回目のクエリ（期限切れタスク）：14件取得成功
+- 2回目のクエリ（今日期限タスク）：502エラーで失敗
+- 同じプロダクトで1回目は成功、2回目は失敗しているため、サーバー側の一時的な問題
+
+考えられる原因：
+1. Notion APIの一時的な障害
+2. データベースの負荷によるタイムアウト
+3. ネットワーク経路の問題
+
+#### 3. 現在のコードの対応状況
+```javascript:scripts/task-notifier/task_notifier.js
+// 773-790行目のタスク取得処理
+try {
+  const overduePages = notionQueryAll(CONFIG.NOTION_TASK_DB_ID, overdueFilter);
+  const overdueTasks = overduePages.map(page => parseTask(page)).filter(task => task !== null);
+  
+  const todayPages = notionQueryAll(CONFIG.NOTION_TASK_DB_ID, todayFilter);
+  const todayTasks = todayPages.map(page => parseTask(page)).filter(task => task !== null);
+  
+  return {
+    overdue: overdueTasks,
+    today: todayTasks
+  };
+  
+} catch (error) {
+  console.error('タスク取得エラー:', error);
+  throw error;
+}
+```
+
+**問題点**:
+- エラーが発生すると全体がスキップされる
+- 期限切れタスクが取得成功した場合でも、今日期限タスクでエラーがあると両方捨てられる
+- リトライ機能がない
+
+### 影響範囲
+- ✅ 他のプロダクト通知: 正常に動作
+- ❌ 抽選プロダクトの通知: 失敗（期限切れタスク14件と今日期限タスクが通知されなかった）
+- ✅ エラー通知: 管理者（花輪）に正常に送信された
+- ✅ 他のプロダクト処理: 継続実行された
+
+### 暫定対応
+エラー通知が管理者に送信され、他のプロダクトへの影響はなし。問題は一時的なサーバー障害のため、次回実行時に自動的に復旧する可能性が高い。
+
+### 修正予定
+1. **部分的な結果の保持**: 1つのクエリが失敗しても、もう片方の結果は保持して通知
+2. **リトライロジックの追加**: 502/500エラーに対して自動リトライ
+3. **エラー処理の改善**: サーバー側エラーとクライアント側エラーを区別
+
+---
+
 ## エラー分類
 
 ### Slack関連エラー
@@ -181,5 +260,16 @@ if (data.error === 'not_in_channel' && attempt < SLACK_API.RETRY_ATTEMPTS) {
 
 ---
 
+### Notion API関連エラー
+
+#### 502 Bad Gateway / 500 Internal Server Error
+- **意味**: Notion APIサーバー側の一時的な障害
+- **HTTPステータス**: 502/500
+- **対応**: 一時的な障害の可能性が高い。次回実行時に自動的に復旧する可能性が高い
+- **対策**: リトライロジックの追加が推奨
+
+---
+
 ## 修正履歴
+- 2025/10/27: Notion API 502エラー原因分析完了
 - 2025/10/27: channel_not_foundエラー原因分析完了
