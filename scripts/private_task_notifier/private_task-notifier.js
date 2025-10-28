@@ -353,19 +353,42 @@ function parseTask(page) {
   const dueDate = page.properties[NOTION_PROP.TASK_DUE_DATE]?.date?.start || '';
   
   // プロパティから名前を抽出するヘルパー関数
-  const extractName = (prop) => {
-    if (!prop) return '';
-    if (prop.select?.name) return prop.select.name;
-    if (prop.relation?.length) return '(関連)';
-    if (prop.rich_text?.length) return prop.rich_text.map(t => t.plain_text || '').join('');
-    if (prop.title?.length) return prop.title.map(t => t.plain_text || '').join('');
+  const extractName = (prop, propType) => {
+    if (!prop) {
+      console.log(`  プロパティ ${propType}: 未定義`);
+      return '';
+    }
+    if (prop.select?.name) {
+      console.log(`  プロパティ ${propType}: select型 = ${prop.select.name}`);
+      return prop.select.name;
+    }
+    if (prop.relation?.length) {
+      console.log(`  プロパティ ${propType}: relation型（${prop.relation.length}件）`);
+      return '(関連)';
+    }
+    if (prop.rich_text?.length) {
+      const text = prop.rich_text.map(t => t.plain_text || '').join('');
+      console.log(`  プロパティ ${propType}: rich_text型 = ${text}`);
+      return text;
+    }
+    if (prop.title?.length) {
+      const text = prop.title.map(t => t.plain_text || '').join('');
+      console.log(`  プロパティ ${propType}: title型 = ${text}`);
+      return text;
+    }
+    console.log(`  プロパティ ${propType}: 型が不明 - ${Object.keys(prop).join(', ')}`);
     return '';
   };
   
   // プロダクト名を優先的に取得、なければプロジェクト名
-  const productName = extractName(page.properties?.[ENV.PRODUCT_PROP_NAME]);
-  const projectName = extractName(page.properties?.[ENV.PROJECT_PROP_NAME]);
+  console.log(`タスク "${title}" のプロパティを取得中...`);
+  console.log(`  プロパティ名: プロダクト="${ENV.PRODUCT_PROP_NAME}", プロジェクト="${ENV.PROJECT_PROP_NAME}"`);
+  
+  const productName = extractName(page.properties?.[ENV.PRODUCT_PROP_NAME], 'プロダクト');
+  const projectName = extractName(page.properties?.[ENV.PROJECT_PROP_NAME], 'プロジェクト');
   const issueName = productName || projectName || '';
+  
+  console.log(`  結果: issueName="${issueName}"`);
   
   // Notionリンクを生成
   const notionLink = `https://www.notion.so/${page.id.replace(/-/g, '')}`;
