@@ -382,7 +382,8 @@ function parseTask(page) {
   
   // プロダクト名を優先的に取得、なければプロジェクト名
   console.log(`タスク "${title}" のプロパティを取得中...`);
-  console.log(`  プロパティ名: プロダクト="${ENV.PRODUCT_PROP_NAME}", プロジェクト="${ENV.PROJECT_PROP_NAME}"`);
+  console.log(`  利用可能なプロパティ名: ${Object.keys(page.properties || {}).join(', ')}`);
+  console.log(`  設定されたプロパティ名: プロダクト="${ENV.PRODUCT_PROP_NAME}", プロジェクト="${ENV.PROJECT_PROP_NAME}"`);
   
   const productName = extractName(page.properties?.[ENV.PRODUCT_PROP_NAME], 'プロダクト');
   const projectName = extractName(page.properties?.[ENV.PROJECT_PROP_NAME], 'プロジェクト');
