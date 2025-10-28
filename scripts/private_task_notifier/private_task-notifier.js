@@ -447,14 +447,14 @@ function parseTask(page) {
             
             try {
               const relationPageData = UrlFetchApp.fetch(`https://api.notion.com/v1/pages/${relationPageId}`, {
-                method: 'GET',
-                headers: {
+      method: 'GET',
+      headers: {
                   'Authorization': `Bearer ${ENV.NOTION_API_TOKEN}`,
-                  'Content-Type': 'application/json',
-                  'Notion-Version': CONSTANTS.NOTION.API_VERSION
-                }
-              });
-              
+        'Content-Type': 'application/json',
+        'Notion-Version': CONSTANTS.NOTION.API_VERSION
+      }
+    });
+    
               const relationStatusCode = relationPageData.getResponseCode();
               if (relationStatusCode.toString().startsWith('2')) {
                 const relationResponseData = JSON.parse(relationPageData.getContentText());
@@ -477,10 +477,10 @@ function parseTask(page) {
         console.log(`    最初のアイテムの詳細: ${JSON.stringify(firstItem).substring(0, 200)}`);
       }
       console.log(`  プロパティ ${propType}: rollup型（処理できず）`);
-      return '';
-    }
+        return '';
+      }
     console.log(`  プロパティ ${propType}: 型が不明 - ${Object.keys(prop).join(', ')}`);
-    return '';
+      return '';
   };
   
   // Issue名を取得（グループ化用）
@@ -619,38 +619,24 @@ function getPersonalTasks() {
 }
 
 /**
- * Issue（プロダクト名/プロジェクト名）でタスクをグループ化
+ * タスクリストをIssue別にグループ化して返す
  */
-function groupTasksByIssue(tasks) {
-  const allTasks = [...tasks.overdue, ...tasks.today, ...tasks.thisWeek];
-  const issueGroups = {};
+function groupByIssue(tasks) {
+  const issueMap = {};
   
-  allTasks.forEach(task => {
+  tasks.forEach(task => {
     const issueKey = task.issueName || '(Issueなし)';
-    if (!issueGroups[issueKey]) {
-      issueGroups[issueKey] = { overdue: [], today: [], thisWeek: [] };
+    if (!issueMap[issueKey]) {
+      issueMap[issueKey] = [];
     }
-    
-    // タスクがどのカテゴリに属するか判定
-    const todayStr = getJSTToday();
-    const toMs = s => new Date(s + 'T00:00:00+09:00').getTime();
-    const dueDateOnly = task.dueDate.includes('T') ? task.dueDate.split('T')[0] : task.dueDate;
-    const diffDays = Math.round((toMs(dueDateOnly) - toMs(todayStr)) / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) {
-      issueGroups[issueKey].overdue.push(task);
-    } else if (diffDays === 0) {
-      issueGroups[issueKey].today.push(task);
-    } else {
-      issueGroups[issueKey].thisWeek.push(task);
-    }
+    issueMap[issueKey].push(task);
   });
   
-  return issueGroups;
+  return issueMap;
 }
 
 /**
- * Slack通知メッセージを作成（Issue別グループ化対応）
+ * Slack通知メッセージを作成（期限カテゴリ→Issue別の2段階グループ化）
  */
 function createSlackBlocks(tasks) {
   const totalCount = tasks.overdue.length + tasks.today.length + tasks.thisWeek.length;
@@ -675,65 +661,93 @@ function createSlackBlocks(tasks) {
     }
   ];
   
-  // Issue別にグループ化
-  const issueGroups = groupTasksByIssue(tasks);
-  const issueKeys = Object.keys(issueGroups).sort();
-  
-  issueKeys.forEach(issueName => {
-    const issueTasks = issueGroups[issueName];
-    const issueTotal = issueTasks.overdue.length + issueTasks.today.length + issueTasks.thisWeek.length;
-    
-    // Issue名をヘッダーに
+  // 期限切れタスク
+  if (tasks.overdue.length > 0) {
     blocks.push({
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `*📋 ${issueName}*（${issueTotal}件）`
+        text: `⚠️ *期限切れ（${tasks.overdue.length}件）*`
       }
     });
     
-    // 期限切れタスク
-    if (issueTasks.overdue.length > 0) {
-      const taskList = issueTasks.overdue.map(lineOf).join('\n');
+    // Issue別にグループ化
+    const overdueByIssue = groupByIssue(tasks.overdue);
+    const overdueIssueKeys = Object.keys(overdueByIssue).sort();
+    
+    overdueIssueKeys.forEach(issueName => {
+      const issueTasks = overdueByIssue[issueName];
     blocks.push({
       type: "section",
       text: {
         type: "mrkdwn",
-          text: `⚠️ 期限切れ（${issueTasks.overdue.length}件）\n${taskList}`
-      }
+          text: `*${issueName}*\n${issueTasks.map(lineOf).join('\n')}`
+        }
+      });
     });
+    
+    blocks.push({ type: "divider" });
   }
   
-    // 今日期限タスク
-    if (issueTasks.today.length > 0) {
-      const taskList = issueTasks.today.map(lineOf).join('\n');
-  blocks.push({
+  // 今日期限タスク
+  if (tasks.today.length > 0) {
+    blocks.push({
     type: "section",
     text: {
       type: "mrkdwn",
-          text: `📅 今日期限（${issueTasks.today.length}件）\n${taskList}`
-        }
-      });
-    }
+        text: `📅 *今日期限（${tasks.today.length}件）*`
+      }
+    });
     
-    // 今週期限タスク
-    if (issueTasks.thisWeek.length > 0) {
-      const taskList = issueTasks.thisWeek.map(lineOf).join('\n');
+    // Issue別にグループ化
+    const todayByIssue = groupByIssue(tasks.today);
+    const todayIssueKeys = Object.keys(todayByIssue).sort();
+    
+    todayIssueKeys.forEach(issueName => {
+      const issueTasks = todayByIssue[issueName];
     blocks.push({
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `📆 今週期限（${issueTasks.thisWeek.length}件）\n${taskList}`
-        }
-      });
-    }
-    
-    blocks.push({ type: "divider" });
+      type: "section",
+      text: {
+        type: "mrkdwn",
+          text: `*${issueName}*\n${issueTasks.map(lineOf).join('\n')}`
+      }
+    });
   });
+  
+    blocks.push({ type: "divider" });
+  }
+  
+  // 今週期限タスク
+  if (tasks.thisWeek.length > 0) {
+    blocks.push({
+    type: "section",
+    text: {
+      type: "mrkdwn",
+        text: `📆 *今週期限（${tasks.thisWeek.length}件）*`
+      }
+    });
+    
+    // Issue別にグループ化
+    const thisWeekByIssue = groupByIssue(tasks.thisWeek);
+    const thisWeekIssueKeys = Object.keys(thisWeekByIssue).sort();
+    
+    thisWeekIssueKeys.forEach(issueName => {
+      const issueTasks = thisWeekByIssue[issueName];
+    blocks.push({
+      type: "section",
+      text: {
+        type: "mrkdwn",
+          text: `*${issueName}*\n${issueTasks.map(lineOf).join('\n')}`
+      }
+    });
+  });
+  
+    blocks.push({ type: "divider" });
+  }
   
   // フッター
   const nowStr = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy/MM/dd HH:mm:ss');
-    blocks.push({
+  blocks.push({
     type: "context",
     elements: [
       {
