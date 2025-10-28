@@ -1,12 +1,28 @@
 /**
  * 個人タスク通知ボット - 花輪 真輝用（GAS × Notion × Slack）
- * 要件定義に基づく実装
+ * 要件定義に基づく実装（リファクタリング版）
  * 
  * このファイルは clasp push の動作確認用です。
  * 実際の開発コードは一時的にここで作成し、動作確認後に個人プロジェクトに移行してください。
  * 
  * 開発完了後は、このファイルを空の状態に戻してください。
  */
+
+// Script Properties
+const SP = PropertiesService.getScriptProperties();
+
+/**
+ * 環境設定（Script Propertiesから読み込み）
+ */
+const ENV = {
+  NOTION_API_TOKEN: SP.getProperty('NOTION_API_TOKEN') || '',
+  NOTION_TASK_DB_ID: SP.getProperty('NOTION_TASK_DB_ID') || '',
+  SLACK_BOT_TOKEN: SP.getProperty('SLACK_BOT_TOKEN') || '',
+  NOTION_USER_ID: SP.getProperty('NOTION_USER_ID') || '',
+  SLACK_USER_ID: SP.getProperty('SLACK_USER_ID') || '',
+  SLACK_CHANNEL_ID: SP.getProperty('SLACK_CHANNEL_ID') || '',
+  PROJECT_PROP_NAME: SP.getProperty('PROJECT_PROP_NAME') || 'プロジェクト'
+};
 
 /**
  * Notionプロパティ名の定数
@@ -24,44 +40,34 @@ const NOTION_PROP = {
 const SLACK_API = {
   BASE_URL: 'https://slack.com/api',
   CHAT_POST_MESSAGE: '/chat.postMessage',
+  CONVERSATIONS_JOIN: '/conversations.join',
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY_MS: 1000
 };
 
-// アプリケーション定数
+/**
+ * アプリケーション定数
+ */
 const CONSTANTS = {
   NOTION: {
     PAGE_SIZE: 100,
     API_VERSION: '2022-06-28'
-  },
-  SLACK: {
-    TEST_CHANNEL: 'C09ARFHBLBX',
   },
   STATUS: {
     COMPLETED: '完了',
     CANCELLED: 'キャンセル',
     BACKLOG: 'バックログ',
     EXECUTION_COMPLETED: '実行完了'
-  },
-  // 個人設定
-  NOTION_USER_ID: '889b7bc4-3dcc-46cd-9995-d57d0a3bc81f', // 花輪 真輝
-  SLACK_USER_ID: 'U05HPC0BL3V', // 花輪 真輝
-  SLACK_CHANNEL_ID: 'C09NX2B48BV' // 個人用通知チャンネ🏻
-};
-
-// Script Properties の設定
-const CONFIG = {
-  NOTION_API_TOKEN: PropertiesService.getScriptProperties().getProperty('NOTION_API_TOKEN') || '',
-  NOTION_TASK_DB_ID: 'afafabe758044461a3e9e9b4c037e5aa', // Task DB ID
-  SLACK_BOT_TOKEN: PropertiesService.getScriptProperties().getProperty('SLACK_BOT_TOKEN') || ''
+  }
 };
 
 /**
  * 設定値の検証
  */
 function validateConfig() {
-  const requiredKeys = ['NOTION_API_TOKEN', 'NOTION_TASK_DB_ID', 'SLACK_BOT_TOKEN'];
-  const missingKeys = requiredKeys.filter(key => !CONFIG[key] && !(key === 'NOTION_TASK_DB_ID' && CONSTANTS.NOTION_USER_ID));
+  const requiredKeys = ['NOTION_API_TOKEN', 'NOTION_TASK_DB_ID', 'SLACK_BOT_TOKEN', 
+                        'NOTION_USER_ID', 'SLACK_USER_ID', 'SLACK_CHANNEL_ID'];
+  const missingKeys = requiredKeys.filter(key => !ENV[key]);
   
   if (missingKeys.length > 0) {
     throw new Error(`スクリプトプロパティが設定されていません: ${missingKeys.join(', ')}`);
@@ -162,8 +168,7 @@ function getJapaneseHolidays(year) {
   const endDate = new Date(year, 11, 31);
   
   try {
-    const events = CalendarApp.getCalendarById(calendarId)
-      .getEvents(startDate, endDate);
+    const events = CalendarApp.getCalendarById(calendarId).getEvents(startDate, endDate);
     
     const holidays = [];
     events.forEach(event => {
@@ -181,7 +186,7 @@ function getJapaneseHolidays(year) {
 }
 
 /**
- * 通知しない日かどうかを判定
+ * 通知しない日かどうかを判定（週末・祝日・年末年始）
  */
 function shouldSkipNotification() {
   const today = new Date();
@@ -215,6 +220,45 @@ function shouldSkipNotification() {
 }
 
 /**
+ * 二重送信防止: 今日の通知実行済みフラグキーを取得
+ */
+function getTodayKey() {
+  return `NOTIFIED_AT_${getJSTToday()}`;
+}
+
+/**
+ * 二重送信防止: 今日既に通知済みかチェック
+ */
+function hasNotifiedToday() {
+  return SP.getProperty(getTodayKey()) === 'done';
+}
+
+/**
+ * 二重送信防止: 今日の通知実行済みフラグを立てる
+ */
+function markNotifiedToday() {
+  SP.setProperty(getTodayKey(), 'done');
+  console.log('本日の通知実行済みフラグを設定しました');
+}
+
+/**
+ * エラー通知をSlackに送信（標準化版）
+ */
+function notifyErrorToSlack(where, error) {
+  const when = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy/MM/dd HH:mm:ss');
+  const errorDetail = error && (error.stack || error.message || error);
+  const text = `:warning: *エラー* @${where}\n• 時刻: ${when}\n• 詳細: ${errorDetail}`;
+  
+  try {
+    postSlackMessage(ENV.SLACK_CHANNEL_ID, [
+      { type: 'section', text: { type: 'mrkdwn', text } }
+    ], 'エラー通知');
+  } catch (e) {
+    console.error('エラー通知失敗:', e);
+  }
+}
+
+/**
  * Notion DBクエリをページネーション対応で実行
  */
 function notionQueryAll(databaseId, filter = {}) {
@@ -223,7 +267,7 @@ function notionQueryAll(databaseId, filter = {}) {
   let startCursor = null;
   
   while (hasMore) {
-    const payload = {
+  const payload = {
       page_size: CONSTANTS.NOTION.PAGE_SIZE,
       ...filter
     };
@@ -234,13 +278,13 @@ function notionQueryAll(databaseId, filter = {}) {
     
     try {
       const response = UrlFetchApp.fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${CONFIG.NOTION_API_TOKEN}`,
-          'Content-Type': 'application/json',
-          'Notion-Version': CONSTANTS.NOTION.API_VERSION
-        },
-        payload: JSON.stringify(payload)
+    method: 'POST',
+    headers: {
+          'Authorization': `Bearer ${ENV.NOTION_API_TOKEN}`,
+      'Content-Type': 'application/json',
+      'Notion-Version': CONSTANTS.NOTION.API_VERSION
+    },
+    payload: JSON.stringify(payload)
       });
       
       const statusCode = response.getResponseCode();
@@ -249,7 +293,7 @@ function notionQueryAll(databaseId, filter = {}) {
         throw new Error(`Notion API エラー: ${statusCode}`);
       }
       
-      const data = JSON.parse(response.getContentText());
+    const data = JSON.parse(response.getContentText());
       allResults.push(...data.results);
       
       hasMore = data.has_more;
@@ -259,10 +303,10 @@ function notionQueryAll(databaseId, filter = {}) {
         Utilities.sleep(100);
       }
       
-    } catch (error) {
+  } catch (error) {
       console.error('Notion DBクエリエラー:', error);
-      throw error;
-    }
+    throw error;
+  }
   }
   
   console.log(`Notion DBクエリ完了: ${allResults.length}件取得`);
@@ -270,84 +314,20 @@ function notionQueryAll(databaseId, filter = {}) {
 }
 
 /**
- * 花輪 真輝のタスクを3種類取得（期限切れ/今日/今週）
+ * 部分継続: カテゴリ単位でタスクを安全に取得
  */
-function getPersonalTasks() {
-  const today = getJSTToday();
-  const thisWeekSaturday = getJSTThisWeekSaturday();
-  
-  // 共通のベースフィルタ
-  const baseAnd = [
-    {
-      property: NOTION_PROP.TASK_ASSIGNEE,
-      people: { contains: CONSTANTS.NOTION_USER_ID } // 花輪 真輝のIDでフィルタ
-    },
-    { property: NOTION_PROP.TASK_STATUS, status: { does_not_equal: CONSTANTS.STATUS.COMPLETED } },
-    { property: NOTION_PROP.TASK_STATUS, status: { does_not_equal: CONSTANTS.STATUS.CANCELLED } },
-    { property: NOTION_PROP.TASK_STATUS, status: { does_not_equal: CONSTANTS.STATUS.BACKLOG } },
-    { property: NOTION_PROP.TASK_STATUS, status: { does_not_equal: CONSTANTS.STATUS.EXECUTION_COMPLETED } }
-  ];
-  
-  // 期限切れタスク（昨日までの期限）
-  const overdueFilter = {
-    filter: {
-      and: [
-        ...baseAnd,
-        { property: NOTION_PROP.TASK_DUE_DATE, date: { before: today } },
-        { property: NOTION_PROP.TASK_DUE_DATE, date: { is_not_empty: true } }
-      ]
-    }
-  };
-  
-  // 今日期限タスク（今日が期限）
-  const todayFilter = {
-    filter: {
-      and: [
-        ...baseAnd,
-        { property: NOTION_PROP.TASK_DUE_DATE, date: { equals: today } }
-      ]
-    }
-  };
-  
-  // 今週期限タスク（明日以降で今週末まで）
-  const thisWeekFilter = {
-    filter: {
-      and: [
-        ...baseAnd,
-        { property: NOTION_PROP.TASK_DUE_DATE, date: { after: today } },
-        { property: NOTION_PROP.TASK_DUE_DATE, date: { on_or_before: thisWeekSaturday } }
-      ]
-    }
-  };
-  
+function safeFetchTasks(filterObj, label) {
   try {
-    console.log('タスク取得開始...');
-    
-    // 3種類のタスクを取得
-    const overduePages = notionQueryAll(CONFIG.NOTION_TASK_DB_ID, overdueFilter);
-    const todayPages = notionQueryAll(CONFIG.NOTION_TASK_DB_ID, todayFilter);
-    const thisWeekPages = notionQueryAll(CONFIG.NOTION_TASK_DB_ID, thisWeekFilter);
-    
-    const overdueTasks = overduePages.map(page => parseTask(page)).filter(task => task !== null);
-    const todayTasks = todayPages.map(page => parseTask(page)).filter(task => task !== null);
-    const thisWeekTasks = thisWeekPages.map(page => parseTask(page)).filter(task => task !== null);
-    
-    console.log(`タスク取得完了: 期限切れ${overdueTasks.length}件, 今日${todayTasks.length}件, 今週${thisWeekTasks.length}件`);
-    
-    return {
-      overdue: overdueTasks,
-      today: todayTasks,
-      thisWeek: thisWeekTasks
-    };
-    
-  } catch (error) {
-    console.error('タスク取得エラー:', error);
-    throw error;
+    const pages = notionQueryAll(ENV.NOTION_TASK_DB_ID, filterObj);
+    return pages.map(parseTask).filter(Boolean);
+  } catch (e) {
+    notifyErrorToSlack(`getPersonalTasks:${label}`, e);
+    return [];
   }
 }
 
 /**
- * Notionページをタスクオブジェクトに変換
+ * Notionページをタスクオブジェクトに変換（プロジェクト名対応）
  */
 function parseTask(page) {
   // タスク名を取得
@@ -371,6 +351,16 @@ function parseTask(page) {
   const status = page.properties[NOTION_PROP.TASK_STATUS]?.status?.name || 'ステータスなし';
   const dueDate = page.properties[NOTION_PROP.TASK_DUE_DATE]?.date?.start || '';
   
+  // プロジェクト名を抽出（任意プロパティ）
+  let projectName = '';
+  const proj = page.properties?.[ENV.PROJECT_PROP_NAME];
+  if (proj) {
+    if (proj.select?.name) projectName = proj.select.name;
+    else if (proj.relation?.length) projectName = '(関連プロジェクト)';
+    else if (proj.rich_text?.length) projectName = proj.rich_text.map(t => t.plain_text || '').join('');
+    else if (proj.title?.length) projectName = proj.title.map(t => t.plain_text || '').join('');
+  }
+  
   // Notionリンクを生成
   const notionLink = `https://www.notion.so/${page.id.replace(/-/g, '')}`;
   
@@ -379,61 +369,119 @@ function parseTask(page) {
     title: title,
     status: status,
     dueDate: dueDate,
-    notionLink: notionLink
+    notionLink: notionLink,
+    projectName: projectName
   };
 }
 
 /**
- * Slackメッセージを投稿（リトライ機能付き）
+ * Slackチャンネルに参加
  */
-function postSlackMessage(channelId, blocks, text) {
-  const url = `${SLACK_API.BASE_URL}${SLACK_API.CHAT_POST_MESSAGE}`;
-  const payload = {
-    channel: channelId,
-    blocks: blocks,
-    text: text
-  };
-  
-  const options = {
-    method: 'POST',
+function ensureJoinChannel(channelId) {
+  try {
+    const res = UrlFetchApp.fetch(`${SLACK_API.BASE_URL}${SLACK_API.CONVERSATIONS_JOIN}`, {
+      method: 'post',
+      headers: {
+        'Authorization': `Bearer ${ENV.SLACK_BOT_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      payload: JSON.stringify({ channel: channelId }),
+      muteHttpExceptions: true
+    });
+    const data = JSON.parse(res.getContentText() || '{}');
+    if (!data.ok && !['already_in_channel', 'method_not_supported_for_channel_type'].includes(data.error)) {
+      console.warn('conversations.join 失敗:', data.error);
+    }
+  } catch (e) {
+    console.warn('conversations.join 例外:', e);
+  }
+}
+
+/**
+ * Slackメッセージを投稿（リトライ機能付き・チャンネル参加対応）
+ */
+function postSlackMessage(channel, blocks, debugLabel) {
+  const payload = { channel, blocks };
+  const doPost = () => UrlFetchApp.fetch(`${SLACK_API.BASE_URL}${SLACK_API.CHAT_POST_MESSAGE}`, {
+    method: 'post',
     headers: {
-      'Authorization': `Bearer ${CONFIG.SLACK_BOT_TOKEN}`,
+      'Authorization': `Bearer ${ENV.SLACK_BOT_TOKEN}`,
       'Content-Type': 'application/json'
     },
-    payload: JSON.stringify(payload)
-  };
-  
-  for (let attempt = 1; attempt <= SLACK_API.RETRY_ATTEMPTS; attempt++) {
-    try {
-      const response = UrlFetchApp.fetch(url, options);
-      const statusCode = response.getResponseCode();
-      const data = JSON.parse(response.getContentText());
-      
-      if (data.ok) {
-        console.log(`Slack通知送信成功 (試行${attempt}回目)`);
-        return true;
-      } else {
-        console.warn(`Slack通知送信失敗 (試行${attempt}回目): ${statusCode} - ${data.error}`);
-        
-        if (attempt === SLACK_API.RETRY_ATTEMPTS) {
-          console.error('Slack通知送信が最終的に失敗しました');
-          return false;
-        }
-      }
-    } catch (error) {
-      console.error(`Slack通知送信エラー (試行${attempt}回目):`, error);
-      if (attempt === SLACK_API.RETRY_ATTEMPTS) {
-        return false;
-      }
-      Utilities.sleep(SLACK_API.RETRY_DELAY_MS);
-    }
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  });
+
+  let res = doPost();
+  let data = JSON.parse(res.getContentText() || '{}');
+  if (!data.ok && ['channel_not_found', 'not_in_channel'].includes(data.error)) {
+    ensureJoinChannel(channel);
+    res = doPost();
+    data = JSON.parse(res.getContentText() || '{}');
   }
-  
-  return false;
+  if (!data.ok) {
+    console.error(`Slack送信失敗(${debugLabel}):`, data.error, res.getContentText());
+    return false;
+  }
+  return true;
 }
 
 /**
- * Slack通知メッセージを作成
+ * タスクのSlack表示行を生成
+ */
+function lineOf(task) {
+  const proj = task.projectName ? `／ ${task.projectName}` : '';
+  return `• <${task.notionLink}|${task.title}>（${formatRelativeDate(task.dueDate)} ${task.status}${proj}）`;
+}
+
+/**
+ * 花輪 真輝のタスクを3種類取得（期限切れ/今日/今週） - 部分継続対応
+ */
+function getPersonalTasks() {
+  const today = getJSTToday();
+  const saturday = getJSTThisWeekSaturday();
+  
+  // 共通のベースフィルタ
+  const baseAnd = [
+    { property: NOTION_PROP.TASK_ASSIGNEE, people: { contains: ENV.NOTION_USER_ID } },
+    { property: NOTION_PROP.TASK_STATUS, status: { does_not_equal: CONSTANTS.STATUS.COMPLETED } },
+    { property: NOTION_PROP.TASK_STATUS, status: { does_not_equal: CONSTANTS.STATUS.CANCELLED } },
+    { property: NOTION_PROP.TASK_STATUS, status: { does_not_equal: CONSTANTS.STATUS.BACKLOG } },
+    { property: NOTION_PROP.TASK_STATUS, status: { does_not_equal: CONSTANTS.STATUS.EXECUTION_COMPLETED } }
+  ];
+
+  // 期限切れタスク（昨日までの期限）
+  const overdue = safeFetchTasks({ filter: { and: [
+    ...baseAnd,
+    { property: NOTION_PROP.TASK_DUE_DATE, date: { before: today } },
+    { property: NOTION_PROP.TASK_DUE_DATE, date: { is_not_empty: true } }
+  ]}}, 'overdue');
+
+  // 今日期限タスク（今日が期限）
+  const todayTasks = safeFetchTasks({ filter: { and: [
+    ...baseAnd,
+    { property: NOTION_PROP.TASK_DUE_DATE, date: { equals: today } }
+  ]}}, 'today');
+
+  // 今週期限タスク（明日以降で今週末まで）
+  const thisWeek = safeFetchTasks({ filter: { and: [
+    ...baseAnd,
+    { property: NOTION_PROP.TASK_DUE_DATE, date: { after: today } },
+    { property: NOTION_PROP.TASK_DUE_DATE, date: { on_or_before: saturday } }
+  ]}}, 'thisWeek');
+
+  // 全カテゴリで期限昇順ソート
+  const asc = (a, b) => toJstEpoch(a.dueDate) - toJstEpoch(b.dueDate);
+  
+  return {
+    overdue: overdue.sort(asc),
+    today: todayTasks.sort(asc),
+    thisWeek: thisWeek.sort(asc)
+  };
+}
+
+/**
+ * Slack通知メッセージを作成（プロジェクト名対応）
  */
 function createSlackBlocks(tasks) {
   const totalCount = tasks.overdue.length + tasks.today.length + tasks.thisWeek.length;
@@ -450,7 +498,7 @@ function createSlackBlocks(tasks) {
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `<@${CONSTANTS.SLACK_USER_ID}> 以下のタスクがあります:`
+        text: `<@${ENV.SLACK_USER_ID}> 以下のタスクがあります:`
       }
     },
     {
@@ -467,14 +515,7 @@ function createSlackBlocks(tasks) {
   
   // 期限切れタスク
   if (tasks.overdue.length > 0) {
-    const sortedOverdueTasks = tasks.overdue.slice().sort((a, b) => {
-      return toJstEpoch(a.dueDate) - toJstEpoch(b.dueDate);
-    });
-    
-    const taskList = sortedOverdueTasks.map(task => {
-      return `• <${task.notionLink}|${task.title}>（${formatRelativeDate(task.dueDate)} ${task.status}）`;
-    }).join('\n');
-    
+    const taskList = tasks.overdue.map(lineOf).join('\n');
     blocks.push({
       type: "section",
       text: {
@@ -487,14 +528,11 @@ function createSlackBlocks(tasks) {
   
   // 今日期限タスク
   if (tasks.today.length > 0) {
-    const taskList = tasks.today.map(task => {
-      return `• <${task.notionLink}|${task.title}>（${formatRelativeDate(task.dueDate)} ${task.status}）`;
-    }).join('\n');
-    
-    blocks.push({
-      type: "section",
-      text: {
-        type: "mrkdwn",
+    const taskList = tasks.today.map(lineOf).join('\n');
+  blocks.push({
+    type: "section",
+    text: {
+      type: "mrkdwn",
         text: `📅 *今日期限のタスク（${tasks.today.length}件）*\n${taskList}`
       }
     });
@@ -503,10 +541,7 @@ function createSlackBlocks(tasks) {
   
   // 今週期限タスク
   if (tasks.thisWeek.length > 0) {
-    const taskList = tasks.thisWeek.map(task => {
-      return `• <${task.notionLink}|${task.title}>（${formatRelativeDate(task.dueDate)} ${task.status}）`;
-    }).join('\n');
-    
+    const taskList = tasks.thisWeek.map(lineOf).join('\n');
     blocks.push({
       type: "section",
       text: {
@@ -533,104 +568,6 @@ function createSlackBlocks(tasks) {
 }
 
 /**
- * エラー通知をSlackに送信
- */
-function sendErrorNotification(functionName, errorMessage) {
-  const nowStr = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy/MM/dd HH:mm:ss');
-  
-  const blocks = [
-    {
-      type: "header",
-      text: {
-        type: "plain_text",
-        text: "🚨 タスク通知エラー"
-      }
-    },
-    {
-      type: "section",
-      text: {
-        type: "mrkdwn",
-        text: `<@${CONSTANTS.SLACK_USER_ID}> 個人タスク通知でエラーが発生しました`
-      }
-    },
-    {
-      type: "section",
-      text: {
-        type: "mrkdwn",
-        text: `*エラー詳細:*\n• 関数: \`${functionName}\`\n• エラー: ${errorMessage}\n• 発生時刻: ${nowStr}（JST）`
-      }
-    },
-    {
-      type: "context",
-      elements: [{ type: "mrkdwn", text: "個人タスク通知ボット" }]
-    }
-  ];
-  
-  const text = `タスク通知エラー: ${functionName} - ${errorMessage}`;
-  
-  console.log(`エラー通知を送信: ${functionName} - ${errorMessage}`);
-  
-  // エラー通知はリトライなしで送信
-  const success = postSlackMessage(CONSTANTS.SLACK_CHANNEL_ID, blocks, text, false);
-  if (!success) {
-    console.error('エラー通知の送信に失敗しました');
-  }
-  
-  return success;
-}
-
-/**
- * Slackメッセージを投稿（リトライ機能付き・オプション）
- */
-function postSlackMessage(channelId, blocks, text, retry = true) {
-  const url = `${SLACK_API.BASE_URL}${SLACK_API.CHAT_POST_MESSAGE}`;
-  const payload = {
-    channel: channelId,
-    blocks: blocks,
-    text: text
-  };
-  
-  const options = {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${CONFIG.SLACK_BOT_TOKEN}`,
-      'Content-Type': 'application/json'
-    },
-    payload: JSON.stringify(payload)
-  };
-  
-  const retryAttempts = retry ? SLACK_API.RETRY_ATTEMPTS : 1;
-  
-  for (let attempt = 1; attempt <= retryAttempts; attempt++) {
-    try {
-      const response = UrlFetchApp.fetch(url, options);
-      const statusCode = response.getResponseCode();
-      const data = JSON.parse(response.getContentText());
-      
-      if (data.ok) {
-        console.log(`Slack通知送信成功 (試行${attempt}回目)`);
-        return true;
-      } else {
-        console.warn(`Slack通知送信失敗 (試行${attempt}回目): ${statusCode} - ${data.error}`);
-        
-        if (attempt === retryAttempts) {
-          console.error('Slack通知送信が最終的に失敗しました');
-          return false;
-        }
-      }
-    } catch (error) {
-      console.error(`Slack通知送信エラー (試行${attempt}回目):`, error);
-      if (attempt === retryAttempts) {
-        return false;
-      }
-      Utilities.sleep(SLACK_API.RETRY_DELAY_MS);
-    }
-  }
-  
-  return false;
-}
-
-/**
  * メイン処理関数
  */
 function runPersonalTaskNotifier() {
@@ -638,60 +575,39 @@ function runPersonalTaskNotifier() {
     console.log('=== 個人タスク通知開始 ===');
     
     // 設定値の検証
-    try {
-      validateConfig();
-    } catch (error) {
-      console.error('設定値の検証エラー:', error);
-      sendErrorNotification('validateConfig', error.message);
+    validateConfig();
+    
+    // 週末・祝日・年末年始のスキップ判定
+    if (shouldSkipNotification()) return;
+    
+    // 二重送信防止（時間帯ガードは不要・トリガーで制御）
+    if (hasNotifiedToday()) {
+      console.log('本日は既に通知済みのためスキップ');
       return;
     }
     
-    // 土日・祝日・年末年始の通知スキップ判定
-    if (shouldSkipNotification()) {
-      console.log('今日は通知対象外の日付のため、処理を終了します');
+    // タスク取得（部分継続対応）
+    const tasks = getPersonalTasks();
+    const total = tasks.overdue.length + tasks.today.length + tasks.thisWeek.length;
+    
+    if (total === 0) {
+      console.log('通知対象なし');
+      markNotifiedToday(); // タスクがなくてもフラグ立てる
       return;
     }
-    
-    // タスクを取得
-    let tasks;
-    try {
-      tasks = getPersonalTasks();
-    } catch (error) {
-      console.error('タスク取得エラー:', error);
-      sendErrorNotification('getPersonalTasks', error.message);
-      return;
-    }
-    
-    const totalCount = tasks.overdue.length + tasks.today.length + tasks.thisWeek.length;
-    
-    if (totalCount === 0) {
-      console.log('通知対象のタスクがありません');
-      return;
-    }
-    
-    console.log(`通知対象タスク: ${totalCount}件`);
     
     // Slack通知
     const blocks = createSlackBlocks(tasks);
-    const text = '花輪 真輝のタスク通知';
+    const ok = postSlackMessage(ENV.SLACK_CHANNEL_ID, blocks, 'タスク通知');
     
-    const success = postSlackMessage(CONSTANTS.SLACK_CHANNEL_ID, blocks, text);
+    if (!ok) throw new Error('Slack送信失敗');
     
-    if (success) {
-      console.log('通知送信完了');
-    } else {
-      console.error('通知送信失敗');
-      // 通知送信失敗もエラー通知
-      sendErrorNotification('postSlackMessage', 'Slack通知送信に失敗しました');
-    }
-    
+    markNotifiedToday();
     console.log('=== 個人タスク通知完了 ===');
     
-  } catch (error) {
-    console.error('メイン処理エラー:', error);
-    // 想定外のエラーも通知
-    sendErrorNotification('runPersonalTaskNotifier', error.message);
-    throw error;
+  } catch (e) {
+    console.error('メイン処理エラー', e);
+    notifyErrorToSlack('runPersonalTaskNotifier', e);
   }
 }
 
