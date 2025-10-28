@@ -21,13 +21,14 @@ NotionのタスクDBインターから花輪 真輝が担当するタスク多�
 ## 2. 要件定義
 
 ### 2.1 タスク抽出条件
-- **対象タスク**: 花輪 真輝が担当するタスクのみ
+- **対象タスク**: 花輪 真輝が担当するタスクのみ（Notion User ID使用）
 - **ステータス条件**: 未完了のみ（完了・キャンセル・バックログ・実行完了を除外）
 - **期限条件**: 以下の3種類
   - **期限切れ**: 昨日までの期限が設定されているタスク
   - **今日期限**: 今日が期限日
-  - **今週期限**: 今週中（日曜日～土曜日）が期限日
+  - **今週期限**: 明日以降で今週末までの期限（期限切れ・今日期限を除く）
 - **タイムゾーン**: Asia/Tokyo (JST)
+- **ID使用**: 担当者フィルタは名前ではなくNotion User ID (`889b7bc4-3dcc-46cd-9995-d57d0a3bc81f`) を使用
 
 ### 2.2 タスク分類
 - 3種類の期限カテゴリ別に分けて通知
@@ -77,46 +78,54 @@ NotionのタスクDBインターから花輪 真輝が担当するタスク多�
 
 #### 3.2.1 タスク抽出フィルタ
 ```javascript
-// 期限切れタスク
+// 期限切れタスク（昨日までの期限）
 {
   "and": [
     {
       "property": "担当者",
-      "people": { "contains": "889b7bc4-3dcc-46cd-9995-d57d0a3bc81f" }
+      "people": { "contains": "889b7bc4-3dcc-46cd-9995-d57d0a3bc81f" }  // Notion User ID使用
     },
     { "property": "Taskステータス", "status": { "does_not_equal": "完了" } },
     { "property": "Taskステータス", "status": { "does_not_equal": "キャンセル" } },
     { "property": "Taskステータス", "status": { "does_not_equal": "バックログ" } },
-    { "property": "Task期限", "date": { "before": "今日" } },
+    { "property": "Task期限", "date": { "before": "今日" } },  // 今日より前
     { "property": "Task期限", "date": { "is_not_empty": true } }
   ]
 }
 
-// 今日期限タスク
+// 今日期限タスク（今日が期限）
 {
   "and": [
     {
       "property": "担当者",
-      "people": { "contains": "889b7bc4-3dcc-46cd-9995-d57d0a3bc81f" }
+      "people": { "contains": "889b7bc4-3dcc-46cd-9995-d57d0a3bc81f" }  // Notion User ID使用
     },
     { "property": "Taskステータス", "status": { "does_not_equal": "完了" } },
-    { "property": "Task期限", "date": { "equals": "今日" } }
+    { "property": "Taskステータス", "status": { "does_not_equal": "キャンセル" } },
+    { "property": "Taskステータス", "status": { "does_not_equal": "バックログ" } },
+    { "property": "Task期限", "date": { "equals": "今日" } }  // 今日
   ]
 }
 
-// 今週期限タスク（今日以外）
+// 今週期限タスク（明日以降、今週末まで、期限切れ・今日期限を除く）
 {
   "and": [
     {
       "property": "担当者",
-      "people": { "contains": "889b7bc4-3dcc-46cd-9995-d57d0a3bc81f" }
+      "people": { "contains": "889b7bc4-3dcc-46cd-9995-d57d0a3bc81f" }  // Notion User ID使用
     },
     { "property": "Taskステータス", "status": { "does_not_equal": "完了" } },
-    { "property": "Task期限", "date": { "after": "今日" } },
-    { "property": "Task期限", "date": { "on_or_before": "今週末" } }
+    { "property": "Taskステータス", "status": { "does_not_equal": "キャンセル" } },
+    { "property": "Taskステータス", "status": { "does_not_equal": "バックログ" } },
+    { "property": "Task期限", "date": { "after": "今日" } },  // 今日より後
+    { "property": "Task期限", "date": { "on_or_before": "今週末" } }  // 今週末まで
   ]
 }
 ```
+
+**注意事項**:
+- 担当者フィルタは必ずNotion User IDを使用（名前文字列は使用しない）
+- 今週期限タスクは`after: "今日"`を使用することで、今日期限と期限切れを自動的に除外
 
 ### 3.3 Slack API仕様
 
@@ -199,6 +208,10 @@ NotionのタスクDBインターから花輪 真輝が担当するタスク多�
 ### 3.5 処理フロー
 1. **ガード**: JST現在が平日か、通知済みかを確認
 2. **タスク取得**: 3つのカテゴリ（期限切れ/今日/今週）ごとにNotion APIで取得
+   - 担当者は必ずNotion User ID (`889b7bc4-3dcc-46cd-9995-d57d0a3bc81f`) でフィルタ
+   - 期限切れ: `before: "今日"`で取得
+   - 今日期限: `equals: "今日"`で取得
+   - 今週期限: `after: "今日" AND on_or_before: "今週末"`で取得（期限切れ・今日期限を自動除外）
 3. **データ整形**: 取得したタスクをタスクオブジェクトに変換
 4. **分類**: 3つのカテゴリに分けてソート（期限日順）
 5. **Slack通知**: Block Kit形式でメッセージ生成し送信
