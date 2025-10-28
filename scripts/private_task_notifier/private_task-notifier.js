@@ -363,11 +363,14 @@ function parseTask(page) {
     return '';
   };
   
-  // Issue > Product > Project の優先順位で名前を取得
+  // Issue名を取得（グループ化用）
   const issueNameProp = extractName(page.properties?.[ENV.ISSUE_PROP_NAME]);
+  const issueName = issueNameProp || '(Issueなし)';
+  
+  // Product > Project の優先順位で名前を取得（表示用）
   const productName = extractName(page.properties?.[ENV.PRODUCT_PROP_NAME]);
   const projectName = extractName(page.properties?.[ENV.PROJECT_PROP_NAME]);
-  const issueName = issueNameProp || productName || projectName || '';
+  const productOrProject = productName || projectName || '';
   
   // Notionリンクを生成
   const notionLink = `https://www.notion.so/${page.id.replace(/-/g, '')}`;
@@ -378,7 +381,8 @@ function parseTask(page) {
     status: status,
     dueDate: dueDate,
     notionLink: notionLink,
-    issueName: issueName
+    issueName: issueName,
+    productOrProject: productOrProject
   };
 }
 
@@ -438,8 +442,8 @@ function postSlackMessage(channel, blocks, debugLabel) {
  * タスクのSlack表示行を生成
  */
 function lineOf(task) {
-  const issue = task.issueName ? `／ ${task.issueName}` : '';
-  return `• <${task.notionLink}|${task.title}>（${formatRelativeDate(task.dueDate)} ${task.status}${issue}）`;
+  const productOrProject = task.productOrProject ? `／ ${task.productOrProject}` : '';
+  return `• <${task.notionLink}|${task.title}>（${formatRelativeDate(task.dueDate)} ${task.status}${productOrProject}）`;
 }
 
 /**
