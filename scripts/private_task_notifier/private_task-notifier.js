@@ -533,13 +533,118 @@ function createSlackBlocks(tasks) {
 }
 
 /**
+ * エラー通知をSlackに送信
+ */
+function sendErrorNotification(functionName, errorMessage) {
+  const nowStr = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy/MM/dd HH:mm:ss');
+  
+  const blocks = [
+    {
+      type: "header",
+      text: {
+        type: "plain_text",
+        text: "🚨 タスク通知エラー"
+      }
+    },
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `<@${CONSTANTS.SLACK_USER_ID}> 個人タスク通知でエラーが発生しました`
+      }
+    },
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `*エラー詳細:*\n• 関数: \`${functionName}\`\n• エラー: ${errorMessage}\n• 発生時刻: ${nowStr}（JST）`
+      }
+    },
+    {
+      type: "context",
+      elements: [{ type: "mrkdwn", text: "個人タスク通知ボット" }]
+    }
+  ];
+  
+  const text = `タスク通知エラー: ${functionName} - ${errorMessage}`;
+  
+  console.log(`エラー通知を送信: ${functionName} - ${errorMessage}`);
+  
+  // エラー通知はリトライなしで送信
+  const success = postSlackMessage(CONSTANTS.SLACK_CHANNEL_ID, blocks, text, false);
+  if (!success) {
+    console.error('エラー通知の送信に失敗しました');
+  }
+  
+  return success;
+}
+
+/**
+ * Slackメッセージを投稿（リトライ機能付き・オプション）
+ */
+function postSlackMessage(channelId, blocks, text, retry = true) {
+  const url = `${SLACK_API.BASE_URL}${SLACK_API.CHAT_POST_MESSAGE}`;
+  const payload = {
+    channel: channelId,
+    blocks: blocks,
+    text: text
+  };
+  
+  const options = {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${CONFIG.SLACK_BOT_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    payload: JSON.stringify(payload)
+  };
+  
+  const retryAttempts = retry ? SLACK_API.RETRY_ATTEMPTS : 1;
+  
+  for (let attempt = 1; attempt <= retryAttempts; attempt++) {
+    try {
+      const response = UrlFetchApp.fetch(url, options);
+      const statusCode = response.getResponseCode();
+      const data = JSON.parse(response.getContentText());
+      
+      if (data.ok) {
+        console.log(`Slack通知送信成功 (試行${attempt}回目)`);
+        return true;
+      } else {
+        console.warn(`Slack通知送信失敗 (試行${attempt}回目): ${statusCode} - ${data.error}`);
+        
+        if (attempt === retryAttempts) {
+          console.error('Slack通知送信が最終的に失敗しました');
+          return false;
+        }
+      }
+    } catch (error) {
+      console.error(`Slack通知送信エラー (試行${attempt}回目):`, error);
+      if (attempt === retryAttempts) {
+        return false;
+      }
+      Utilities.sleep(SLACK_API.RETRY_DELAY_MS);
+    }
+  }
+  
+  return false;
+}
+
+/**
  * メイン処理関数
  */
 function runPersonalTaskNotifier() {
   try {
     console.log('=== 個人タスク通知開始 ===');
     
-    validateConfig();
+    // 設定値の検証
+    try {
+      validateConfig();
+    } catch (error) {
+      console.error('設定値の検証エラー:', error);
+      sendErrorNotification('validateConfig', error.message);
+      return;
+    }
     
     // 土日・祝日・年末年始の通知スキップ判定
     if (shouldSkipNotification()) {
@@ -548,7 +653,14 @@ function runPersonalTaskNotifier() {
     }
     
     // タスクを取得
-    const tasks = getPersonalTasks();
+    let tasks;
+    try {
+      tasks = getPersonalTasks();
+    } catch (error) {
+      console.error('タスク取得エラー:', error);
+      sendErrorNotification('getPersonalTasks', error.message);
+      return;
+    }
     
     const totalCount = tasks.overdue.length + tasks.today.length + tasks.thisWeek.length;
     
@@ -569,12 +681,16 @@ function runPersonalTaskNotifier() {
       console.log('通知送信完了');
     } else {
       console.error('通知送信失敗');
+      // 通知送信失敗もエラー通知
+      sendErrorNotification('postSlackMessage', 'Slack通知送信に失敗しました');
     }
     
     console.log('=== 個人タスク通知完了 ===');
     
   } catch (error) {
     console.error('メイン処理エラー:', error);
+    // 想定外のエラーも通知
+    sendErrorNotification('runPersonalTaskNotifier', error.message);
     throw error;
   }
 }
