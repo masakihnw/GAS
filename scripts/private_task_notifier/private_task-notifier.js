@@ -616,8 +616,9 @@ function createSlackBlocks(tasks) {
 
 /**
  * メイン処理関数
+ * @param {boolean} skipDuplicateCheck - trueの場合、二重送信防止チェックをスキップ（テスト用）
  */
-function runPersonalTaskNotifier() {
+function runPersonalTaskNotifier(skipDuplicateCheck = false) {
   try {
     console.log('=== 個人タスク通知開始 ===');
     
@@ -628,7 +629,7 @@ function runPersonalTaskNotifier() {
     if (shouldSkipNotification()) return;
     
     // 二重送信防止（時間帯ガードは不要・トリガーで制御）
-    if (hasNotifiedToday()) {
+    if (!skipDuplicateCheck && hasNotifiedToday()) {
       console.log('本日は既に通知済みのためスキップ');
       return;
     }
@@ -639,7 +640,9 @@ function runPersonalTaskNotifier() {
     
     if (total === 0) {
       console.log('通知対象なし');
-      markNotifiedToday(); // タスクがなくてもフラグ立てる
+      if (!skipDuplicateCheck) {
+        markNotifiedToday(); // タスクがなくてもフラグ立てる（テスト時はスキップ）
+      }
       return;
     }
     
@@ -649,7 +652,9 @@ function runPersonalTaskNotifier() {
     
     if (!ok) throw new Error('Slack送信失敗');
     
-    markNotifiedToday();
+    if (!skipDuplicateCheck) {
+      markNotifiedToday(); // テスト時はスキップ
+    }
     console.log('=== 個人タスク通知完了 ===');
     
   } catch (e) {
@@ -658,7 +663,7 @@ function runPersonalTaskNotifier() {
   }
 }
 
-// テスト用関数
+// テスト用関数（二重送信防止をスキップ）
 function testPersonalTaskNotifier() {
-  runPersonalTaskNotifier();
+  runPersonalTaskNotifier(true);
 }
