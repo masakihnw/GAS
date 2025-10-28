@@ -379,22 +379,36 @@ function parseTask(page) {
     }
     if (prop.rollup) {
       // rollup型の場合、arrayの中身を確認
+      console.log(`  プロパティ ${propType}: rollup型の詳細構造を確認中...BO`);
+      console.log(`    rollup.type: ${prop.rollup.type}`);
+      console.log(`    rollup.function: ${prop.rollup.function || '(なし)'}`);
+      console.log(`    rollup.array?.length: ${prop.rollup.array?.length || 0}`);
+      
       if (prop.rollup.array && prop.rollup.array.length > 0) {
         const firstItem = prop.rollup.array[0];
-        if (firstItem.select?.name) {
-          console.log(`  プロパティ ${propType}: rollup型 (select) = ${firstItem.select.name}`);
-          return firstItem.select.name;
+        console.log(`    最初のアイテムのキー: ${Object.keys(firstItem).join(', ')}`);
+        
+        // rollupのfunctionによって構造が異なる
+        if (prop.rollup.function === 'show_original') {
+          // 元のプロパティを表示する場合
+          if (firstItem.select?.name) {
+            console.log(`  プロパティ ${propType}: rollup型 (select) = ${firstItem.select.name}`);
+            return firstItem.select.name;
+          }
+          if (firstItem.title && firstItem.title.length > 0) {
+            const text = firstItem.title.map(t => t.plain_text || '').join('');
+            console.log(`  プロパティ ${propType}: rollup型 (title) = ${text}`);
+            return text;
+          }
+          if (firstItem.rich_text && firstItem.rich_text.length > 0) {
+            const text = firstItem.rich_text.map(t => t.plain_text || '').join('');
+            console.log(`  プロパティ ${propType}: rollup型 (rich_text) = ${text}`);
+            return text;
+          }
         }
-        if (firstItem.title && firstItem.title.length > 0) {
-          const text = firstItem.title.map(t => t.plain_text || '').join('');
-          console.log(`  プロパティ ${propType}: rollup型 (title) = ${text}`);
-          return text;
-        }
-        if (firstItem.text && firstItem.text.length > 0) {
-          const text = firstItem.text.map(t => t.plain_text || '').join('');
-          console.log(`  プロパティ ${propType}: rollup型 (text) = ${text}`);
-          return text;
-        }
+        
+        // それ以外の場合、構造を確認
+        console.log(`    最初のアイテムの詳細: ${JSON.stringify(firstItem).substring(0, 200)}`);
       }
       console.log(`  プロパティ ${propType}: rollup型（処理できず）`);
       return '';
