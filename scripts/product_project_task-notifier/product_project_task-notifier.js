@@ -18,7 +18,7 @@ function testFunction() {
  */
 
 /**
- * Notionプロパティ名の定数
+ * Notionプロパティ名の定数https://github.com/masakihnw/slack-message-export.git
  */
 const NOTION_PROP = {
   // タスク関連
@@ -123,7 +123,8 @@ const PROJECT_MAPPING = {
   'Animate Girls Festival 2025 karaku/MA連携': { channelId: 'C09EP48KGDC', mentionUserId: 'U04HB81EUTS', notionId: '1a77d6b7-b8c6-80ae-a651-e2e410f7d207' },
   'MLS保守': { channelId: 'C01BLD36T6K', mentionUserId: 'U04HB81EUTS', notionId: 'df8ca670-4e41-4c6f-a747-eda6f4a685e4' },
   'UpfrontID連携': { channelId: 'C09FG28S9A4', mentionUserId: 'U04HB81EUTS', notionId: '9920cadd-2423-4505-bffd-732c728acc2b' },
-  '東京ドーム': { channelId: 'C03MHJR5RSR', mentionUserId: 'U04HB81EUTS', notionId: '18d3ac08-8d5e-407a-8074-0b9f5efc1e9b' }
+  '東京ドーム': { channelId: 'C03MHJR5RSR', mentionUserId: 'U04HB81EUTS', notionId: '18d3ac08-8d5e-407a-8074-0b9f5efc1e9b' },
+  'ローチケ×Karaku連携': { channelId: 'C09LTD5ETF0', mentionUserId: 'U05HPC0BL3V', notionId: '28e7d6b7-b8c6-8072-895b-e0225ef29f73' }
 };
 
 
