@@ -154,8 +154,8 @@ function formatRelativeDate(dateString) {
   const weekdays = ['日','月','火','水','木','金','土'];
   const label = `${d.getMonth()+1}/${d.getDate()}(${weekdays[d.getDay()]})`;
   
-  if (diffDays === 0) return `今日(${label})`;
-  if (diffDays === 1) return `明日(${label})`;
+  if (diffDays === 0) return `今日 ${label}`;
+  if (diffDays === 1) return `明日 ${label}`;
   if (diffDays > 0) return label;
   return `${label} ／ +${Math.abs(diffDays)}日超過`;
 }
