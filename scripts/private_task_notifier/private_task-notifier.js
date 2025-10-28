@@ -21,8 +21,9 @@ const ENV = {
   NOTION_USER_ID: SP.getProperty('NOTION_USER_ID') || '',
   SLACK_USER_ID: SP.getProperty('SLACK_USER_ID') || '',
   SLACK_CHANNEL_ID: SP.getProperty('SLACK_CHANNEL_ID') || '',
-  PROJECT_PROP_NAME: SP.getProperty('PROJECT_PROP_NAME') || 'プロジェクト',
-  PRODUCT_PROP_NAME: SP.getProperty('PRODUCT_PROP_NAME') || 'プロダクト'
+  ISSUE_PROP_NAME: SP.getProperty('ISSUE_PROP_NAME') || 'Issue',
+  PRODUCT_PROP_NAME: SP.getProperty('PRODUCT_PROP_NAME') || 'Product',
+  PROJECT_PROP_NAME: SP.getProperty('PROJECT_PROP_NAME') || 'Project'
 };
 
 /**
