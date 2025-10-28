@@ -21,7 +21,8 @@ const ENV = {
   NOTION_USER_ID: SP.getProperty('NOTION_USER_ID') || '',
   SLACK_USER_ID: SP.getProperty('SLACK_USER_ID') || '',
   SLACK_CHANNEL_ID: SP.getProperty('SLACK_CHANNEL_ID') || '',
-  PROJECT_PROP_NAME: SP.getProperty('PROJECT_PROP_NAME') || 'プロジェクト'
+  PROJECT_PROP_NAME: SP.getProperty('PROJECT_PROP_NAME') || 'プロジェクト',
+  PRODUCT_PROP_NAME: SP.getProperty('PRODUCT_PROP_NAME') || 'プロダクト'
 };
 
 /**
@@ -351,15 +352,20 @@ function parseTask(page) {
   const status = page.properties[NOTION_PROP.TASK_STATUS]?.status?.name || 'ステータスなし';
   const dueDate = page.properties[NOTION_PROP.TASK_DUE_DATE]?.date?.start || '';
   
-  // プロジェクト名を抽出（任意プロパティ）
-  let projectName = '';
-  const proj = page.properties?.[ENV.PROJECT_PROP_NAME];
-  if (proj) {
-    if (proj.select?.name) projectName = proj.select.name;
-    else if (proj.relation?.length) projectName = '(関連プロジェクト)';
-    else if (proj.rich_text?.length) projectName = proj.rich_text.map(t => t.plain_text || '').join('');
-    else if (proj.title?.length) projectName = proj.title.map(t => t.plain_text || '').join('');
-  }
+  // プロパティから名前を抽出するヘルパー関数
+  const extractName = (prop) => {
+    if (!prop) return '';
+    if (prop.select?.name) return prop.select.name;
+    if (prop.relation?.length) return '(関連)';
+    if (prop.rich_text?.length) return prop.rich_text.map(t => t.plain_text || '').join('');
+    if (prop.title?.length) return prop.title.map(t => t.plain_text || '').join('');
+    return '';
+  };
+  
+  // プロダクト名を優先的に取得、なければプロジェクト名
+  const productName = extractName(page.properties?.[ENV.PRODUCT_PROP_NAME]);
+  const projectName = extractName(page.properties?.[ENV.PROJECT_PROP_NAME]);
+  const issueName = productName || projectName || '';
   
   // Notionリンクを生成
   const notionLink = `https://www.notion.so/${page.id.replace(/-/g, '')}`;
@@ -370,7 +376,7 @@ function parseTask(page) {
     status: status,
     dueDate: dueDate,
     notionLink: notionLink,
-    projectName: projectName
+    issueName: issueName
   };
 }
 
@@ -421,8 +427,8 @@ function postSlackMessage(channel, blocks, debugLabel) {
   }
   if (!data.ok) {
     console.error(`Slack送信失敗(${debugLabel}):`, data.error, res.getContentText());
-    return false;
-  }
+          return false;
+      }
   return true;
 }
 
@@ -430,8 +436,8 @@ function postSlackMessage(channel, blocks, debugLabel) {
  * タスクのSlack表示行を生成
  */
 function lineOf(task) {
-  const proj = task.projectName ? `／ ${task.projectName}` : '';
-  return `• <${task.notionLink}|${task.title}>（${formatRelativeDate(task.dueDate)} ${task.status}${proj}）`;
+  const issue = task.issueName ? `／ ${task.issueName}` : '';
+  return `• <${task.notionLink}|${task.title}>（${formatRelativeDate(task.dueDate)} ${task.status}${issue}）`;
 }
 
 /**
@@ -481,19 +487,43 @@ function getPersonalTasks() {
 }
 
 /**
- * Slack通知メッセージを作成（プロジェクト名対応）
+ * Issue（プロダクト名/プロジェクト名）でタスクをグループ化
+ */
+function groupTasksByIssue(tasks) {
+  const allTasks = [...tasks.overdue, ...tasks.today, ...tasks.thisWeek];
+  const issueGroups = {};
+  
+  allTasks.forEach(task => {
+    const issueKey = task.issueName || '(Issueなし)';
+    if (!issueGroups[issueKey]) {
+      issueGroups[issueKey] = { overdue: [], today: [], thisWeek: [] };
+    }
+    
+    // タスクがどのカテゴリに属するか判定
+    const todayStr = getJSTToday();
+    const toMs = s => new Date(s + 'T00:00:00+09:00').getTime();
+    const dueDateOnly = task.dueDate.includes('T') ? task.dueDate.split('T')[0] : task.dueDate;
+    const diffDays = Math.round((toMs(dueDateOnly) - toMs(todayStr)) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) {
+      issueGroups[issueKey].overdue.push(task);
+    } else if (diffDays === 0) {
+      issueGroups[issueKey].today.push(task);
+    } else {
+      issueGroups[issueKey].thisWeek.push(task);
+    }
+  });
+  
+  return issueGroups;
+}
+
+/**
+ * Slack通知メッセージを作成（Issue別グループ化対応）
  */
 function createSlackBlocks(tasks) {
   const totalCount = tasks.overdue.length + tasks.today.length + tasks.thisWeek.length;
   
   const blocks = [
-    {
-      type: "header",
-      text: {
-        type: "plain_text",
-        text: "🚨 花輪 真輝のタスク通知"
-      }
-    },
     {
       type: "section",
       text: {
@@ -513,48 +543,65 @@ function createSlackBlocks(tasks) {
     }
   ];
   
-  // 期限切れタスク
-  if (tasks.overdue.length > 0) {
-    const taskList = tasks.overdue.map(lineOf).join('\n');
+  // Issue別にグループ化
+  const issueGroups = groupTasksByIssue(tasks);
+  const issueKeys = Object.keys(issueGroups).sort();
+  
+  issueKeys.forEach(issueName => {
+    const issueTasks = issueGroups[issueName];
+    const issueTotal = issueTasks.overdue.length + issueTasks.today.length + issueTasks.thisWeek.length;
+    
+    // Issue名をヘッダーに
     blocks.push({
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `⚠️ *期限切れのタスク（${tasks.overdue.length}件）*\n${taskList}`
+        text: `*📋 ${issueName}*（${issueTotal}件）`
       }
     });
-    blocks.push({ type: "divider" });
+    
+    // 期限切れタスク
+    if (issueTasks.overdue.length > 0) {
+      const taskList = issueTasks.overdue.map(lineOf).join('\n');
+    blocks.push({
+      type: "section",
+      text: {
+        type: "mrkdwn",
+          text: `⚠️ 期限切れ（${issueTasks.overdue.length}件）\n${taskList}`
+      }
+    });
   }
   
-  // 今日期限タスク
-  if (tasks.today.length > 0) {
-    const taskList = tasks.today.map(lineOf).join('\n');
+    // 今日期限タスク
+    if (issueTasks.today.length > 0) {
+      const taskList = issueTasks.today.map(lineOf).join('\n');
   blocks.push({
     type: "section",
     text: {
       type: "mrkdwn",
-        text: `📅 *今日期限のタスク（${tasks.today.length}件）*\n${taskList}`
-      }
-    });
-    blocks.push({ type: "divider" });
-  }
-  
-  // 今週期限タスク
-  if (tasks.thisWeek.length > 0) {
-    const taskList = tasks.thisWeek.map(lineOf).join('\n');
+          text: `📅 今日期限（${issueTasks.today.length}件）\n${taskList}`
+        }
+      });
+    }
+    
+    // 今週期限タスク
+    if (issueTasks.thisWeek.length > 0) {
+      const taskList = issueTasks.thisWeek.map(lineOf).join('\n');
     blocks.push({
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `📆 *今週期限のタスク（${tasks.thisWeek.length}件）*\n${taskList}`
-      }
-    });
+          text: `📆 今週期限（${issueTasks.thisWeek.length}件）\n${taskList}`
+        }
+      });
+    }
+    
     blocks.push({ type: "divider" });
-  }
+  });
   
   // フッター
   const nowStr = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy/MM/dd HH:mm:ss');
-  blocks.push({
+    blocks.push({
     type: "context",
     elements: [
       {
