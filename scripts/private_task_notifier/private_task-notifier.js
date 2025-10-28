@@ -365,6 +365,36 @@ function parseTask(page) {
     }
     if (prop.relation?.length) {
       console.log(`  プロパティ ${propType}: relation型（${prop.relation.length}件）`);
+      // 最初の関連ページIDを取得
+      const pageId = prop.relation[0].id;
+      console.log(`    関連ページID: ${pageId}`);
+      
+      try {
+        const pageData = UrlFetchApp.fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+      method: 'GET',
+      headers: {
+            'Authorization': `Bearer ${ENV.NOTION_API_TOKEN}`,
+        'Content-Type': 'application/json',
+        'Notion-Version': CONSTANTS.NOTION.API_VERSION
+      }
+    });
+    
+        const statusCode = pageData.getResponseCode();
+    if (statusCode.toString().startsWith('2')) {
+          const responseData = JSON.parse(pageData.getContentText());
+          
+          // ページタイトルを取得
+          const titleProp = responseData.properties?.名前 || responseData.properties?.title || responseData.properties?.Name;
+          if (titleProp?.title && Array.isArray(titleProp.title)) {
+            const name = titleProp.title.map(item => item.plain_text || '').join('');
+            console.log(`  プロパティ ${propType}: relation型 → "${name}"`);
+            return name;
+          }
+        }
+      } catch (e) {
+        console.log(`    ページ取得失敗: ${e.message}`);
+      }
+      
       return '(関連)';
     }
     if (prop.rich_text?.length) {
@@ -379,7 +409,7 @@ function parseTask(page) {
     }
     if (prop.rollup) {
       // rollup型の場合、arrayの中身を確認
-      console.log(`  プロパティ ${propType}: rollup型の詳細構造を確認中...BO`);
+      console.log(`  プロパティ ${propType}: rollup型の詳細構造を確認中...`);
       console.log(`    rollup.type: ${prop.rollup.type}`);
       console.log(`    rollup.function: ${prop.rollup.function || '(なし)'}`);
       console.log(`    rollup.array?.length: ${prop.rollup.array?.length || 0}`);
@@ -404,6 +434,42 @@ function parseTask(page) {
             const text = firstItem.rich_text.map(t => t.plain_text || '').join('');
             console.log(`  プロパティ ${propType}: rollup型 (rich_text) = ${text}`);
             return text;
+          }
+        }
+        
+        // rollup内のrelation型を処理
+        if (firstItem.relation && Array.isArray(firstItem.relation)) {
+          console.log(`    rollup内のrelation配列の長さ: ${firstItem.relation.length}`);
+          
+          if (firstItem.relation.length > 0) {
+            const relationPageId = firstItem.relation[0].id;
+            console.log(`    relation型のページID: ${relationPageId}`);
+            
+            try {
+              const relationPageData = UrlFetchApp.fetch(`https://api.notion.com/v1/pages/${relationPageId}`, {
+                method: 'GET',
+                headers: {
+                  'Authorization': `Bearer ${ENV.NOTION_API_TOKEN}`,
+                  'Content-Type': 'application/json',
+                  'Notion-Version': CONSTANTS.NOTION.API_VERSION
+                }
+              });
+              
+              const relationStatusCode = relationPageData.getResponseCode();
+              if (relationStatusCode.toString().startsWith('2')) {
+                const relationResponseData = JSON.parse(relationPageData.getContentText());
+                
+                // ページタイトルを取得
+                const relationTitleProp = relationResponseData.properties?.名前 || relationResponseData.properties?.title || relationResponseData.properties?.Name;
+                if (relationTitleProp?.title && Array.isArray(relationTitleProp.title)) {
+                  const relationName = relationTitleProp.title.map(item => item.plain_text || '').join('');
+                  console.log(`  プロパティ ${propType}: rollup型 (relation) = ${relationName}`);
+                  return relationName;
+                }
+              }
+            } catch (e) {
+              console.log(`    関連ページ取得失敗: ${e.message}`);
+            }
           }
         }
         
@@ -654,9 +720,9 @@ function createSlackBlocks(tasks) {
     if (issueTasks.thisWeek.length > 0) {
       const taskList = issueTasks.thisWeek.map(lineOf).join('\n');
     blocks.push({
-      type: "section",
-      text: {
-        type: "mrkdwn",
+        type: "section",
+        text: {
+          type: "mrkdwn",
           text: `📆 今週期限（${issueTasks.thisWeek.length}件）\n${taskList}`
         }
       });
