@@ -377,6 +377,28 @@ function parseTask(page) {
       console.log(`  プロパティ ${propType}: title型 = ${text}`);
       return text;
     }
+    if (prop.rollup) {
+      // rollup型の場合、arrayの中身を確認
+      if (prop.rollup.array && prop.rollup.array.length > 0) {
+        const firstItem = prop.rollup.array[0];
+        if (firstItem.select?.name) {
+          console.log(`  プロパティ ${propType}: rollup型 (select) = ${firstItem.select.name}`);
+          return firstItem.select.name;
+        }
+        if (firstItem.title && firstItem.title.length > 0) {
+          const text = firstItem.title.map(t => t.plain_text || '').join('');
+          console.log(`  プロパティ ${propType}: rollup型 (title) = ${text}`);
+          return text;
+        }
+        if (firstItem.text && firstItem.text.length > 0) {
+          const text = firstItem.text.map(t => t.plain_text || '').join('');
+          console.log(`  プロパティ ${propType}: rollup型 (text) = ${text}`);
+          return text;
+        }
+      }
+      console.log(`  プロパティ ${propType}: rollup型（処理できず）`);
+      return '';
+    }
     console.log(`  プロパティ ${propType}: 型が不明 - ${Object.keys(prop).join(', ')}`);
     return '';
   };
