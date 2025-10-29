@@ -491,12 +491,11 @@ function parseTask(page) {
   const issueNameProp = extractName(page.properties?.[ENV.ISSUE_PROP_NAME], 'Issue');
   const issueName = issueNameProp || '(Issueなし)';
   
-  // Product > Project の優先順位で名前を取得（表示用）
+  // Product と Project を別々に取得
   const productName = extractName(page.properties?.[ENV.PRODUCT_PROP_NAME], 'Product');
   const projectName = extractName(page.properties?.[ENV.PROJECT_PROP_NAME], 'Project');
-  const productOrProject = productName || projectName || '';
   
-  console.log(`  結果: issueName="${issueName}", productOrProject="${productOrProject}"`);
+  console.log(`  結果: issueName="${issueName}", productName="${productName}", projectName="${projectName}"`);
   
   // Notionリンクを生成
   const notionLink = `https://www.notion.so/${page.id.replace(/-/g, '')}`;
@@ -508,7 +507,8 @@ function parseTask(page) {
     dueDate: dueDate,
     notionLink: notionLink,
     issueName: issueName,
-    productOrProject: productOrProject
+    productName: productName,
+    projectName: projectName
   };
 }
 
@@ -568,7 +568,14 @@ function postSlackMessage(channel, blocks, debugLabel) {
  * タスクのSlack表示行を生成
  */
 function lineOf(task) {
-  const productOrProject = task.productOrProject ? `／ ${task.productOrProject}` : '';
+  const parts = [];
+  if (task.productName) {
+    parts.push(`Product: ${task.productName}`);
+  }
+  if (task.projectName) {
+    parts.push(`Project: ${task.projectName}`);
+  }
+  const productOrProject = parts.length > 0 ? ` ／ ${parts.join(', ')}` : '';
   return `• <${task.notionLink}|${task.title}>（${formatRelativeDate(task.dueDate)} ${task.status}${productOrProject}）`;
 }
 
