@@ -54,6 +54,10 @@ uv pip install -r requirements.txt
 ### 基本的な使い方（ワークスペース全体をスキャン）
 
 ```bash
+# デフォルトの出力先（../docs/notion/erd/）を使用する場合
+python notion_erd_exporter.py --workspace-scan
+
+# 出力先を明示的に指定する場合
 python notion_erd_exporter.py \
   --workspace-scan \
   --out-mermaid ../docs/notion/erd/notion_erd.mmd \
@@ -63,6 +67,11 @@ python notion_erd_exporter.py \
 ### 特定のデータベースのみを処理する場合
 
 ```bash
+# デフォルトの出力先を使用
+python notion_erd_exporter.py \
+  --db-ids "afafabe758044461a3e9e9b4c037e5aa,0d0b0f9639454862af2b2c401f229ca6"
+
+# 出力先を明示的に指定する場合
 python notion_erd_exporter.py \
   --db-ids "afafabe758044461a3e9e9b4c037e5aa,0d0b0f9639454862af2b2c401f229ca6" \
   --out-mermaid ../docs/notion/erd/notion_erd.mmd \
@@ -71,10 +80,11 @@ python notion_erd_exporter.py \
 
 ### 出力ファイルの場所
 
-デフォルトでは、スクリプト実行時のカレントディレクトリに出力されます。
-推奨される出力先:
-- `../docs/notion/erd/notion_erd.mmd`
-- `../docs/notion/erd/notion_schema.dbml`
+デフォルトの出力先は以下の通りです（スクリプト実行時のカレントディレクトリからの相対パス）:
+- `../docs/notion/erd/notion_erd.mmd` - Mermaid ER図
+- `../docs/notion/erd/notion_schema.dbml` - DBMLスキーマ
+
+これにより、Cursorやその他のエージェントがいつでも `docs/notion/erd/` 配下のファイルを参照できます。
 
 ## 生成物の使い方
 

@@ -249,13 +249,13 @@ def main():
     )
     ap.add_argument(
         "--out-mermaid",
-        default="notion_erd.mmd",
-        help="Mermaid ER図出力ファイルパス（デフォルト: notion_erd.mmd）"
+        default="../docs/notion/erd/notion_erd.mmd",
+        help="Mermaid ER図出力ファイルパス（デフォルト: ../docs/notion/erd/notion_erd.mmd）"
     )
     ap.add_argument(
         "--out-dbml",
-        default="notion_schema.dbml",
-        help="DBML出力ファイルパス（デフォルト: notion_schema.dbml）"
+        default="../docs/notion/erd/notion_schema.dbml",
+        help="DBML出力ファイルパス（デフォルト: ../docs/notion/erd/notion_schema.dbml）"
     )
     
     args = ap.parse_args()

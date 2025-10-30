@@ -8,7 +8,11 @@
 docs/
 ├── README.md                       # このファイル
 ├── notion/                         # Notion関連のマスタ情報
-│   └── databases.md               # NotionデータベースID一覧
+│   ├── databases.md               # NotionデータベースID一覧
+│   └── erd/                       # Notionデータベース構造のERD出力
+│       ├── README.md              # ERD生成・使用方法
+│       ├── notion_erd.mmd         # Mermaid ER図（自動生成）
+│       └── notion_schema.dbml     # DBMLスキーマ（自動生成）
 ├── slack/                        # Slack関連のマスタ情報
 │   ├── channels.md               # SlackチャンネルID一覧
 │   └── user_room_mapping.md      # Slack/Notionユーザーマッピング表
@@ -22,6 +26,16 @@ docs/
 - **ファイル**: `notion/databases.md`
 - **内容**: 各スクリプトで使用するNotionデータベースのID一覧
 - **更新頻度**: DB追加・変更時
+
+### Notion ERD（データベース構造図）
+- **ディレクトリ**: `notion/erd/`
+- **ファイル**: 
+  - `notion_erd.mmd` - Mermaid ER図形式
+  - `notion_schema.dbml` - DBML形式
+- **内容**: Notionデータベースの構造（プロパティ定義・Relation/Rollupの結合関係）を可視化
+- **生成方法**: `scripts/notion_erd_exporter/` のスクリプトを使用して自動生成
+- **更新頻度**: データベース構造変更時、または定期的に再生成
+- **参照**: Cursorやその他のエージェントがいつでも `docs/notion/erd/` 配下のファイルを参照可能
 
 ### Slack Channel ID
 - **ファイル**: `slack/channels.md`

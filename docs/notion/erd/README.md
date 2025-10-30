@@ -23,7 +23,10 @@ export NOTION_TOKEN="secret_xxx"
 # 依存関係をインストール（初回のみ）
 pip install -r requirements.txt
 
-# ワークスペース全体をスキャンしてERDを生成
+# ワークスペース全体をスキャンしてERDを生成（デフォルトの出力先を使用）
+python notion_erd_exporter.py --workspace-scan
+
+# または、出力先を明示的に指定する場合
 python notion_erd_exporter.py \
   --workspace-scan \
   --out-mermaid ../../docs/notion/erd/notion_erd.mmd \
