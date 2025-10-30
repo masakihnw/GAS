@@ -268,7 +268,7 @@ event.setTime(newStartTime, newEndTime);
 - `NOTION_RELEASE_DB_ID`: `0cc4931427714c6bafe5f05bdc66ac22`
 - `NOTION_ISSUE_DB_ID`: `61b50f425ae14687b44ba250869f09ae`（全社共通Issue DB）
 - `NOTION_TASK_DB_ID`: `afafabe758044461a3e9e9b4c037e5aa`（全社共通Task DB）
-- `NOTION_PRODUCT_DB_ID`: プロダクト DBのID（要確認）
+- `NOTION_PRODUCT_DB_ID`: `0d0b0f9639454862af2b2c401f229ca6`（プロダクト DB）
 - `CALENDAR_ID`: GoogleカレンダーのID（デフォルトカレンダーの場合は空欄でも可）
 
 ### 3.4 処理フロー
@@ -348,7 +348,7 @@ event.setTime(newStartTime, newEndTime);
 3. テストコード作成
 
 ### 4.2 確認事項（実装前に確認が必要）
-1. **プロダクト DBのID**: DB IDを確認（`databases.md`には記載なし、Script PropertiesまたはNotion上で確認が必要）
+1. **プロダクト DBのID**: ✅ 確認済み（`0d0b0f9639454862af2b2c401f229ca6`）
 2. **Notion DBのプロパティ名**: ⚠️ **自動取得可能**（下記のヘルパー関数を使用）
    - リリースDBの「リリース日」プロパティの正確な名前
    - 「全社共通Issue」プロパティの正確な名前
@@ -358,6 +358,7 @@ event.setTime(newStartTime, newEndTime);
    - 全社共通Task DBの「担当者」プロパティ名
 3. **全社共通Issue DBのID**: ✅ 確認済み（`61b50f425ae14687b44ba250869f09ae`）
 4. **全社共通Task DBのID**: ✅ 確認済み（`afafabe758044461a3e9e9b4c037e5aa`）
+5. **プロダクト DBのID**: ✅ 確認済み（`0d0b0f9639454862af2b2c401f229ca6`）
 
 #### 4.2.1 プロパティ名の自動取得方法
 

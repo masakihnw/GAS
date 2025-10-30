@@ -14,10 +14,10 @@
 
 ### Product DB（プロダクトDB）
 - **用途**: プロダクト情報の管理
-- **DB ID**: Script Propertiesで管理（`NOTION_PRODUCT_DB_ID`）
+- **DB ID**: `0d0b0f9639454862af2b2c401f229ca6`
 - **使用スクリプト**: 
   - `product_project_task-notifier`
-  - `release_calendar_invite`（要確認）
+  - `release_calendar_invite`
 
 ### Project DB（プロジェクトDB）
 - **用途**: プロジェクト情報の管理
@@ -27,9 +27,9 @@
 
 ### Issue DB（Issue DB / 全社共通Issue DB）
 - **用途**: 全社共通のIssue管理
-- **DB ID**: Script Propertiesで管理（`NOTION_ISSUE_DB_ID`）
+- **DB ID**: `61b50f425ae14687b44ba250869f09ae`
 - **使用スクリプト**: 
-  - `release_calendar_invite`（要確認）
+  - `release_calendar_invite`
 
 ### Config DB（設定DB）
 - **用途**: 各種設定情報の管理
@@ -59,9 +59,9 @@
 | Script Property Key | 説明 | デフォルト値 |
 |---|---|---|
 | `NOTION_TASK_DB_ID` | Task DB ID | `afafabe758044461a3e9e9b4c037e5aa` |
-| `NOTION_PRODUCT_DB_ID` | Product DB ID | - |
+| `NOTION_PRODUCT_DB_ID` | Product DB ID | `0d0b0f9639454862af2b2c401f229ca6` |
 | `NOTION_PROJECT_DB_ID` | Project DB ID | - |
-| `NOTION_ISSUE_DB_ID` | Issue DB ID | - |
+| `NOTION_ISSUE_DB_ID` | Issue DB ID | `61b50f425ae14687b44ba250869f09ae` |
 | `NOTION_CONFIG_DB_ID` | Config DB ID | - |
 | `NOTION_RELEASE_DB_ID` | Release DB ID | `0cc4931427714c6bafe5f05bdc66ac22` |
 | `NOTION_DB_ID` | 朝会議事録DB ID（release_announce用） | `cd1b1c95bfc34c7d9ec50405a5023cc9` |

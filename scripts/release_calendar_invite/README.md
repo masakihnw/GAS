@@ -32,7 +32,7 @@ NotionのリリースDBでリリース日プロパティに日付が入力され
 | `NOTION_RELEASE_DB_ID` | リリースDBのID（`0cc4931427714c6bafe5f05bdc66ac22`） |
 | `NOTION_ISSUE_DB_ID` | 全社共通Issue DBのID（`61b50f425ae14687b44ba250869f09ae`） |
 | `NOTION_TASK_DB_ID` | 全社共通Task DBのID（`afafabe758044461a3e9e9b4c037e5aa`） |
-| `NOTION_PRODUCT_DB_ID` | プロダクト DBのID（要確認） |
+| `NOTION_PRODUCT_DB_ID` | プロダクト DBのID（`0d0b0f9639454862af2b2c401f229ca6`） |
 | `CALENDAR_ID` | GoogleカレンダーのID（デフォルトカレンダーの場合は空欄でも可） |
 
 ### 必要な権限
