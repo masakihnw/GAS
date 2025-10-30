@@ -45,10 +45,49 @@ Slackチャンネルで行われているリリース通知を、毎日の朝会
 scripts/release_announce/
 ├── README.md                           # このファイル
 ├── release_announce.js                 # メインスクリプト
+├── test.js                             # テストスイート
 └── docs/
     ├── requirements.md                 # 要件定義書
     └── ErrorLogs.md                    # エラーログ記録
 ```
+
+## テスト
+
+### テストファイルの追加
+
+1. GASエディタで `test.js` ファイルを追加
+2. `release_announce.js` の関数を利用できる状態にする（同じプロジェクト内に配置）
+
+### テスト実行方法
+
+#### 全テスト実行
+```javascript
+runAllTests()
+```
+
+#### クイックテスト（主要機能のみ）
+```javascript
+runQuickTest()
+```
+
+#### 個別テスト実行
+以下の関数を個別に実行できます：
+- `testExtractProductName()` - プロダクト名抽出のテスト
+- `testFormatDateToNotionFormat()` - 日付フォーマット変換のテスト
+- `testGetDayOfWeekName()` - 曜日名取得のテスト
+- `testIsBusinessDay()` - 営業日判定のテスト
+- `testGetPreviousBusinessDayEnd()` - 前営業日計算のテスト
+- `testGetJSTDate()` - JST日付取得のテスト
+- `testReleaseNotificationStructure()` - リリース通知データ構造のテスト
+- `testValidateConfig()` - 設定値検証のテスト
+- `testIntegrationProductNameExtraction()` - 統合テスト（プロダクト名抽出）
+
+### テスト内容
+
+1. **プロダクト名抽出テスト**: 様々なリリース通知フォーマットからプロダクト名を正しく抽出できるかテスト
+2. **日付処理テスト**: 日付フォーマット変換、曜日名取得、営業日判定などの日付処理をテスト
+3. **データ構造テスト**: リリース通知データ構造が正しいかをテスト
+4. **設定値テスト**: Script Propertiesの設定が正しいかを確認
 
 ## 使用方法
 

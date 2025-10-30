@@ -1,3 +1,16 @@
+# Slack/Notion ユーザー・Roomチャンネル マッピング表
+
+このファイルには、Slackユーザー、Notionユーザー、Roomチャンネルの対応関係をまとめています。
+
+## 使用方法
+
+このマッピング表は以下の目的で使用されます：
+- SlackユーザーIDとNotionユーザーIDの対応関係の確認
+- メールアドレスによるユーザー検索
+- Roomチャンネルへの通知対象の特定
+
+## マッピング表
+
 名前 | slack表示名 | ハンドル | メールアドレス | Notionユーザー名 | NotionユーザーID | SlackユーザーID | roomチャンネル名 | roomチャンネルID
 --- | --- | --- | --- | --- | --- | --- | --- | ---
 noritsugu sugimura | 杉村 紀次 | sugimura | noritsugu.sugimura@playground.live | 杉村 紀次 | 67be2e00-d7c2-4bba-8a35-c0d6d7e22e0e | U51PGHBHA | room_sugimura | C5A0YAP98
@@ -5,10 +18,10 @@ Keiji ito/伊藤 KG 圭史 | 伊藤 KG 圭史 | kg | keiji.ito@playground.live |
 Takahiro Ono | 大野 孝弘 | takahiro.ono | takahiro.ono@playground.live | 大野 孝弘 | 6340c48b-5cbc-432f-ac00-0359c8755ff9 | U76GVDSNL | room_ono-takahiro | CBJC352NQ
 shimogo katsuhiro しもごう　go | 下郷 勝啓 | katsuhiro.shimogo | katsuhiro.shimogo@playground.live | 下郷 勝啓 | efd19535-2158-4bd3-b8bb-e7ffb8472c43 | U7BR1ST9B | room_shimogo | CBJ1UPHGB
 Ryo Suzuki | 鈴木 遼 | ryo.suzuki | ryo.suzuki@playground.live | 鈴木 遼 | 87216aa3-bf08-4f84-83e5-e117042ffdd6 | U9ZFLRRG9 | room_suzuki-r | CA0V4N68N
-HIDEKATA SATO | 佐藤 秀高 | hidetaka.sato | hidetaka.sato@playground.live | 佐藤 秀高 | c189d754-060c-45b7-b891-4fd4272ebb05 | UF0LZP6GG | room_hidetaka | CFCU48L3A
+HIDEKATA SATO | 佐藤 秀高 | hidetaka.sato | hidetaka.sato@playground.live | 佐藤 秀高 | c189d754-060c-45b7-b891-4fd4272ebb05 | UF0LствуюP6GG | room_hidetaka | CFCU48L3A
 kaori kadoi | 門井 香織 | kaori.kadoi | kaori.kadoi@playground.live | 門井 香織 | 6d5f740a-5b47-491c-a460-00843180b26b | UL7R2KP44 | room_kadoi | CLCBYBBC5
 Yuji Araseki | 荒関 雄次 | yuji.araseki | yuji.araseki@playground.live | 荒関 雄次 | 7ca7784f-894d-4110-abac-223ed1b23940 | UN6AZJ1H8 | room_araseki | CS264K5PS
-kodai fujita | 藤田 航大 | kodai.fujita | kodai.fujita@playground.live | 藤田 航大 | 09a13b52-2e64-48a2-b986-c7dcb3cc2b18 | U013PEHEAES | room_fujita | C014095HX8E
+kodai fujita | 藤田 航大 | kodai.fujita | kodai.fujita@playground.live | 藤田 航大 | 09a13b52-2e64-48a2-b986-c7dcb3cc2b18 | U013PE hospitalityAES | room_fujita | C014095HX8E
 Kai Motoshima | 元島 海 | kai.motoshima | kai.motoshima@playground.live | 元島 海 | b210e268-53b5-469f-82f8-da143dbd2205 | UDL1199PU | room_motoshima | CDM5SBMGD
 Taiki Bessho | 別所 大輝 | taiki.bessho | taiki.bessho@playground.live | 別所 大輝 | UCAP9CG01 | room_bessho | CCCC3NP0F
 HIDEKI SATO | 佐藤 秀紀 | hideki.sato | hideki.sato@playground.live | 佐藤 秀紀 | U02CX525CRY | room_hidekisato | C02GAA518D9
@@ -25,7 +38,7 @@ Junichi Akatsuka | 赤塚 順一 | junichi.akatsuka | junichi.akatsuka@playgroun
 Shinichiro Inokuchi | 井口 新一郎 | shinichiro.inokuchi | shinichiro.inokuchi@playground.live | 井口 新一郎   | U04HB81EUTS | room_inokuchi | C04GMDK8QLB
 funaguchi shogo | 舟口 翔梧 | shogo.funaguchi | shogo.funaguchi@playground.live | 舟口 翔梧 | U03QYQF7RDY | room_funaguchi | C03RNGRLZS4
 shotaro kidaka | 貴高 章太朗 | shotaro.kidaka | shotaro.kidaka@playground.live | 貴高章太朗 | U05852LRK2A | room_kidaka | C0591BBDXJ4
-Omata Keisuke | 小俣 圭佑 | keisuke.omata | keisuke.omata@playground.live | 小俣 圭佑 | U05HPEK4H4J | room_omata | C05HGQG9NPQ
+Omata Keisuke | 小俣 圭佑 | keisuke.omata | keisuke.omata@playground.live | 小俣 圭佑 | U05HPE PrintsKH4J | room_omata | C05HGQG9NPQ
 Keito Arima | 有馬 圭人 | keito.arima | keito.arima@playground.live | 有馬 圭人　 | U05JD77UTEU | room_arima | C05HPFYMJG2
 Shuntaro Okuma | 大隈 峻太郎 | shuntaro.okuma | shuntaro.okuma@playground.live | 大隈 峻太郎 | U05QJBJ5083 | room_okuma | C05QFGLMBFF
 Ryosuke Kubo | 久保 亮介 | ryosuke.kubo | ryosuke.kubo@playground.live | 久保 亮介 | U062WDAD7JB | room_kubo-ryosuke | C063ZVB2KK2
@@ -57,3 +70,8 @@ Locco Brown - Toshihiro Kojima | Locco Brown (Kojima) | toshihiro.kojima | toshi
 tsutomu iizumi | 飯泉惇(Iizumi Tsutomu) (Ben) | tsutomu.iizumi | tsutomu.iizumi@playground.live | 飯泉惇 | U07GP8ME8TS | room_iizumi | C07GR2TKM6C
 Tota Hayashi | 林 桐太 | tota.hayashi | tota.hayashi@playground.live | 林桐太 | U07UXPUHUQG | room_hayashi | C07UXPPJ8QG
 Nanami Takuma | 詫摩 七海 | nanami.takuma | nanami.takuma@playground.live | 詫摩七海 | U07U2CKSMLN | room_takuma | C07TUEQJWQP
+
+## 更新履歴
+
+- 2025-01-XX: `slack programs&notion_user_room_filtered.md`から移動・リネーム
+
