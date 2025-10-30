@@ -5,9 +5,16 @@ Notionのデータベース構造（プロパティ定義・Relation/Rollupの�
 ## 機能
 
 - Notionワークスペース内のデータベースを自動検索
-- 各データベースのスキーマ（プロパティ）を取得
+- 各データベースのスキーマ（プロパティ）を詳細に取得
+  - プロパティの型・オプション（select/multi_selectの選択肢）
+  - Formula式の取得
+  - Relationの双方向性情報
+  - Rollupの集計方法と元Relation情報
 - Relation/Rollupからデータベース間のエッジを抽出
-- Mermaid ER図（`.mmd`）とDBML（`.dbml`）を生成
+- 以下の形式で出力:
+  - Mermaid ER図（`.mmd`）- 可視化用
+  - DBML（`.dbml`）- モデリングツール連携用
+  - Markdown詳細ドキュメント（`.md`）- プロパティ詳細とDB間連携の完全な情報
 - Cursorやドキュメントで参照可能な形式で出力
 
 ## 事前準備
@@ -81,10 +88,24 @@ python notion_erd_exporter.py \
 ### 出力ファイルの場所
 
 デフォルトの出力先は以下の通りです（スクリプト実行時のカレントディレクトリからの相対パス）:
-- `../docs/notion/erd/notion_erd.mmd` - Mermaid ER図
-- `../docs/notion/erd/notion_schema.dbml` - DBMLスキーマ
+- `../docs/notion/erd/notion_erd.mmd` - Mermaid ER図（可視化用）
+- `../docs/notion/erd/notion_schema.dbml` - DBMLスキーマ（モデリングツール連携用）
+- `../docs/notion/erd/notion_database_structure.md` - Markdown詳細ドキュメント（プロパティ詳細・DB間連携情報）
 
 これにより、Cursorやその他のエージェントがいつでも `docs/notion/erd/` 配下のファイルを参照できます。
+
+### 生成されるドキュメントの内容
+
+#### Markdown詳細ドキュメント（`.md`）
+- 各データベースの全プロパティリスト
+- プロパティの詳細情報:
+  - select/multi_select: 選択肢一覧
+  - formula: 計算式
+  - relation: 接続先DB、双方向プロパティ情報
+  - rollup: 集計方法、元Relationプロパティ
+- データベース間の関係:
+  - Relation関係の一覧（双方向プロパティ情報付き）
+  - Rollup関係の一覧（集計方法・元Relation付き）
 
 ## 生成物の使い方
 

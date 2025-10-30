@@ -4,8 +4,9 @@
 
 ## ファイル説明
 
-- `notion_erd.mmd` - Mermaid ER図形式のファイル
+- `notion_erd.mmd` - Mermaid ER図形式のファイル（可視化用）
 - `notion_schema.dbml` - DBML形式のファイル（dbdiagram.io等で可視化可能）
+- `notion_database_structure.md` - Markdown形式の詳細ドキュメント（プロパティ詳細・DB間連携情報を完全網羅）
 
 ## 生成方法
 
