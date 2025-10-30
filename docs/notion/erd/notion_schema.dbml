@@ -1,0 +1,2306 @@
+Table t_9055f59c_7a65_4f5b_b71a_d0cb65c8cfec {
+  sutetasu status
+  bi_yao_nainhututo text
+  shi_shi_yue text
+  chuan_etaikoto text
+  ming_qian text
+}
+
+Table mtgyi_shi_lu {
+  ri_fu date
+  can_jia_zhe user[]
+  figma_huairu relation
+  ming_qian text
+}
+
+Table yi_shi_lu {
+  taku enum[] // options: 2023
+  ri_fu date
+  yusa user[]
+  ming_qian text
+}
+
+Table hui_she_objectives_2023shang_qi {
+  da_cheng_zhuang_kuang formula // formula: (((substring("■■■■■■■■■■", 0, floor({{notion:block_property:QV%5Cx:56d90cf2-7798-41b7-a24f-ccf241b834a4:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} * 10)) + substring("□□□□□□□□□□", 0, 10 - floor({{notion:block_property:QV%5Cx:56d90cf2-7798-41b7-a24f-ccf241b834a4:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} * 10))) + " ") + format(floor({{notion:block_property:QV%5Cx:56d90cf2-7798-41b7-a24f-ccf241b834a4:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} * 100))) + "%"
+  da_cheng_lu rollup // rollup(average) via 会社KeyResults 1
+  bu_shu_keyresults relation
+  hui_she_keyresults_1 relation
+  da_cheng_lu_que_ren_yong_hui_she_keyresults relation
+  hui_she_objectives text
+}
+
+Table hui_she_keyresults_2023shang_qi {
+  da_cheng_lu number
+  da_cheng_zhuang_kuang formula // formula: (((substring("■■■■■■■■■■", 0, floor({{notion:block_property:FrpH:d0e7b164-5c46-4314-8acb-e2ba7ba80cc1:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} * 10)) + substring("□□□□□□□□□□", 0, 10 - floor({{notion:block_property:FrpH:d0e7b164-5c46-4314-8acb-e2ba7ba80cc1:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} * 10))) + " ") + format(floor({{notion:block_property:FrpH:d0e7b164-5c46-4314-8acb-e2ba7ba80cc1:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} * 100))) + "%"
+  hui_she_objectives relation
+  bu_shu_keyresults relation
+  bu_shu_ming rollup // rollup(show_original) via 部署Objectives
+  bu_shu_objectives relation
+  jin_bu_lu_noce_ding_fang_fa text
+  hui_she_keyresults text
+}
+
+Table bu_shu_keyresults {
+  jin_bu_lu_noce_ding_fang_fa text
+  da_cheng_zhuang_kuang formula // formula: (((substring("■■■■■■■■■■", 0, floor({{notion:block_property:%7CxWq:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} * 10)) + substring("□□□□□□□□□□", 0, 10 - floor({{notion:block_property:%7CxWq:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} * 10))) + " ") + format(floor({{notion:block_property:%7CxWq:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} * 100))) + "%"
+  bu_shu_objectives relation
+  bu_shu_ming enum // options: AP, QA, PS, IT, CPO, MP, MMG, 推し活3.0, MT/MT-C/MFB, MLS, MA, MTS, BioQR, インフラ, デザイン, Borderless, 社長室, 広報, 採用, 財務, N700S, プロジェクト管理, 人事
+  da_cheng_lu number
+  bu_shu_keyresults text
+}
+
+Table hui_she_keyresultsyi_lan {
+  da_cheng_lu rollup // rollup(average) via 部署KeyResults
+  nian_ci enum // options: 2023上期, 2023下期
+  bu_shu_keyresults relation
+  bian_ji_lan_hui_she_keyresults text
+}
+
+Table hui_she_objectivesyi_lan {
+  nian_ci enum // options: 2023上期, 2023下期
+  da_cheng_lu rollup // rollup(average) via 部署KeyResults
+  bu_shu_keyresults relation
+  bian_ji_lan_hui_she_objectives text
+}
+
+Table da_cheng_lu_que_ren_yong_hui_she_keyresults_2023shang_qi {
+  jin_bu_lu_noce_ding_fang_fa text
+  da_cheng_lu rollup // rollup(average) via 部署KeyResults
+  bu_shu_keyresults relation
+  da_cheng_zhuang_kuang formula // formula: (((substring("■■■■■■■■■■", 0, floor({{notion:block_property:WB%3F%7C:d09b30ac-9aae-4ca4-8b1a-43ebc6339019:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} * 10)) + substring("□□□□□□□□□□", 0, 10 - floor({{notion:block_property:WB%3F%7C:d09b30ac-9aae-4ca4-8b1a-43ebc6339019:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} * 10))) + " ") + format(floor({{notion:block_property:WB%3F%7C:d09b30ac-9aae-4ca4-8b1a-43ebc6339019:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} * 100))) + "%"
+  hui_she_keyresults text
+}
+
+Table okryong_bu_shu_yi_lan {
+  ming_qian text
+}
+
+Table dbf7dbd3_36e5_4514_8e7c_9340e8194ef0 {
+  gui_mo number
+  hui_chang text
+  bei_kao text
+  gong_yan_ri date
+  gong_yan_ming text
+}
+
+Table t_8a8d994a_6145_4c08_b891_186530ac2229 {
+  gui_mo number
+  hui_chang text
+  bei_kao text
+  gong_yan_ri date
+  gong_yan_ming text
+}
+
+Table dui_ying {
+  xiu_zheng_surumerituto text
+  xiu_zheng_surutemerituto text
+  gong_shu_ren_ri number
+  id unique_id
+  bei_kao text
+  type enum // options: アラートの整備, 発生したバグ, 未知のバグ
+  dui_ying enum // options: 対応しない, 対応する
+  title text
+}
+
+Table bu_shu_objectivesyi_lan {
+  bu_shu_keyresultsyi_lan relation
+  da_cheng_lu rollup // rollup(average) via 部署KeyResults一覧
+  okryong_bu_shu_yi_lan relation
+  nian_ci enum // options: 2023上期, 2023下期
+  bian_ji_lan_bu_shu_objectives text
+}
+
+Table cef6fc22_8894_4634_a08d_7e378af2de07 {
+  gui_mo number
+  hui_chang text
+  bei_kao text
+  gong_yan_ri date
+  gong_yan_ming text
+}
+
+Table bu_shu_objectives_2023shang_qi {
+  bu_shu_keyresults relation
+  bu_shu_ming enum // options: AP, QA, PS, IT室, CPO, MP, MMG, 推し活3.0, Sakuden/MT-C, MLS, MA, MTS, BioQR, インフラ, デザイン, Borderless, 社長室, 広報, 人事, 財務, N700S
+  da_cheng_lu rollup // rollup(average) via 部署KeyResults
+  da_cheng_zhuang_kuang formula // formula: (((substring("■■■■■■■■■■", 0, floor({{notion:block_property:_Lfl:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} * 10)) + substring("□□□□□□□□□□", 0, 10 - floor({{notion:block_property:_Lfl:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} * 10))) + " ") + format(floor({{notion:block_property:_Lfl:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} * 100))) + "%"
+  bu_shu_objectives text
+}
+
+Table t_81f86b6a_cd1e_408f_87f8_8b5104061c4a {
+  gui_mo number
+  hui_chang text
+  bei_kao text
+  gong_yan_ri date
+  gong_yan_ming text
+}
+
+Table t_7de9ef27_b2a3_414a_bb7a_f1c1e9a32e6d {
+  gui_mo number
+  hui_chang text
+  bei_kao text
+  gong_yan_ri date
+  gong_yan_ming text
+}
+
+Table t_7089f6ac_a39b_4201_bb7f_f3ea792c0a09 {
+  gui_mo number
+  hui_chang text
+  bei_kao text
+  gong_yan_ri date
+  gong_yan_ming text
+}
+
+Table t_2023nian_xia_qi_ge_ren_okr_cheng_guo_mu_biao_xing_dong_mu_biao {
+  xing_dong_mu_biao text
+  zui_zhong_geng_xin_ri_shi timestamp
+  ge_ren_okr_cheng_guo_mu_biao text
+  cong_ye_yuan_fan_hao text
+  zui_zhong_geng_xin_zhe user
+  suo_shu_bu_shu relation
+  guan_lian_surubu_shu_keyresults relation
+  na text
+}
+
+Table bu_shu_keyresultsyi_lan {
+  bian_ji_lan_jin_bu_lu_noce_ding_fang_fa text
+  nian_ci enum // options: 2023上期, 2023下期
+  okryong_bu_shu_yi_lan relation
+  bian_ji_lan_da_cheng_lu number
+  bian_ji_lan_bu_shu_keyresults text
+}
+
+Table mp_iosraihurari {
+  yong_tu text
+  privacy_manifest_filedui_ying text
+  mpdui_ying_fang_zhen text
+  raihurariming text
+}
+
+Table n7hou_ban_zhan_yong_epic {
+  n7hou_ban_zhan_yong_hurosiekuto relation
+  taku enum[]
+  ming_qian text
+}
+
+Table n7hou_ban_zhan_yong_hurosiekuto {
+  bu_shu_key_results relation
+  taku enum[]
+  ona2 user[]
+  ona user[]
+  tasukuwan_liao_shu formula // formula: toNumber({{notion:block_property:d%60Cc:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})
+  timu relation
+  hurotakutoheng_duan_hurotakuto relation
+  n7hou_ban_zhan_yong_epic relation
+  qi_jian date
+  ming_qian text
+}
+
+Table hui_chang {
+  taku enum[]
+  ihento relation
+  ming_qian text
+}
+
+Table ateisuto {
+  ihento relation
+  taku enum[]
+  ming_qian text
+}
+
+Table mpihento {
+  hui_chang rollup // rollup(show_original) via イベント
+  start rollup // rollup(show_original) via イベント
+  taku enum[]
+  open rollup // rollup(show_original) via イベント
+  ihento relation
+  ming_qian text
+}
+
+Table ihento {
+  open date
+  taku enum[]
+  start date
+  hurotakutoheng_duan_hurotakuto relation
+  ateisuto relation
+  ticketprovider relation
+  hui_chang relation
+  xing_xing_zhu relation
+  ming_qian text
+}
+
+Table b1cfa4b3_e8b9_451b_904b_5a00be2647d8 {
+  3 text
+  memo text
+  1 text
+  guan_lian_kr text
+  2 text
+   text
+}
+
+Table deprecated_hurotakutoprd {
+  taku enum[]
+  ming_qian text
+}
+
+Table fa_quan_qing_bao_xin_gui_bundlewomatomeruchang_he_1 {
+  seat_category_id text
+  full_name text
+  ticket_class_id text
+  external_code text
+  gate_category_id text
+  full_name_kana text
+  email text
+  fc_id text
+  phone_number text
+  ticket_item_seat_description text
+  last_name text
+  identification_identity_provider_sub text
+  identification_identity_provider text
+  last_name_kana text
+  karamuming text
+  ticket_item_seat_name text
+  first_name_kana text
+  event_id text
+  create_bundle text
+  first_name text
+  gate_id text
+}
+
+Table adr_akitekutiyayi_si_jue_ding_ji_lu {
+  zuo_cheng_zhe user
+  zui_zhong_geng_xin_ri_shi timestamp
+  hurotakutokuruhu rollup // rollup(show_original) via プロダクト
+  ti_an_zhe user[]
+  cheng_ren_zhe user[]
+  id unique_id
+  sutetasu status
+  zuo_cheng_ri_shi timestamp
+  hurotakuto relation
+  taku enum[]
+  ming_qian text
+}
+
+Table hurotakutoheng_duan_oshiete_product {
+  taku enum[]
+  ihentokuruhu rollup // rollup(show_original) via [プロダクト横断] プロダクト
+  hurotakutoheng_duan_hurotakuto relation
+  sutetasu status
+  ming_qian text
+}
+
+Table mp_pdmyin_kiji_kidui_xiang {
+  memo text
+  fen_lei enum[] // options: ツール, iOS, Android, システム, プロダクトビジョン, MTG, パートナーコミュニケーション, ドメイン知識, 運用, ドキュメント, 社内コミュニケーション
+  yin_kiji_kisutetasu enum // options: DONE, DOING
+  ming_qian text
+}
+
+Table mp_prd {
+  taku enum[]
+  ming_qian text
+}
+
+Table t_8f0b85dd_2be4_46b2_a1a4_1b3314b7ae65 {
+  app_user_id text
+  os text
+  bid text
+  cao_zuo_lu_li text
+  cao_zuo_lu_li_roku text
+  tid text
+  shi_jian text
+}
+
+Table keytovalueyi_lan {
+  ying_yu text
+  value text
+  key_ios text
+  key_android text
+}
+
+Table dian_zi_tiketutoahuri {
+  ios_dui_ying_os text
+  android_insutorushu text
+  xiao_siip_mihua_mian file[]
+  ios_nian_ling_zhi_xian text
+  yi_lan_hua_mian file[]
+  android_nian_ling_zhi_xian text
+  ios_insutorushu text
+  ios_saisu text
+  android_saisu text
+  taku enum[]
+  android_dui_ying_os text
+  ming_qian text
+}
+
+Table mp_tiketutosutetasuyi_lan {
+  mt_c_karaku text
+  mt_cbiao_shi_tiao_jian text
+  dui_ying_hasiyon text
+  tiketutosutetasuan_nei_raherunobei_jing_se enum[] // options: 緑色, 灰色, ー, 水色
+  tiketutosutetasuan_nei_raheru text
+  bei_kao text
+  karakubiao_shi_tiao_jian text
+  tiketutosutetasuraheru text
+  sutetasushuo_ming_tekisuto text
+  rinkuxian text
+  fen_lei text
+}
+
+Table t_1a1dd31c_275d_4032_b216_8b9efba3f0ab {
+  biao_shi_shi_yang text
+  ji_neng text
+   number
+  huairu file[]
+  xiang_mu_ming text
+}
+
+Table f361da47_3eea_4f39_8476_efead45cb677 {
+  huairu file[]
+  biao_shi_shi_yang text
+   number
+  ji_neng enum // options: ー, 操作#15,の領域をタップ結果「チケット詳細」画面が表示される, 操作#18,の領域をタップ結果展開済の場合チケットエリアを表示するブック展開ボタンを未展開の状態にする未展開の場合チケットエリアを非表示にするブック展開ボタンを展開済の状態にする
+  xiang_mu_ming text
+}
+
+Table v1_4_0_qa {
+  bu_zu text
+  xiu_zheng_issue text
+  taunrotourl text
+  atuhutetoqian_hou text
+  hasiyonbiao_shi_ming text
+}
+
+Table v1_4_0_qa {
+  bu_zu text
+  xiu_zheng_issue text
+  taunrotourl text
+  atuhutetoqian_hou text
+  hasiyonbiao_shi_ming text
+}
+
+Table b70b0818_424b_4154_8d67_6cd317edf196 {
+  mp_tiketutosutetasuyi_lan relation
+  taku enum[]
+  ming_qian text
+}
+
+Table mp_tiketutosutetasuyi_lan {
+  mt_c_karaku text
+  mt_cbiao_shi_tiao_jian text
+  dui_ying_hasiyon text
+  tiketutosutetasuan_nei_raherunobei_jing_se enum[] // options: 緑色, 灰色, ー, 水色
+  tiketutosutetasuan_nei_raheru text
+  bei_kao text
+  karakubiao_shi_tiao_jian text
+  tiketutosutetasuraheru text
+  sutetasushuo_ming_tekisuto text
+  rinkuxian text
+  fen_lei text
+}
+
+Table mp_hua_mian_yi_lan {
+  taku enum[]
+  geng_xin_app_ver relation
+  xin_gui_zuo_cheng_app_ver relation
+  ming_qian text
+}
+
+Table t_9d0d8fee_eae0_4e9c_b784_4fba5317a48c {
+  huairu file[]
+  tiketutosutetasushuo_ming text
+  biao_shi_tiao_jian text
+  rinkuxian enum // options: ー, https://cloak.pia.jp/, https://corporate.pia.jp/contact/
+  bei_kao text
+  tiketutosutetasuraheru text
+}
+
+Table mp_erataiarokuyi_lan {
+  taku enum[]
+  ming_qian text
+}
+
+Table mp_tiketutosutetasuyi_lan {
+  mt_c_karaku text
+  mt_cbiao_shi_tiao_jian text
+  dui_ying_hasiyon text
+  tiketutosutetasuan_nei_raherunobei_jing_se enum[] // options: 緑色, 灰色, ー, 水色
+  tiketutosutetasuan_nei_raheru text
+  bei_kao text
+  karakubiao_shi_tiao_jian text
+  tiketutosutetasuraheru text
+  sutetasushuo_ming_tekisuto text
+  rinkuxian text
+  fen_lei text
+}
+
+Table mp_tiketutosutetasuyi_lan {
+  mt_c_karaku text
+  mt_cbiao_shi_tiao_jian text
+  dui_ying_hasiyon text
+  tiketutosutetasuan_nei_raherunobei_jing_se enum[] // options: 緑色, 灰色, ー, 水色
+  tiketutosutetasuan_nei_raheru text
+  bei_kao text
+  karakubiao_shi_tiao_jian text
+  tiketutosutetasuraheru text
+  sutetasushuo_ming_tekisuto text
+  rinkuxian text
+  fen_lei text
+}
+
+Table sync2sheets_jian_zheng {
+  taku enum[] // options: tag1, tag2
+  ming_qian text
+}
+
+Table tokiyumentoniguan_suruke_ti {
+  jie_jue_an text
+  zuo_cheng_zhe user
+  taku enum[]
+  guan_lian_bu_shu enum[] // options: その他, CEO, COO, CPO
+  dui_ying text
+  ke_ti text
+}
+
+Table mp_hua_mian_yi_lan {
+  taku enum[]
+  ming_qian text
+}
+
+Table issue_db_automation_trigger_for_stamp {
+  zuo_cheng_ri_shi timestamp
+  quan_she_gong_tong_issue relation
+  taku enum[]
+  ming_qian text
+}
+
+Table issue_db_automation_trigger_for_routine_workflow {
+  taku enum[]
+  quan_she_gong_tong_issue relation
+  zuo_cheng_ri_shi timestamp
+  ming_qian text
+}
+
+Table zi_dong_tesutogong_shu_jian_ji_mori {
+  planshi_shi_pin_du_yue_hui number
+  shi_shi_gong_shu_1hui_h number
+  xue_jian_lu formula // formula: {{notion:block_property:ZE%7DZ:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}/{{notion:block_property:G%3ARQ:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}
+  planshi_xing_h number
+  xue_jian_saretashi_shi_gong_shu_h formula // formula: {{notion:block_property:~%7BK%7B:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}　- {{notion:block_property:p%3Dli:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}
+  shi_shi_pin_du_yue_hui number
+  zuo_cheng_gong_shu_h formula // formula: {{notion:block_property:%7Cfrd:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} * {{notion:block_property:rFU%7B:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}
+  zi_dong_hua_gong_shu_h formula // formula: {{notion:block_property:S%3BKE:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} * {{notion:block_property:%3DMz%7D:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}
+  branchshu number
+  shou_dong_he_hui_fen_tezuo_cheng_gong_shu_woshang_hui_ruka_hui formula // formula: {{notion:block_property:nhxV:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}/{{notion:block_property:~%7BK%7B:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}
+  zi_dong_hua_lu number
+  zuo_cheng_gong_shu_branch_h number
+  shi_shi_gong_shu_h formula // formula: {{notion:block_property:G%3ARQ:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} * {{notion:block_property:%60%5Cw%7C:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}
+  ming_qian text
+}
+
+Table t_2024_09_be_firsttuariseru119diao_cha_dui_ce_zhun_bei {
+  qi_jian date
+  ming_qian text
+}
+
+Table t_2024_09_be_firsttuariseruqi_jian {
+  qi_jian date
+  ming_qian text
+}
+
+Table t_2024_09_be_firsttuariseru119shi_xiang {
+  qi_jian date
+  ming_qian text
+}
+
+Table t_2024_09_be_firsttuariseru119dui_ying {
+  qi_jian date
+  ming_qian text
+}
+
+Table mpahurihasiyon {
+  taku enum[]
+  gai_yao text
+  iosgong_kai_ri_shi date
+  androidgong_kai_ri_shi date
+  ahurisutoagai_yao_lan text
+  ahurisutoazui_xin_qing_bao_lan text
+  ming_qian text
+}
+
+Table fa_sheng_yi_lan {
+  slack url
+  gong_yan_ri date
+  fa_quan_zhuang_kuang status
+  fa_sheng_ri text
+}
+
+Table notion_aitoraiarunojian_yi_gan_xiang_huitohatuku {
+  menha_bi_xu user[]
+  bu_zu_xiang_xi_ren_yi text
+  sutetasu_aixxiang_mu status
+  ping_jia_bi_xu enum // options: よかった, よくなかった
+  bei_kao_aixxiang_mu text
+  jian_yi_gan_xiang_ren_yi text
+}
+
+Table quan_she_gong_tong_sprint {
+  dan_dang_zhe rollup // rollup(show_unique) via タスク
+  zuo_cheng_zhe user
+  aix_tasukuwan_liao formula // formula: length({{notion:block_property:notion%3A%2F%2Fsprints%2Fsprint_task_relation:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.filter(and(contains(current.{{notion:block_property:VoRW:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}},"AIX"),contains(current.{{notion:block_property:notion%3A%2F%2Ftasks%2Fstatus_property:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}},"完了"))))
+  aix_tasukuhe_ji formula // formula: length({{notion:block_property:notion%3A%2F%2Fsprints%2Fsprint_task_relation:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.filter(and(contains(current.{{notion:block_property:VoRW:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}},"AIX"),not(contains(current.{{notion:block_property:notion%3A%2F%2Ftasks%2Fstatus_property:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}},"アーカイブ済み")))))
+  aix_tasukuwan_liao_lu formula // formula: {{notion:block_property:%5BwXj:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}/{{notion:block_property:tIfz:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}
+  suhurintoming text
+  ri_fu date
+  suhurintoid unique_id
+  tasuku relation
+  tasukuhe_ji rollup // rollup(count_values) via タスク
+  wan_liao_sitatasuku rollup // rollup(percent_per_group) via タスク
+  suhurintosutetasu status
+}
+
+Table suretutonei_riakusiyonshi_xing_huronhutoshe_ding {
+  zuo_cheng_zhe user
+  roru text
+  notionhesizuo_cheng boolean
+  sutanhuming text
+}
+
+Table apiyi_lan {
+  gai_yao text
+  hatukuentosaha enum // options: Karaku, MT-C, MNFT, MA
+  entohointo text
+  fang_shi text
+  ji_neng_fen_lei enum // options: 入場, 初回アプリ起動, コレクション, 来場者特典, 初期処理, ダウンロード, 返却, 分配, MA連携, リセール, 連携_MA, 連携解除_MA
+  korusurutaiminku text
+  mpahurihasiyon relation
+  taitoru text
+}
+
+Table quan_xian_tesutodb {
+  taku enum[]
+  hurohatei1 text
+  ming_qian text
+}
+
+Table old_119hurosiekuto_shi_yong_yu_ding_nasi {
+  hurosiekutoming text
+  ona user[]
+  sutetasu status
+  wan_liao rollup // rollup(percent_per_group) via タスク
+  you_xian_du enum // options: 低, 中, 高
+  ri_fu date
+  yao_yue text
+  tasuku relation
+  ci_nohurosiekutowobao_liu_zhong relation
+  ci_nohurosiekutoniyoribao_liu_zhong relation
+}
+
+Table old_119miteinku {
+  119risuto relation
+  tag_library relation
+  tag_library_1_tonoriresiyon_miteinkuzuo_ye_jian_tao_tokiyumento_1_tonoriresiyon_tag_library_62 relation
+  guan_lian_tasuku relation
+  jian_ming text
+  ji_shu enum[] // options: Terraform, AWS, Datadog
+  can_jia_zhe user[]
+  zuo_cheng_zhe user
+  zuo_cheng_ri_shi timestamp
+  ihentoshi_jian date
+  zhong_bie enum // options: 朝会・夕会, ブレインストーミング, 週次のチーム定例, トレーニング
+  zui_zhong_geng_xin_zhe user
+  zui_zhong_geng_xin_ri_shi timestamp
+}
+
+Table bu_shu {
+  bu_shu_kuruhu relation
+  bu_shu_objective relation
+  cxo formula // formula: {{notion:block_property:DZs%40:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:Mr%5BL:8ad95394-a220-4117-b505-dde6ca16aa88:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}).first()
+  manesiya user[]
+  taku enum[]
+  timu relation
+  ming_qian text
+}
+
+Table productxi_tong {
+  quan_she_gong_tong_project relation
+  product relation
+  ming_qian text
+}
+
+Table old_119tasuku {
+  xian_xing_tasuku relation
+  tag_library relation
+  tasukuqu_fen enum // options: 恒久対応, 調査・暫定対応
+  dui_ying_suru119 relation
+  zuo_cheng_ri_shi timestamp
+  119tokiyumento rollup // rollup(show_original) via 対応する119
+  hou_sok_tasuku relation
+  wei_wan_liao_tasukuqu_fen formula // formula: if(["未着手", "進行中"].includes({{notion:block_property:notion%3A%2F%2Ftasks%2Fstatus_property:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}),{{notion:block_property:JYck:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}},"")
+  tasukuming text
+  dan_dang_zhe user[]
+  sutetasu status
+  qi_xian date
+  you_xian_du enum // options: 低, 中, 高
+  sahutasuku relation
+  yao_yue text
+  qin_tasuku relation
+  is_blocking relation
+  blocked_by relation
+  hurosiekuto relation
+}
+
+Table diao_heru {
+  taku enum[]
+  url url
+  ming_qian text
+}
+
+Table shi_li {
+  ruru relation
+  taku enum[]
+  ri_fu date
+  ming_qian text
+}
+
+Table mp_qayong_pei_xin_ahurihasiyon {
+  zuo_cheng_ri_shi timestamp
+  taku enum[]
+  qi_piao_sitaissue relation
+  huan_jing enum // options: test, production, sandbox
+  nei_rong text
+  ming_qian text
+}
+
+Table kai_fa_jin_bu_qi_jian {
+  kai_fa_jin_bu relation
+  suhurintoming text
+  ri_fu date
+  suhurintoid unique_id
+  tasuku relation
+  tasukuhe_ji rollup // rollup(count_values) via タスク
+  wan_liao_sitatasuku rollup // rollup(percent_per_group) via タスク
+  suhurintosutetasu status
+}
+
+Table old_kai_fa_jin_bu {
+  ru_li_dan_dang_zhe user[]
+  ke_ti text
+  product relation
+  pdmbu_zuo rollup // rollup(show_original) via Product
+  ta_timuhenooyuan_i text
+  ru_li_sutetasu status
+  sm rollup // rollup(show_original) via Product
+  pdm rollup // rollup(show_original) via Product
+  herusu enum // options: 青, 黄色, 赤
+  zi_dong_fu_zhi_torikayong_kai_fa_jin_bu_qi_jian relation
+  ru_li_qi_xian date
+  jin_bu_lu rollup // rollup(percent_per_group) via 全社共通 Issue
+  quan_she_gong_tong_issue relation
+  taitoru text
+  qi_jian relation
+}
+
+Table kai_fa_jin_bu {
+  qi_jian date
+  fu_zhi_torika enum // options: 複製中
+  zui_jin_noririsu formula // formula: {{notion:block_property:fWPf:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:title:0cc49314-2771-4c6b-afe5-f05bdc66ac22:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} + current.{{notion:block_property:BXNK:0cc49314-2771-4c6b-afe5-f05bdc66ac22:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})
+  herusu enum // options: 黃, 赤, 青
+  tekisuto text
+  quan_she_gong_tong_release relation
+  ke_ti text
+  releasesutetasu rollup // rollup(show_original) via 🚀 全社共通 Release
+  product relation
+  ta_timuhenooyuan_i text
+  ming_qian text
+}
+
+Table musttexin_kakerukoto {
+  xi_de_nibi_yao_nashi_li_shu_nomu_biao number
+  shi_li_shu rollup // rollup(count) via 事例
+  taku enum[]
+  shi_li relation
+  ming_qian text
+}
+
+Table hong_ranai_zhong_fu_tietuku {
+  tenhureto_1 relation
+  ming_qian text
+}
+
+Table hiarinkuxiang_mu {
+  huirutoming text
+  tenhureto relation
+  xuan_ze_zhi relation
+  huomu relation
+  ming_qian text
+}
+
+Table aratodui_ying {
+  yuan_yin text
+  eragai_yao text
+  dui_ying text
+  nei_rong text
+  dui_ying_li text
+  tiyanneru enum // options: #alert_prod_mt_s, #alert_prod_shopify, #alert_prod_cloak_s, #alert_tier2-sakuden-prod-book-has-too-many-owner, #alert_tier1-prod-shopify-即対応, #alert_tier1-prod-shopify-要調査
+  gong_shu_mu_an text
+  ming_qian text
+}
+
+Table huomu {
+  hiarinkuxiang_mu relation
+  takubu_pin text
+  fan_xin_shi_nibi_yao_nazhi relation
+  ming_qian text
+}
+
+Table tcicui_ruo_xing_zhen_duan_jie_guo {
+  tomein text
+  ahuricui_ruo_xing text
+  inhuracui_ruo_xing text
+  huan_jing text
+  ahurizhen_duan text
+  zhen_duan_jie_guo url
+  hurotakutoming text
+}
+
+Table huiruto {
+  id text
+  hiarinkuxuan_ze_zhi_yi_lan relation
+  ming_qian text
+}
+
+Table moalaren_zheng_li_yong_yu_ding {
+  taku enum[] // options: iPhone, iPad
+  gong_yan_ri date
+  zuo_cheng_zhe user
+  ihentoming text
+  ahuritaihu enum // options: TestFlight, App Store版
+  duan_mo enum // options: iPad, iPhone
+  gong_kai_ri date
+  li_yong_yong_tu enum[] // options: 入場, クローク, 白券発券, 検証
+}
+
+Table fan_xin_shi_nibi_yao_nazhi {
+  karamuming text
+  jian_suo_tiao_jian text
+  huomu relation
+  kueri url
+  ming_qian text
+}
+
+Table qi {
+  quan_she_objectives relation
+  ming_qian text
+}
+
+Table pan_ding_jie_guo {
+  shu_shi formula // formula: {{notion:block_property:Ujgq:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:title:1b37d6b7-b8c6-80a0-8c48-e014a09276d1:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})
+  huomu rollup // rollup(show_original) via テンプレート
+  takubu_pin text
+  tenhureto relation
+  geng_xin_ri timestamp
+  ming_qian text
+}
+
+Table hiarinkuxuan_ze_zhi_yi_lan {
+  tmp_20250426chai_fen boolean
+  taku_da_wen_zi formula // formula: {{notion:block_property:%7BH%7Cf:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.upper().replaceAll("-", "_")
+  geng_xin_ri timestamp
+  hiarinkuxiang_mu relation
+  takubu_pin text
+  tenhureto relation
+  huiruto relation
+  huomu rollup // rollup(show_original) via ヒアリング項目
+  shu_xing enum // options: 問題, 情報
+  zuo_cheng_ri timestamp
+  taku formula // formula: let(
+	pretag,
+	join(
+		concat(
+			{{notion:block_property:tR%5Ee:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(
+				current.{{notion:block_property:lNtj:1b37d6b7-b8c6-80a0-8c48-e014a09276d1:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}
+			),
+			[if({{notion:block_property:vg%5Ey:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}=="情報","info","issue")],
+			[{{notion:block_property:T%3BMn:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}]
+		),
+		"."
+	),
+	if({{notion:block_property:n%5CQ%3C:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}},
+			{{notion:block_property:n%5CQ%3C:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(
+			pretag + "." + current.{{notion:block_property:TATA:1c47d6b7-b8c6-80be-9006-d7e1ecb80544:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}
+		),
+		pretag
+	)
+)
+  ming_qian text
+}
+
+Table fan_xin_tenhureto {
+  fan_xin_hou_sutetasu enum // options: 待機中, 保留中, 解決済み
+  dbshang_noma enum // options: 非公開メールアドレス, 公開メールアドレス
+  taku_da_wen_zi formula // formula: {{notion:block_property:T%5C%3AR:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.upper().replaceAll("-", "_")
+  li_yong_hurausa enum // options: その他, Chrome, Safari
+  wen_ti relation
+  wen_ti_taku rollup // rollup(show_original) via 問題
+  li_yong_duan_mo enum // options: Android, iPhone
+  jie_guo_takubu_pin rollup // rollup(show_original) via 判定結果
+  tui_hui_xi_wang_ma enum // options: DB登録あり, DB登録なし
+  bian_geng_qian_ma enum
+  shen_gao_manozheng_sisa enum[] // options: 正しい, 誤り, 登録なし
+  wen_ti_takubu_pin rollup // rollup(show_original) via 問題
+  taku formula // formula: join(concat({{notion:block_property:ZNBn:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}},{{notion:block_property:R%7B%40m:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}},{{notion:block_property:K%5EeB:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.sort()),"_")
+  huomu_takubu_pin formula // formula: {{notion:block_property:G%7CdF:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:tR%5Ee:1b37d6b7-b8c6-8006-b380-db2a9f2b5158:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:lNtj:1b37d6b7-b8c6-80a0-8c48-e014a09276d1:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}))
+  shen_gao_tidnozai_chu enum[] // options: 無し, DB, DB×→FC
+  zhong_fu_tietukudb relation
+  yi_ci_fan_xin_shi_nibi_yao_nazhi relation
+  huomu formula // formula: {{notion:block_property:G%7CdF:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:tR%5Ee:1b37d6b7-b8c6-8006-b380-db2a9f2b5158:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})
+  zai_song_jin_hui_shu enum // options: 0, 1以上, 値なし
+  geng_xin_ri timestamp
+  pan_ding_jie_guo relation
+  fan_xin_ben_wen text
+  tiketutoyou_wu enum // options: 有り, 無し
+  ming_qian text
+}
+
+Table yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1 {
+  dan_dang_zhe user[]
+  xiang_mu enum[] // options: リリース機能, 機能要件の対応状況, シナリオテストの対応状況, 非機能要件の対応状況, 監視, 保守, 障害対応, サポート準備, 規約・契約・特許, プレスリリース
+  qin_tasuku relation
+  dui_ying_zhuang_kuang_matahacheng_guo_wu_henorinku url
+  xiang_mu_gai_yao text
+  dan_dang_zhe_bei_kao text
+  sahutasuku relation
+  pdmtietuku status
+  bei_kao text
+  zui_zhong_geng_xin_ri_shi timestamp
+  que_ren_nei_rong text
+}
+
+Table moalaren_zheng_ahuri_hirutohasiyonguan_li {
+  hurotakuto enum // options: Sakuden, Karaku
+  partnerfu_dan_dang_zhe rollup // rollup(show_original) via 利用パートナー
+  duan_mo enum // options: iPad, iPhone
+  partnerzhu_dan_dang_zhe rollup // rollup(show_original) via 利用パートナー
+  ahuritaihu enum // options: TestFlight, App Store版
+  pdm_tong_zhi_yong user[]
+  li_yong_hatona relation
+  testflightqi_xian formula // formula: if({{notion:block_property:YsD%3A:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} == "TestFlight", dateAdd({{notion:block_property:wVUO:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}, 90, "days"), "")
+
+  li_yong_an_jian text
+  li_yong_yong_tu enum[] // options: 入場, クローク, 白券発券, 検証
+  bei_kao text
+  gong_kai_ri date
+  hirutover text
+}
+
+Table hurotakutotaku {
+  qin_aitemu relation
+  zuo_cheng_zhe user
+  quan_she_gong_tong_issue relation
+  sahuaitemu relation
+  taku enum[]
+  zuo_cheng_ri_shi timestamp
+  zui_zhong_geng_xin_zhe user
+  zui_zhong_geng_xin_ri_shi timestamp
+  ming_qian text
+}
+
+Table mp_she_ji_shu_db {
+  ji_neng_fen_lei enum // options: 入場, 共通, 分配, MA連携, コレクション, 払い戻し, 特典
+  tag_library_1_tonoriresiyon_mp_she_ji_shu_dbtonoriresiyon_tag_library_1 relation
+  mpahurihasiyon relation
+  zui_zhong_geng_xin_ri_shi timestamp
+  zuo_cheng_ri_shi timestamp
+  zuo_cheng_zhe user
+  zui_zhong_geng_xin_zhe user
+  tag_library relation
+  que_ren_ri_shi date
+  ai_yao_yue text
+  ming_qian text
+  sutetasu status
+}
+
+Table mt_c_yao_yi_lun {
+  lun_dian rollup // rollup(show_original) via MT-C 主要機能
+  shuo_ming rollup // rollup(show_original) via MT-C 主要機能
+  mt_c_zhu_yao_ji_neng relation
+  ji_neng_katekori rollup // rollup(show_original) via MT-C 主要機能
+  yi_lun_gong_shu enum // options: 中-, 小, 中, 大
+  ming_qian text
+}
+
+Table sakuden_mt_c_issueonazheng_li {
+  quan_she_gong_tong_issue relation
+  sutetasu rollup // rollup(show_original) via 全社共通 Issue
+  yin_kiji_kique_ren_lou_re boolean
+  zheng_li_qian_2025_05_22shi_dian_noona_1 enum // options: 溝上, 杉村
+  zheng_li_hou_noona enum // options: 溝上, 杉村
+  ding_chang_suhotutodui_ying_or_wan_liao_matedui_ying enum // options: 定常スポット対応, 完了まで対応
+  gong_shu_mu_an text
+  zheng_li_qian_2025_03_11shi_dian_noona enum // options: 溝上, 杉村
+  pin_du text
+  hurotakuto rollup // rollup(show_original) via 全社共通 Issue
+  issueona rollup // rollup(show_original) via 全社共通 Issue
+  ming_qian text
+}
+
+Table yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1 {
+  dan_dang_zhe user[]
+  xiang_mu enum[] // options: リリース機能, 機能要件の対応状況, シナリオテストの対応状況, 非機能要件の対応状況, 監視, 保守, 障害対応, サポート準備, 規約・契約・特許, プレスリリース
+  qin_tasuku relation
+  dui_ying_zhuang_kuang_matahacheng_guo_wu_henorinku url
+  xiang_mu_gai_yao text
+  dan_dang_zhe_bei_kao text
+  sahutasuku relation
+  pdmtietuku status
+  bei_kao text
+  zui_zhong_geng_xin_ri_shi timestamp
+  que_ren_nei_rong text
+}
+
+Table yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1 {
+  dan_dang_zhe user[]
+  xiang_mu enum[] // options: リリース機能, 機能要件の対応状況, シナリオテストの対応状況, 非機能要件の対応状況, 監視, 保守, 障害対応, サポート準備, 規約・契約・特許, プレスリリース
+  qin_tasuku relation
+  dui_ying_zhuang_kuang_matahacheng_guo_wu_henorinku url
+  xiang_mu_gai_yao text
+  dan_dang_zhe_bei_kao text
+  sahutasuku relation
+  pdmtietuku status
+  bei_kao text
+  zui_zhong_geng_xin_ri_shi timestamp
+  que_ren_nei_rong text
+}
+
+Table gou_shang_ye_wu_nei_rong_yi_lan {
+  gong_shu text
+  sutetasu enum // options: 継続, 引き継ぎ済み, 引き継ぎ予定
+  bei_kao text
+  yi_ge enum[] // options: エンジニア, SM, QA
+  ding_qi_dui_ying_suhotutodui_ying enum // options: スポット対応, 定期対応
+  yin_kiji_kinei_rong text
+}
+
+Table t_20a7d6b7_b8c6_8078_a8e8_d5fc3e8ea093 {
+  dui_xiang_zhong_bie enum[] // options: 議事録
+  ming_qian text
+}
+
+Table bu_shu_kuruhu {
+  taku enum[]
+  cxo user[]
+  bu_shu relation
+  zhu_guan_chapter relation
+  bu_shu_objective rollup // rollup(show_original) via 部署
+  timu rollup // rollup(show_original) via 部署
+  ming_qian text
+}
+
+Table sakuden_mt_c_issueonazheng_li {
+  quan_she_gong_tong_issue relation
+  sutetasu rollup // rollup(show_original) via 全社共通 Issue
+  zheng_li_hou_noona enum // options: 溝上, 杉村
+  suhotutodui_ying_or_wan_liao_matedui_ying enum // options: スポット対応, 完了まで対応
+  gong_shu_mu_an text
+  yin_kiji_kilou_re boolean
+  yi_ge enum[] // options: QA, エンジニア, SM
+  zheng_li_qian_2025_03_11shi_dian_noona enum // options: 溝上, 杉村
+  pin_du text
+  hurotakuto rollup // rollup(show_original) via 全社共通 Issue
+  issueona rollup // rollup(show_original) via 全社共通 Issue
+  zheng_li_qian_2025_05_27shi_dian_noona_1 enum // options: 溝上, 杉村
+  ming_qian text
+}
+
+Table sakuden_mt_ckai_fa_guan_lian_noyun_ying_sukesiyuru {
+  ri_fu date
+  taku enum[] // options: BE:FIRST
+  ming_qian text
+}
+
+Table wip_she_nei_li_yong_saas_sahisuyi_lan {
+  sutetasu status
+  ming_qian text
+}
+
+Table zuo_ye_jin_bu {
+  locationnodeng_lu boolean
+  events_id text
+  2ticket_class_id text
+  3ticket_class_id text
+  1ticket_class_id text
+  output_jsonhuairunozuo_cheng boolean
+  eventnodeng_lu boolean
+  ticket_class_itemnodeng_lu boolean
+  ming_qian text
+}
+
+Table t_2187d6b7_b8c6_8068_9e0f_f07169d7ab9d {
+  qi_jian date
+  yusa user[]
+  issue enum // options: 1. 複数券種申込み, 2. 抽選汎用化, 3.複数枚抽選, 0.複数枚申込, 5.事前同行者登録, 6.複数回リセール
+  ming_qian text
+}
+
+Table deprecated_quan_she_gong_tong_feedback {
+  quan_she_gong_tong_issue relation
+  hurosiekuto rollup // rollup(show_original) via 全社共通 Issue
+  zuo_cheng_ri_shi timestamp
+  partner relation
+  timu_issue rollup // rollup(show_original) via 全社共通 Issue
+  zuo_cheng_zhe user
+  bu_shu_key_results relation
+  timu relation
+  ti_an_zhe user[]
+  katekori enum // options: 質問, アイデアメモ, 課題提起/提案/相談, フィードバック
+  zui_zhong_geng_xin_zhe user
+  cheng_ren_zhe user[]
+  hurotakuto_issue rollup // rollup(show_unique) via 全社共通 Issue
+  taku enum[]
+  sutetasu status
+  hurotakuto relation
+  beta_activity relation
+  ai_summary text
+  quan_she_gong_tong_project relation
+  zui_zhong_geng_xin_ri_shi timestamp
+  sutanhuqi_piao_zhe user[]
+  ming_qian text
+  ai_kiwato enum[]
+}
+
+Table announce {
+  taku enum[]
+  zuo_cheng_ri_shi timestamp
+  ming_qian text
+}
+
+Table notionhesisheng_cheng_riakusiyonshe_ding {
+  taitoruhurohateiming text
+  cha_ru_3 text
+  prop2nozhi text
+  tenhuretohesiid text
+  tasukuqi_piao_yuan_prop enum // options: 挿入3, 挿入2, 挿入1
+  dui_xiang_db relation
+  cha_ru_2 text
+  cha_ru_1 text
+  zhi_she_ding_dui_xiang_prop1 text
+  taitorusheng_cheng_shi_nozhi_shi text
+  yao_yue_ji_lu_xian_hurohatei text
+  prop1nozhi text
+  tasukuqi_piao boolean
+  zuo_cheng_xian enum // options: Feedback, Issue
+  zhi_she_ding_dui_xiang_prop2 text
+  sutanhuming text
+}
+
+Table chapter {
+  zhu_guan_bu_shu_kuruhu relation
+  taku enum[]
+  guan_lian_activity relation
+  ona user[]
+  zhu_guan_activity relation
+  document relation
+  ming_qian text
+}
+
+Table projectgroup {
+  quan_she_gong_tong_project relation
+  document relation
+  ming_qian text
+}
+
+Table quan_she_objectives {
+  qi relation
+  quan_she_key_results relation
+  taku enum[]
+  objective text
+}
+
+Table cxo_objectives_jiu_quan_she_key_results {
+  bu_shu_objectives relation
+  cxo relation
+  qi formula // formula: {{notion:block_property:~JbV:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:%3BaGX:833d8cdc-0483-45a7-8077-ded6292251c0:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})
+  quan_she_objectives relation
+  taku enum[]
+  ming_qian text
+}
+
+Table cxo_bu_shu_objectives {
+  cxo formula // formula: {{notion:block_property:%3Eh%5CL:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:%3F%5CVP:90f9d4c5-87cf-42d5-bca8-94652deefecf:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})
+  quan_she_key_results relation
+  bu_shu relation
+  qi formula // formula: {{notion:block_property:%3Eh%5CL:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:Hep%3C:90f9d4c5-87cf-42d5-bca8-94652deefecf:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})
+  bu_shu_key_results relation
+  xue_chu_yu_ding_qi enum // options: 2024年度下期, 2024年度上期
+  ming_qian text
+}
+
+Table t_119risuto {
+  can_heng_jiu_dui_ying_shu formula // formula: {{notion:block_property:%40qzR:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.filter(current == "恒久対応").length()
+  product relation
+  can_tasukuzhong_bie rollup // rollup(show_original) via 関連119タスク
+  zuo_cheng_zhe user
+  dui_ying_zhe_guan_xi_zhe user[]
+  deprecated_hurotakuto enum[] // options: Karaku, Sakuden/MFB/MT-C, MT Auth, MLS, MT-S, MP, MGC, MNM, MA, MNFT, Data Lake, MS, 対象外
+  can_zan_ding_dui_ying_shu formula // formula: {{notion:block_property:%40qzR:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.filter(current == "調査・暫定対応").length()
+  guan_lian_tokiyumento relation
+  tier enum // options: #_119-tier1-emergency, #_119-tier2-controlled, #_119-tier3-risk, #room_ishida-chisato, #incident_commander, #tmp_incident-management, #org_partner-support, #private-channel, #ptr_tokyodome-dx-119, #room_suzuki-k
+  dan_dang_komanta user[]
+  qi_piao_ri_shi timestamp
+  tag_library relation
+  sutetasu status
+  guan_lian_119tasuku relation
+  slackrinku url
+  quan_she_gong_tong_meeting relation
+  119guan_li_no unique_id
+  quan_she_gong_tong_issue relation
+  gai_yao text
+  productxi_tong rollup // rollup(show_unique) via Product
+  zui_zhong_geng_xin_ri_shi timestamp
+  qi_piao_zhe text
+  taitoru text
+}
+
+Table tag_library_1 {
+  ri_fu date
+  mp_she_ji_shu_dbtonoriresiyon_tag_library_1 relation
+  menhayi_lan_3 relation
+  menhayi_lan_5 relation
+  119tasuku relation
+  menhayi_lan_1 relation
+  miteinkuzuo_ye_jian_tao_tokiyumento_1_tonoriresiyon_tag_library_62 relation
+  menhayi_lan_4 relation
+  menhayi_lan_2 relation
+  kiwato text
+  taku enum[] // options: 部署・ポジション, プロダクト, ミーティング・ドキュメント, パートナー・関係会社, ツール, PJT, 運用, MBTI
+  dan_dang_zhe user[]
+  sutetasu status
+  qi_xian date
+}
+
+Table ding_li_torikayong {
+  ming_qian text
+}
+
+Table mt_c_zhu_yao_ji_neng {
+  issuer_table enum // options: events, parts, locations, seat_categories, ticket_class_items, label_attributes, ticket_classes, accounts, tags, identifications, ticket_item_seats, tickets, bundles, identification_identity_providers
+  lun_dian text
+  sutetasu status
+  issuer_table_by_zhou_kou_san enum // options: events, parts, locations, seat_categories, ticket_class_items, label_attributes, ticket_classes, accounts, tags
+  mt_c_yao_yi_lun relation
+  shuo_ming text
+  fang_zhen text
+  katekori enum // options: 無効化, チケット, 画像, 通知, 公演登録
+  ming_qian text
+}
+
+Table onhoteinku {
+  taku enum[]
+  ming_qian text
+}
+
+Table fei_shi_yong_converterhiayao_he_yi_risuto {
+  guan_lian_qing_bao text
+  nei_rong text
+  ming_qian text
+}
+
+Table fei_ji_neng_chong_zu_du {
+  yao_jian_ding_yi text
+  yun_yong_wozhi_eruyao_jian enum // options: ◯, △, ×
+  yao_jian_tearuka enum // options: ◯, ×
+  te_ding_gong_yan_xiang_keyao_jian enum // options: ◯, △, ×
+  yao_jian_da_xiang_mu enum[] // options: 環境, 規模, 性能・拡張性（Scalability）, システムの信頼性, 中立性, セキュリティ, テスト, 監視, ログ, メトリクス, SLO, 開発・リリース, 障害対応, 保守（運用）, 機能拡張性, 継続性
+  chong_zu_du enum // options: S, A, B, C, D
+  rinku text
+  li_you text
+  yao_jian_xiao_xiang_mu text
+  yao_jian_zhong_xiang_mu text
+}
+
+Table t_23b7d6b7_b8c6_8086_aa9e_c0b6bab40da3 {
+  date date
+  assign user[]
+  status status
+  name text
+}
+
+Table activity {
+  bu_shu_kuruhu formula // formula: {{notion:block_property:G%60mC:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:%3Aq%3Aq:12e7d6b7-b8c6-80ae-b550-dcbc4f05b3a0:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})
+  zhu_guan_chapter relation
+  guan_lian_chapter relation
+  quan_she_gong_tong_issue relation
+  chapterona rollup // rollup(show_original) via 主管Chapter
+  taku enum[]
+  quan_she_gong_tong_task relation
+  quan_she_gong_tong_project relation
+  quan_she_gong_tong_meeting relation
+  ming_qian text
+}
+
+Table shi_zhuang_sukesiyuru {
+  tekisuto text
+  ri_fu date
+  ming_qian text
+}
+
+Table c9652849_3349_447d_9ad3_17bf1a16e975 {
+  diao_cha_wan_liao boolean
+  tags enum[]
+  dui_ying_wan_liao boolean
+  name text
+}
+
+Table team {
+  quan_she_gong_tong_issue relation
+  ai_yao_yue text
+  rita user[]
+  sutetasu status
+  gong_shi boolean
+  quan_she_gong_tong_meeting relation
+  zuo_cheng_ri_shi timestamp
+  cxo rollup // rollup(show_original) via 部署
+  bu_shu relation
+  bu_shu_kuruhu rollup // rollup(show_original) via 部署
+  taku enum[]
+  manesiya rollup // rollup(show_original) via 部署
+  announce relation
+  cxo formula // formula: {{notion:block_property:Lj%7DC:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:DZs%40:675f06e0-dc87-4cc7-89c4-b4db39c0fe80:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}).first()
+  menha user[]
+  zuo_cheng_zhe user
+  timu text
+}
+
+Table bu_shu_key_results {
+  bu_shu formula // formula: {{notion:block_property:_z%7Di:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:Hx%3B%5E:ee1f6ea1-4f7d-440f-850d-8e08169776e1:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})
+  cxo formula // formula: {{notion:block_property:_z%7Di:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:%3ELHt:ee1f6ea1-4f7d-440f-850d-8e08169776e1:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})
+  bu_shu_objective relation
+  issue relation
+  ri_fu date
+  ona user[]
+  issueshu rollup // rollup(count) via Issue
+  menha user[]
+  qi formula // formula: {{notion:block_property:_z%7Di:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:RHRa:ee1f6ea1-4f7d-440f-850d-8e08169776e1:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})
+  quan_she_key_result rollup // rollup(show_original) via 部署Objective
+  quan_she_gong_tong_meeting relation
+  zuo_cheng_ri_shi timestamp
+  quan_she_gong_tong_project relation
+  jin_bu_tasukukaraji_suan rollup // rollup(sum) via Issue
+  jin_bu_issuekaraji_suan rollup // rollup(percent_per_group) via Issue
+  bu_shu_key_result text
+}
+
+Table ac {
+  feature text
+  ac_id text
+  release enum
+  expected_then text
+  preconditions text
+  action_when text
+  out_of_scope text
+  cuj text
+  notes text
+  actor enum
+  objs text
+  source_link url
+  status enum
+  title text
+}
+
+Table obj {
+  tier enum
+  viewpoint_tags enum[]
+  status enum
+  routes enum[]
+  capability text
+  obj_id text
+  cuj enum[]
+  description text
+  owner user[]
+  acs text
+  obj_name text
+}
+
+Table rtm {
+  gate enum
+  do boolean
+  al enum
+  route text
+  aspect text
+  obj text
+  notes text
+  name text
+}
+
+Table scn {
+  scn_id text
+  primary boolean
+  env_pattern enum
+  steps text
+  evidence_refs text
+  route text
+  obj text
+  name text
+}
+
+Table clm {
+  timeout_ms number
+  mode enum
+  check_type enum
+  clm_id text
+  target text
+  obj text
+  primary boolean
+  scn text
+  expectation text
+  name text
+}
+
+Table cuj {
+  primary_outcome text
+  version text
+  owner user[]
+  entry text
+  notes text
+  exit text
+  name text
+}
+
+Table capability {
+  services text
+  description text
+  version text
+  owner user[]
+  notes text
+  name text
+}
+
+Table feature {
+  notes text
+  default_cuj enum[]
+  owner user[]
+  tags enum[]
+  status enum
+  description text
+  capability text
+  product text
+  feature_key text
+  name text
+}
+
+Table viewpoints {
+  tag text
+  oneline_definition text
+  includes text
+  typical_evidence text
+  excludes text
+  tier_default enum
+  display_name text
+  aspect_key text
+}
+
+Table taxonomy {
+  oneline_definition text
+  default_route enum
+  tag text
+  default_al enum
+  typical_evidence text
+  excludes text
+  includes text
+  display_name text
+  aspect_key text
+}
+
+Table route {
+  owner user[]
+  default_gate enum
+  description text
+  default_al enum
+  notes text
+  name text
+}
+
+Table t_26a7d6b7_b8c6_8013_b606_ed871930424e {
+  ming_qian text
+}
+
+Table ririsunixiang_ketasukesiyuru {
+  ririsu_nei_rong relation
+  sutetasu status
+  kai_fa_nei_rong text
+  ririsu enum // options: 2.9.0, 2.9.1, 2.9.2, 2.9.3, 3.0.0, 3.0.1, 3.1.0, 3.1.1, 3.2.0
+  dan_dang enum // options: QA, FR, BE
+  ri_fu date
+  ming_qian text
+}
+
+Table ririsunixiang_ketasukesiyuru_2 {
+  ririsu_nei_rong relation
+  sutetasu status
+  kai_fa_nei_rong text
+  ririsu enum // options: 2.9.0, 2.9.1, 2.9.2, 2.9.3, 3.0.0, 3.0.1, 3.1.0, 3.1.1, 3.2.0
+  dan_dang enum // options: QA, FR, BE
+  ri_fu date
+  ming_qian text
+}
+
+Table riserusukesiyuru {
+  taku enum[] // options: Rick, TOBE, BF, 祝日, Animate, アップフロント
+  ri_fu date
+  ming_qian text
+}
+
+Table menha {
+  meru email
+  she_li formula // formula: (format(round((dateBetween(now(), {{notion:block_property:Pf%7BS:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}, "days") / (365 / 12)) * 10) / 10) + " か月")
+  zuo_cheng_zhe user
+  zuo_cheng_ri_shi timestamp
+  xing text
+  bu_shu_hui_ji_shang enum // options: 6000:DX販管, 6000:DX原価, 5000:推し活原価, 7000:MP販管, 1000：全社, 5000:推し活販管
+  akauntoming user[]
+  dian_hua phone
+  zui_zhong_geng_xin_zhe user
+  ru_she_ri_can_hua_ri date
+  zhi_wei enum[] // options: マネージャー以上, CEO, CPO, リーダー, COO, CCO
+  xue_chu_yu_ding_bu_men relation
+  temp_ccoyi_gua_taskasainyong_issue relation
+  cong_ye_yuan_fan_hao text
+  sei text
+  xue_chu_yu_ding_gu_yong_xing_tai relation
+  guan_watuteiruhurotakuto relation
+  bu_men relation
+  gu_yong_xing_tai enum // options: 正社員, インターン, 業務委託, test
+  hao_kinaentame text
+  xue_chu_yu_ding_zhi_wei relation
+  hurikana text
+  suo_shu_bu_shu relation
+  zui_zhong_geng_xin_ri_shi timestamp
+  mbti relation
+  shi_ming text
+}
+
+Table adminsukesiyuru {
+  ririsu_nei_rong relation
+  sutetasu status
+  kai_fa_nei_rong text
+  ririsu enum // options: 2.9.0, 2.9.1, 2.9.2, 2.9.3, 2.9.4, 2.9.5, 2.9.6, 3.0.0, 3.0.1, 3.1.0, 3.1.1, 3.2.0
+  dan_dang enum // options: QA, FE, BE, リリース
+  ri_fu date
+  ming_qian text
+}
+
+Table businessentity_jiu_partner {
+  mtauthahuri_for_ipad_hirutohasiyon relation
+  quan_she_gong_tong_project relation
+  fu_dan_dang_zhe user[]
+  document relation
+  zui_zhong_geng_xin_zhe user
+  zui_zhong_geng_xin_ri_shi timestamp
+  hubspot_record_id number
+  project rollup // rollup(show_original) via イベント(TicketProvider)
+  ihento_xing_xing_zhu relation
+  zuo_cheng_zhe user
+  quan_she_gong_tong_issue relation
+  businesstype enum[] // options: その他, スポーツチーム, アーティスト, 官公庁, 外部ベンダー, メディア, チケットエージェンシー, イベンター(地方プロモーター), イベント制作会社, 事務所(プロダクション)
+  zhu_dan_dang_zhe user[]
+  taku enum[]
+  ihento_ticketprovider relation
+  zuo_cheng_ri_shi timestamp
+  company relation
+  entertainmentip relation
+  type enum // options: EntertainmentIP, Company
+  qi_yue_you_wu boolean
+  ming_qian text
+}
+
+Table testhuan_jing_tehuroiqi_jian {
+  lie_2 text
+  ri_fu date
+  lie_1 text
+  taitoru text
+}
+
+Table adminsukesiyuru {
+  ririsu_nei_rong relation
+  sutetasu status
+  kai_fa_nei_rong text
+  ririsu enum // options: 2.9.0, 2.9.1, 2.9.2, 2.9.3, 2.9.4, 2.9.5, 2.9.6, 3.0.0, 3.0.1, 3.1.0, 3.1.1, 3.2.0
+  dan_dang enum // options: QA, FE, BE, リリース
+  ri_fu date
+  ming_qian text
+}
+
+Table ririsunixiang_ketasukesiyuru {
+  ririsu_nei_rong relation
+  sutetasu status
+  kai_fa_nei_rong text
+  ririsu enum // options: 2.9.0, 2.9.1, 3.0.0, 3.0.1, 3.1.0, 3.1.1, 3.2.0
+  dan_dang enum // options: QA, CL, BE
+  ri_fu date
+  ming_qian text
+}
+
+Table ririsunixiang_ketasukesiyuru {
+  ririsu_nei_rong relation
+  sutetasu status
+  kai_fa_nei_rong text
+  ririsu enum // options: 2.9.0, 2.9.1, 3.0.0, 3.0.1, 3.1.0, 3.1.1, 3.2.0
+  dan_dang enum // options: QA, CL, BE
+  ri_fu date
+  ming_qian text
+}
+
+Table ding_xing_ye_wu_issueding_yi {
+  taku enum[]
+  fei_zhi_timu relation
+  to_be text
+  hurosiekuto relation
+  hurotakuto relation
+  ding_xing_ye_wu_task relation
+  akuteihitei relation
+  as_is text
+  gai_yao text
+  ye_wu_ming text
+}
+
+Table rotikeshi_yong_ji_neng {
+  she_ding_bi_xu boolean
+  she_ding_tehuru_karamu text
+  ji_neng_katekori formula // formula: {{notion:block_property:%7DlBm:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:yJV%3F:b6886662-1b53-4571-9969-033874489f02:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})
+  she_ding_fang_fa enum // options: 設定不要, admin, api, 未実装, eitoku
+  ming_qian text
+}
+
+Table ding_xing_ye_wu_taskding_yi {
+  issuexiang_dui_qi_xian number
+  fu_dan_dang_zhe user[]
+  ding_xing_ye_wu_issue relation
+  dan_dang_zhe user[]
+  taku enum[]
+  ming_qian text
+}
+
+Table tag_library {
+  ri_fu date
+  mp_she_ji_shu_dbtonoriresiyon_tag_library_1 relation
+  menhayi_lan_3 relation
+  menhayi_lan_5 relation
+  119tasuku relation
+  menhayi_lan_1 relation
+  miteinkuzuo_ye_jian_tao_tokiyumento_1_tonoriresiyon_tag_library_62 relation
+  menhayi_lan_4 relation
+  menhayi_lan_2 relation
+  kiwato text
+  taku enum[] // options: 部署・ポジション, プロダクト, ミーティング・ドキュメント, パートナー・関係会社, ツール, PJT, 運用, MBTI
+  dan_dang_zhe user[]
+  sutetasu status
+  qi_xian date
+}
+
+Table she_wai_yi_shi_lu_yong_meeting {
+  timu relation
+  beta_activity relation
+  hurotakuto relation
+  ai_yao_yue text
+  huirutayong_timu formula // formula: {{notion:block_property:xEJG:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}
+  119risuto relation
+  hurotakuto_issue rollup // rollup(show_original) via 議論対象Issue
+  quan_she_gong_tong_project relation
+  hurosiekuto_issue rollup // rollup(show_original) via 全社共通 Project
+  businessentity relation
+  yi_lun_dui_xiang_issue relation
+  bu_shu_key_results relation
+  jian_ming text
+  zuo_cheng_nian enum[] // options: 2023
+  taku enum[] // options: UI/UX, 議事録, OKR, プロダクト, デザインシステム, アーカイブ, ガイド, 管理表, 参考情報
+  ri_fu date
+  xue_chu_yu_ding_person user[]
+  xue_chu_yu_ding_yusa user[]
+  dan_dang_zhe user[]
+  can_jia_zhe user[]
+  zuo_cheng_zhe user
+  zuo_cheng_ri_shi timestamp
+  xue_chu_yu_ding_ihentoshi_jian date
+  zui_zhong_geng_xin_zhe user
+  zui_zhong_geng_xin_ri_shi timestamp
+}
+
+Table adminsukesiyuru {
+  ririsu_nei_rong relation
+  sutetasu status
+  kai_fa_nei_rong text
+  ririsu enum // options: 2.9.0, 2.9.1, 2.9.2, 2.9.3, 2.9.4, 2.9.5, 3.0.0, 3.0.1, 3.1.0, 3.1.1, 3.2.0
+  dan_dang enum // options: QA, FE, BE, リリース
+  ri_fu date
+  ming_qian text
+}
+
+Table quan_she_gong_tong_task {
+  issueona rollup // rollup(show_original) via Issue
+  scrummaster formula // formula: {{notion:block_property:notion%3A%2F%2Ftasks%2Ftask_to_project_relation:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:%3FALc:61b50f42-5ae1-4687-b44b-a250869f09ae:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})
+  product rollup // rollup(show_unique) via Issue
+  issuesutetasu formula // formula: {{notion:block_property:notion%3A%2F%2Ftasks%2Ftask_to_project_relation:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:notion%3A%2F%2Fprojects%2Fstatus_property:61b50f42-5ae1-4687-b44b-a250869f09ae:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})
+  project_productxi_tong formula // formula: {{notion:block_property:notion%3A%2F%2Ftasks%2Ftask_to_project_relation:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:%40mbW:61b50f42-5ae1-4687-b44b-a250869f09ae:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}).unique()
+  google_drive_huairu relation
+  activity relation
+  issueqi_xian rollup // rollup(show_original) via Issue
+  ready formula // formula: if(
+  {{notion:block_property:zsDT:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.split("/").first()
+  ==
+  {{notion:block_property:zsDT:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.split("/").last(),
+  "🟢 Ready",
+  "⛔ Blocked"
+)
+  issueda_fen_lei rollup // rollup(show_original) via Issue
+  fu_zhi_xian_issue relation
+  businessentity rollup // rollup(show_original) via Issue
+  issue_task_zui_zao_qi_xian_shi_shi_ri_status formula // formula: ifs(
+	{{notion:block_property:fzeM:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} < today() && !["完了","キャンセル"].includes({{notion:block_property:notion%3A%2F%2Ftasks%2Fstatus_property:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}), "0.期限切れ",
+	{{notion:block_property:fzeM:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} == today(), "1.今日中",
+	{{notion:block_property:fzeM:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} < dateAdd(today(), 6-day(today()) , "days"), "2.今週中",
+	{{notion:block_property:fzeM:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} < dateAdd(today(), 6-day(today()) + 7 , "days"), "3.来週中",
+	{{notion:block_property:fzeM:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}, "4.再来週以降",
+	true, "5.未設定"
+)
+
+
+  zuo_cheng_ri_shi timestamp
+  dan_dang_zhe_shu formula // formula: {{notion:block_property:notion%3A%2F%2Ftasks%2Fassign_property:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.length()
+  fu_dan_dang_zhe user[]
+  activity_task_issue_project formula // formula: concat({{notion:block_property:PJ%5El:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}},{{notion:block_property:notion%3A%2F%2Ftasks%2Ftask_to_project_relation:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:bQkP:61b50f42-5ae1-4687-b44b-a250869f09ae:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}))
+  zuo_cheng_zhe user
+  release rollup // rollup(show_original) via Issue
+  zui_zhong_geng_xin_ri_shi timestamp
+  issuezuo_cheng_zhe rollup // rollup(show_original) via Issue
+  issue_task_zui_zao_qi_xian_shi_shi_ri formula // formula: let(DateIfExists, [{{notion:block_property:notion%3A%2F%2Ftasks%2Ftask_to_project_relation:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:u%5B%40H:61b50f42-5ae1-4687-b44b-a250869f09ae:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}).first(), {{notion:block_property:notion%3A%2F%2Ftasks%2Fdue_date_property:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}, if({{notion:block_property:tNV%3F:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.length(),{{notion:block_property:tNV%3F:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.dateEnd(),{{notion:block_property:tNV%3F:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})].filter(!empty(current)).sort().first(), if(DateIfExists.length() == 1, DateIfExists.formatDate("YYYY-MM-DD").parseDate(), DateIfExists))
+  project rollup // rollup(show_original) via Issue
+  shi_xing_shun_xu number
+  rehiyua user[]
+  jian_ji_number formula // formula: toNumber({{notion:block_property:7a73c3ee-12e8-41fb-841e-380cb520a01d:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})
+  roruatuhuyong_timu formula // formula: {{notion:block_property:VoRW:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}
+  issuesutanhuqi_piao_zhe rollup // rollup(show_original) via Issue
+  document relation
+  shi_shi_ri date
+  issueyou_xian_du rollup // rollup(show_original) via Issue
+  miteinku rollup // rollup(show_original) via Issue
+  timu_shu_shi formula // formula: {{notion:block_property:VoRW:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}
+  xian_xing_taskwan_liao_shu rollup // rollup(count_per_group) via 先行Task
+  ming_qian text
+  dan_dang_zhe user[]
+  tasksutetasu status
+  taskqi_xian date
+  yao_yue text
+  you_xian_du enum // options: 低, 中, 高
+  slackrinku url
+  jin_bu_lu number
+  guan_xi_zhe user[]
+  jian_ji_ri enum // options: 0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5
+  hou_sok_task relation
+  xian_xing_task relation
+  issue relation
+  tasukuid unique_id
+  github_pr relation
+}
+
+Table quan_she_gong_tong_issue {
+  issueqi_xian_status formula // formula: ifs(
+	{{notion:block_property:u%5B%40H:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} < today() && !["完了","キャンセル"].includes({{notion:block_property:notion%3A%2F%2Fprojects%2Fstatus_property:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}), "0.期限切れ",
+	{{notion:block_property:u%5B%40H:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} == today(), "1.今日中",
+	{{notion:block_property:u%5B%40H:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} < dateAdd(today(), 6-day(today()) , "days"), "2.今週中",
+	{{notion:block_property:u%5B%40H:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} < dateAdd(today(), 6-day(today()) + 7 , "days"), "3.来週中",
+	{{notion:block_property:u%5B%40H:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}, "4.再来週以降",
+	true, "5.未設定"
+)
+  qi_xian_dao_lai_tasukudan_dang_zhe formula // formula: {{notion:block_property:notion%3A%2F%2Fprojects%2Fproject_to_task_relation:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.filter(["完了", "アーカイブ済み"].includes(current.{{notion:block_property:notion%3A%2F%2Ftasks%2Fstatus_property:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}) == false).filter(current.{{notion:block_property:notion%3A%2F%2Ftasks%2Fdue_date_property:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} <= today()).map(current.{{notion:block_property:notion%3A%2F%2Ftasks%2Fassign_property:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}).unique()
+  sutanhuqi_piao_zhe user[]
+  scrummaster formula // formula: concat({{notion:block_property:BshE:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:A%3FqH:0d0b0f96-3945-4862-af2b-2c401f229ca6:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}), {{notion:block_property:BshE:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:xbZ%5C:0d0b0f96-3945-4862-af2b-2c401f229ca6:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})).unique()
+  project_productxi_tong formula // formula: {{notion:block_property:J%3Bn%3A:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:%7BfLM:fa03429a-478c-4be9-8451-ac2cbd5f80ec:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})
+  wei_wan_liao_taskqi_xian_wei_ru_li_shu formula // formula: {{notion:block_property:notion%3A%2F%2Fprojects%2Fproject_to_task_relation:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.filter(and(["完了", "アーカイブ済み"].includes(current.{{notion:block_property:notion%3A%2F%2Ftasks%2Fstatus_property:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}) == false, empty(current.{{notion:block_property:notion%3A%2F%2Ftasks%2Fdue_date_property:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}))).length()
+  hurotakuto relation
+  zuo_cheng_zhe user
+  jian_ji enum // options: 1. XS, 2. S, 3. M, 4. L, 5. XL
+  ci_notasukuniyoribao_liu_zhong relation
+  hurosiekuto relation
+  hurotakutotaku relation
+  ci_notasukuwobao_liu_zhong relation
+  wei_wan_liao_tasukujian_ji_he_ji formula // formula: {{notion:block_property:%7DiJ%3D:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:jk%3Bz:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}).sum()
+  kr_jin_bu_ji_yu formula // formula: {{notion:block_property:tEbs:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}*{{notion:block_property:notion%3A%2F%2Fprojects%2Fcompletion_rollup:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}
+  activity relation
+  shi_xing_shun_xu number
+  katekori enum // options: システム保守/運用, サポート運用, プロダクト開発, 案件管理, プロジェクト管理
+  cxo formula // formula: {{notion:block_property:ZEbG:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:DZs%40:fc2712be-af71-474b-bb5a-eb5134a5666d:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}
+  taskqi_xian_wei_ru_li_shu rollup // rollup(empty) via タスク
+  fa_sheng_sitabu_ju_he relation
+  tasukujian_ji_he_ji rollup // rollup(sum) via タスク
+  zhi_jin_1zhou_jian_qi_xian_wei_wan_liao_tasukudan_dang_zhe formula // formula: {{notion:block_property:notion%3A%2F%2Fprojects%2Fproject_to_task_relation:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.filter(["完了", "アーカイブ済み"].includes(current.{{notion:block_property:notion%3A%2F%2Ftasks%2Fstatus_property:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}) == false).filter(current.{{notion:block_property:notion%3A%2F%2Ftasks%2Fdue_date_property:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} <= dateAdd(today(),6,"days")).map(current.{{notion:block_property:notion%3A%2F%2Ftasks%2Fassign_property:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}).unique()
+  issue_taskfu_zhi button
+  automation_trigger_for_routine_workflow relation
+  wan_liao_tasukushu rollup // rollup(count_per_group) via タスク
+  ririsu relation
+  dui_ying_surubu_ju_he relation
+  bu_shu_key_results relation
+  activity_issue_project formula // formula: concat({{notion:block_property:RKwG:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}},{{notion:block_property:J%3Bn%3A:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:%7Dw%5BX:fa03429a-478c-4be9-8451-ac2cbd5f80ec:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}))
+  google_drivehuoruta url
+  businessentity relation
+  automation_trigger relation
+  wei_wan_liao_tasukudan_dang_zhe formula // formula: {{notion:block_property:notion%3A%2F%2Fprojects%2Fproject_to_task_relation:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.filter(["完了", "アーカイブ済み"].includes(current.{{notion:block_property:notion%3A%2F%2Ftasks%2Fstatus_property:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}) == false).map(current.{{notion:block_property:notion%3A%2F%2Ftasks%2Fassign_property:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}).unique()
+  wei_wan_liao_tasukuzui_zao_qi_xian formula // formula: {{notion:block_property:notion%3A%2F%2Fprojects%2Fproject_to_task_relation:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.filter(["完了", "アーカイブ済み", "キャンセル"].includes(current.{{notion:block_property:notion%3A%2F%2Ftasks%2Fstatus_property:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}) == false).map(current.{{notion:block_property:notion%3A%2F%2Ftasks%2Fdue_date_property:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}).sort().first()
+  zui_zhong_geng_xin_ri_shi timestamp
+  issue_taskzui_zao_qi_xian formula // formula: empty({{notion:block_property:mG%5E%5C:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}) ? {{notion:block_property:u%5B%40H:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} : (empty({{notion:block_property:u%5B%40H:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}) ? {{notion:block_property:mG%5E%5C:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}} : parseDate(formatDate(fromTimestamp(min(timestamp({{notion:block_property:u%5B%40H:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}),timestamp({{notion:block_property:mG%5E%5C:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}))),"YYYY-MM-DD")))
+  zuo_cheng_ri_shi timestamp
+  tasukudan_dang_zhe_wei_ru_li_shu rollup // rollup(empty) via タスク
+  shou_shun_shu text
+  wan_liao_sitataskshu formula // formula: 
+{{notion:block_property:notion%3A%2F%2Fprojects%2Fproject_to_task_relation:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.filter(["完了", "アーカイブ済み"].includes(current.{{notion:block_property:notion%3A%2F%2Ftasks%2Fstatus_property:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}) == true).length()
+  kr_nei_bi_zhong number
+  tasukushu formula // formula: {{notion:block_property:notion%3A%2F%2Fprojects%2Fproject_to_task_relation:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.length()
+  issueqi_xian date
+  119risuto relation
+  zi_designdoc relation
+  qin_designdoc relation
+  taskdan_dang_zhe formula // formula: {{notion:block_property:notion%3A%2F%2Fprojects%2Fproject_to_task_relation:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.map(current.{{notion:block_property:notion%3A%2F%2Ftasks%2Fassign_property:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}).unique()
+  mu_de_xing_meeting relation
+  wei_wan_liao_tasuku formula // formula: {{notion:block_property:notion%3A%2F%2Fprojects%2Fproject_to_task_relation:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.filter(["完了", "アーカイブ済み"].includes(current.{{notion:block_property:notion%3A%2F%2Ftasks%2Fstatus_property:afafabe7-5804-4461-a3e9-e9b4c037e5aa:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}) == false)
+  ming_qian text
+  ona user[]
+  sutetasu status
+  wan_liao_lu rollup // rollup(percent_per_group) via タスク
+  you_xian_du enum // options: 1. 低, 2. 中, 3. 高
+  jin_bu_lu number
+  taskqi_xian date
+  tietukuari boolean
+  dan_dang_zhe user[]
+  qi_jian date
+  yao_yue text
+  tasuku relation
+  hou_sok_issue relation
+  xian_xing_issue relation
+}
+
+Table bu_ju_he_guan_li {
+  os enum[] // options: Android, iOS, Director
+  dan_dang_zhe user[]
+  qadan_wei enum[] // options: v.1.7.0(分配), v1.7.0(前verの修正), v1.7.0(スコープ外実装), v1.7.0(分配), v.1.6.0(Karakuチケット対応), v.1.6.0(KarakuDB移行), v.1.6.0(QAスコープ外観点), v1.8.0(追加実装), v1.8.0(MA連携), v1.8.0(外部ID連携), MT-C, v1.9.0残対応, 1.9.1（インターネット低速修正）, v.1.10.0(リトライ強化), v.1.11.0（ライブラリアップデート）, v1.11.0(リセール対応), v1.12.0：分配必須解除の修正, v1.12.0：分配必須の場合、1枚目にだけ入場ボタンが表示, v.1.12.0(座席更新), v.1.12.0(分配受取にFC入会必須), v.1.13.0(Android_MA強制再連携), v.1.13.0(iOS不具合修正、Chatbotリンク), v.1.14.0(ぴあ要望対応等)
+  you_xian_du enum // options: 最優先, 高, 中, 低, 最低
+  sutetasu status
+  fa_sheng_yuan_issue relation
+  hurotakuto relation
+  zui_zhong_geng_xin_ri_shi timestamp
+  hakufen_lei enum[] // options: 魅力的品質, 一元的品質, 当たり前品質
+  zuo_cheng_zhe user
+  mp_qayong_pei_xin_ahurihasiyontonoriresiyon_qi_piao_sitaissue_1 relation
+  dui_ying_issue relation
+  hakushen_ke_du enum // options: 5, 4, 3, 2, 1
+  dui_ying_qi_ri date
+  id unique_id
+  quan_she_gong_tong_project relation
+  url text
+  ji_neng_fen_lei enum[] // options: Datadog, アプリ固有, コレクション, 入場
+  shi_xiang_fen_lei enum[] // options: 非機能, UI/UX, 機能
+  zuo_cheng_ri_shi timestamp
+  ming_qian text
+}
+
+Table document_jiu_meeting {
+  beta_activity relation
+  type enum // options: その他, レポート, マニュアル, 規約, ルール, ガイドライン, ブック, 議事録
+  projectgroup relation
+  quan_she_gong_tong_task relation
+  hurotakuto relation
+  ai_yao_yue text
+  huirutayong_timu formula // formula: {{notion:block_property:xEJG:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}
+  119risuto relation
+  hurotakuto_issue rollup // rollup(show_original) via 議論対象Issue
+  quan_she_gong_tong_project relation
+  hurosiekuto_issue rollup // rollup(show_original) via 全社共通 Project
+  businessentity relation
+  yi_lun_dui_xiang_issue relation
+  chapter relation
+  bu_shu_key_results relation
+  jian_ming text
+  zuo_cheng_nian enum[] // options: 2023, 2025
+  taku enum[] // options: UI/UX, 議事録, OKR, プロダクト, デザインシステム, アーカイブ, ガイド, 管理表, 参考情報
+  ri_fu date
+  xue_chu_yu_ding_person user[]
+  xue_chu_yu_ding_yusa user[]
+  dan_dang_zhe user[]
+  can_jia_zhe user[]
+  zuo_cheng_zhe user
+  zuo_cheng_ri_shi timestamp
+  xue_chu_yu_ding_ihentoshi_jian date
+  zui_zhong_geng_xin_zhe user
+  zui_zhong_geng_xin_ri_shi timestamp
+}
+
+Table quan_she_gong_tong_release {
+  memo text
+  kai_fa_jin_bu relation
+  zuo_cheng_ri_shi timestamp
+  sutetasu status
+  karentaihentoid text
+  quan_she_gong_tong_issue relation
+  hurotakutokuruhu rollup // rollup(show_original) via プロダクト
+  jin_bu_lu rollup // rollup(percent_per_group) via 全社共通 Issue
+  ririsuri date
+  taku enum[] // options: MP-1.11.0, MP-1.12.0, MP-1.9.1, MP-1.9.0, MP‐1.8.0, MP-1.11.1, MP-1.13.0, MP-1.14.0, MP-1.13.1, MP-1.13.2, MP-1.13.3, MT管理-v1.9.0, MT管理-v1.10.0, MT管理-v1.11.0, MT管理-v1.12.0, MT管理-v1.8.0, Karaku-Web-v1.0.0, Karaku-Web-v1.0.2, Karaku-Web-v1.0.1, Karaku-Web-v1.0.3, Karaku-Web v1.1.0, MP-1.15.0, Karaku-Web-v1.0.4, Eitoku-v2.10.0, Tanyu-v3.15.0, Eitoku-v2.11.0, MP-1.16.0, Karaku-Web-v1.2.0, MT管理-v2.1.0, MT管理-v2.0.0, MT管理-v2.2.0, Karaku-Web-v1.3.0, Eitoku-v3.0.0, Tanyu-v4.0.0, MP-2.0.0, Eitoku-v2.12.0, Eitoku-v2.11.1, BackupTicket v1.0.0, BackupTicket v1.1.0, BackupTicket v1.2.0, Eitoku-v2.12.1, MP-1.16.1, Karaku-Web-v1.4.0, Karaku-Web-v1.5.0, Karaku-Web-v.1.6.0, MP-1.16.2, Eitoku-v3.1.0, Eitoku-v3.2.0, Tanyu-v4.1.0, Karaku-Web-v1.7.0, Karaku-Web-v1.2.1, Tanyu-v4.2.0, Eitoku-v3.3.0, Eitoku-v3.4.0, Karaku-Web-v1.2.2, Karaku-Web-v1.3.1, Karaku-Web-v1.3.2, Karaku-Web-v1.3.3, Eitoku-v3.0.1, Tanyu-v4.0.1, Karaku-Web-v1.3.4, Karaku-Web-v1.4.1, MP(ユニバーサルリンクガイドページ)-1.0.0, Eitoku-v3.7.0, Karaku-Web-v1.8.0, Karaku-Web-v1.9.0, Karaku-Web-v1.10.0, Eitoku-v3.6.0, MP-1.17.0, MP-1.18.0, Eitoku v3.5.0, SDK v0.1, Tanyu-v4.3.0, MP(ユニバーサルリンクガイドページ)-1.1.0, Karaku-Web-v1.7.1, SDK v0.2, SDK v1.0, Eitoku v3.4.1
+  hurotakuto relation
+  ming_qian text
+  qi_jian date
+  issueqi_xian date
+  katekori enum // options: システム保守/運用, サポート運用, プロダクト開発, 案件管理, プロジェクト管理
+  jian_ji enum // options: 1. XS, 2. S, 3. M, 4. L, 5. XL
+  ona user[]
+  google_drivehuoruta url
+  shi_xing_shun_xu number
+}
+
+Table quan_she_gong_tong_dbs {
+  taku enum[] // options: オンボーディング, デザイン
+  ri_fu date
+  qin relation
+  zui_zhong_geng_xin_ri_shi timestamp
+  you_xiao_qi_xian verification
+  zi relation
+  hesi text
+  ona user[]
+}
+
+Table quan_she_gong_tong_project {
+  zuo_cheng_zhe user
+  quan_she_gong_tong_issue relation
+  sisutemuli_yong_projectid formula // formula: {{notion:block_property:THnk:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}.padStart(5,"0")
+  zui_zhong_geng_xin_zhe user
+  projectgroup relation
+  hurotakuto rollup // rollup(show_unique) via 全社共通 Issue
+  wan_liao_sitataskshu rollup // rollup(sum) via 全社共通 Issue
+  qi_jian date
+  issuewan_liao_shu_zong_shu rollup // rollup(count_per_group) via 全社共通 Issue
+  taskwan_liao_shu_zong_shu formula // formula: format({{notion:block_property:N%3E%5B%3E:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})+"/"+format({{notion:block_property:j%5CDg:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}})
+  projectid unique_id
+  product relation
+  zuo_cheng_ri_shi timestamp
+  bu_shu_key_results relation
+  taskdan_dang_zhe_shu rollup // rollup(unique) via 全社共通 Issue
+  taku enum[]
+  tasukuqi_xian_tong_zhi_she_ding relation
+  businessentity rollup // rollup(show_unique) via 全社共通 Issue
+  taskwan_liao_lu formula // formula: round({{notion:block_property:N%3E%5B%3E:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}/{{notion:block_property:j%5CDg:00000000-0000-0000-0000-000000000000:e4c1fffe-c79c-49a1-91e0-a37ab009899c}}*100)
+  taskdan_dang_zhe rollup // rollup(show_unique) via 全社共通 Issue
+  google_drivehuoruta url
+  zui_zhong_geng_xin_ri_shi timestamp
+  taskshu rollup // rollup(sum) via 全社共通 Issue
+  document relation
+  issuewan_liao_shu_hurosiekutoguan_li formula
+  issueona rollup // rollup(show_unique) via 全社共通 Issue
+  businessentity_jiu_partner relation
+  issuewan_liao_lu rollup // rollup(percent_per_group) via 全社共通 Issue
+  issueonashu rollup // rollup(unique) via 全社共通 Issue
+  productxi_tong relation
+  activity relation
+  ming_qian text
+  pjm_jiu_dan_dang_zhe user[]
+  ona user[]
+  sutetasu status
+}
+
+Table product {
+  yomikana text
+  ririsu relation
+  sukuramumasuta user[]
+  adr_akitekutiyayi_si_jue_ding_ji_lu relation
+  sahuhurotakuto relation
+  quan_she_gong_tong_issue relation
+  quan_she_gong_tong_meeting relation
+  pdm user[]
+  ri_fu date
+  qin_aitemu relation
+  tasukuqi_xian_tong_zhi_she_ding relation
+  hurotakutoheng_duan_oshiete_product relation
+  productxi_tong relation
+  quan_she_gong_tong_project relation
+   text
+  zuo_cheng_zhe user
+  sukuramumasutabu_zuo user[]
+  zuo_cheng_ri_shi timestamp
+  pdmbu_zuo user[]
+  taku enum[]
+  ming_qian text
+}
+
+Table tasukuqi_xian_tong_zhi_she_ding {
+  product relation
+  tong_zhi boolean
+  quan_she_gong_tong_project relation
+  tong_zhi_tiyanneru text
+  ming_qian text
+}
+
+Table adminsukesiyuru {
+  ririsu_nei_rong relation
+  sutetasu status
+  kai_fa_nei_rong text
+  ririsu enum // options: 2.9.0, 2.9.1, 2.9.2, 2.9.3, 2.9.4, 2.9.5, 2.9.6, 3.0.0, 3.0.1, 3.1.0, 3.1.1, 3.2.0
+  dan_dang enum // options: QA, FE, BE, リリース
+  ri_fu date
+  ming_qian text
+}
+
+Ref: hui_she_objectives_2023shang_qi.bu_shu_keyresults > bu_shu_keyresults.id // Notion relation (cardinality approx)
+Ref: hui_she_objectives_2023shang_qi.hui_she_keyresults_1 > hui_she_keyresults_2023shang_qi.id // Notion relation (cardinality approx)
+Ref: hui_she_objectives_2023shang_qi.da_cheng_lu_que_ren_yong_hui_she_keyresults > hui_she_keyresults_2023shang_qi.id // Notion relation (cardinality approx)
+Ref: hui_she_keyresults_2023shang_qi.hui_she_objectives > hui_she_objectives_2023shang_qi.id // Notion relation (cardinality approx)
+Ref: hui_she_keyresults_2023shang_qi.bu_shu_keyresults > bu_shu_keyresults.id // Notion relation (cardinality approx)
+Ref: hui_she_keyresults_2023shang_qi.bu_shu_objectives > bu_shu_objectives_2023shang_qi.id // Notion relation (cardinality approx)
+Ref: bu_shu_keyresults.bu_shu_objectives > bu_shu_objectives_2023shang_qi.id // Notion relation (cardinality approx)
+Ref: hui_she_keyresultsyi_lan.bu_shu_keyresults > bu_shu_keyresultsyi_lan.id // Notion relation (cardinality approx)
+Ref: hui_she_objectivesyi_lan.bu_shu_keyresults > bu_shu_keyresultsyi_lan.id // Notion relation (cardinality approx)
+Ref: da_cheng_lu_que_ren_yong_hui_she_keyresults_2023shang_qi.bu_shu_keyresults > bu_shu_keyresults.id // Notion relation (cardinality approx)
+Ref: bu_shu_objectivesyi_lan.bu_shu_keyresultsyi_lan > bu_shu_keyresultsyi_lan.id // Notion relation (cardinality approx)
+Ref: bu_shu_objectivesyi_lan.okryong_bu_shu_yi_lan > okryong_bu_shu_yi_lan.id // Notion relation (cardinality approx)
+Ref: bu_shu_objectives_2023shang_qi.bu_shu_keyresults > bu_shu_keyresultsyi_lan.id // Notion relation (cardinality approx)
+Ref: t_2023nian_xia_qi_ge_ren_okr_cheng_guo_mu_biao_xing_dong_mu_biao.suo_shu_bu_shu > tag_library.id // Notion relation (cardinality approx)
+Ref: t_2023nian_xia_qi_ge_ren_okr_cheng_guo_mu_biao_xing_dong_mu_biao.guan_lian_surubu_shu_keyresults > bu_shu_keyresultsyi_lan.id // Notion relation (cardinality approx)
+Ref: bu_shu_keyresultsyi_lan.okryong_bu_shu_yi_lan > okryong_bu_shu_yi_lan.id // Notion relation (cardinality approx)
+Ref: n7hou_ban_zhan_yong_epic.n7hou_ban_zhan_yong_hurosiekuto > n7hou_ban_zhan_yong_hurosiekuto.id // Notion relation (cardinality approx)
+Ref: n7hou_ban_zhan_yong_hurosiekuto.bu_shu_key_results > bu_shu_key_results.id // Notion relation (cardinality approx)
+Ref: n7hou_ban_zhan_yong_hurosiekuto.timu > team.id // Notion relation (cardinality approx)
+Ref: n7hou_ban_zhan_yong_hurosiekuto.hurotakutoheng_duan_hurotakuto > product.id // Notion relation (cardinality approx)
+Ref: n7hou_ban_zhan_yong_hurosiekuto.n7hou_ban_zhan_yong_epic > n7hou_ban_zhan_yong_epic.id // Notion relation (cardinality approx)
+Ref: hui_chang.ihento > ihento.id // Notion relation (cardinality approx)
+Ref: ateisuto.ihento > ihento.id // Notion relation (cardinality approx)
+Ref: mpihento.ihento > ihento.id // Notion relation (cardinality approx)
+Ref: ihento.hurotakutoheng_duan_hurotakuto > product.id // Notion relation (cardinality approx)
+Ref: ihento.ateisuto > ateisuto.id // Notion relation (cardinality approx)
+Ref: ihento.ticketprovider > businessentity_jiu_partner.id // Notion relation (cardinality approx)
+Ref: ihento.hui_chang > hui_chang.id // Notion relation (cardinality approx)
+Ref: ihento.xing_xing_zhu > businessentity_jiu_partner.id // Notion relation (cardinality approx)
+Ref: adr_akitekutiyayi_si_jue_ding_ji_lu.hurotakuto > product.id // Notion relation (cardinality approx)
+Ref: hurotakutoheng_duan_oshiete_product.hurotakutoheng_duan_hurotakuto > product.id // Notion relation (cardinality approx)
+Ref: b70b0818_424b_4154_8d67_6cd317edf196.mp_tiketutosutetasuyi_lan > mp_tiketutosutetasuyi_lan.id // Notion relation (cardinality approx)
+Ref: mp_hua_mian_yi_lan.geng_xin_app_ver > mpahurihasiyon.id // Notion relation (cardinality approx)
+Ref: mp_hua_mian_yi_lan.xin_gui_zuo_cheng_app_ver > mpahurihasiyon.id // Notion relation (cardinality approx)
+Ref: issue_db_automation_trigger_for_stamp.quan_she_gong_tong_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: issue_db_automation_trigger_for_routine_workflow.quan_she_gong_tong_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_sprint.tasuku > quan_she_gong_tong_task.id // Notion relation (cardinality approx)
+Ref: apiyi_lan.mpahurihasiyon > mpahurihasiyon.id // Notion relation (cardinality approx)
+Ref: old_119hurosiekuto_shi_yong_yu_ding_nasi.tasuku > old_119tasuku.id // Notion relation (cardinality approx)
+Ref: old_119hurosiekuto_shi_yong_yu_ding_nasi.ci_nohurosiekutowobao_liu_zhong > old_119hurosiekuto_shi_yong_yu_ding_nasi.id // Notion relation (cardinality approx)
+Ref: old_119hurosiekuto_shi_yong_yu_ding_nasi.ci_nohurosiekutoniyoribao_liu_zhong > old_119hurosiekuto_shi_yong_yu_ding_nasi.id // Notion relation (cardinality approx)
+Ref: old_119miteinku.119risuto > t_119risuto.id // Notion relation (cardinality approx)
+Ref: old_119miteinku.tag_library > tag_library.id // Notion relation (cardinality approx)
+Ref: old_119miteinku.tag_library_1_tonoriresiyon_miteinkuzuo_ye_jian_tao_tokiyumento_1_tonoriresiyon_tag_library_62 > tag_library_1.id // Notion relation (cardinality approx)
+Ref: old_119miteinku.guan_lian_tasuku > old_119tasuku.id // Notion relation (cardinality approx)
+Ref: bu_shu.bu_shu_kuruhu > bu_shu_kuruhu.id // Notion relation (cardinality approx)
+Ref: bu_shu.bu_shu_objective > cxo_bu_shu_objectives.id // Notion relation (cardinality approx)
+Ref: bu_shu.timu > team.id // Notion relation (cardinality approx)
+Ref: productxi_tong.quan_she_gong_tong_project > quan_she_gong_tong_project.id // Notion relation (cardinality approx)
+Ref: productxi_tong.product > product.id // Notion relation (cardinality approx)
+Ref: old_119tasuku.xian_xing_tasuku > old_119tasuku.id // Notion relation (cardinality approx)
+Ref: old_119tasuku.tag_library > tag_library.id // Notion relation (cardinality approx)
+Ref: old_119tasuku.dui_ying_suru119 > t_119risuto.id // Notion relation (cardinality approx)
+Ref: old_119tasuku.hou_sok_tasuku > old_119tasuku.id // Notion relation (cardinality approx)
+Ref: old_119tasuku.sahutasuku > old_119tasuku.id // Notion relation (cardinality approx)
+Ref: old_119tasuku.qin_tasuku > old_119tasuku.id // Notion relation (cardinality approx)
+Ref: old_119tasuku.is_blocking > old_119tasuku.id // Notion relation (cardinality approx)
+Ref: old_119tasuku.blocked_by > old_119tasuku.id // Notion relation (cardinality approx)
+Ref: old_119tasuku.hurosiekuto > old_119hurosiekuto_shi_yong_yu_ding_nasi.id // Notion relation (cardinality approx)
+Ref: shi_li.ruru > musttexin_kakerukoto.id // Notion relation (cardinality approx)
+Ref: mp_qayong_pei_xin_ahurihasiyon.qi_piao_sitaissue > bu_ju_he_guan_li.id // Notion relation (cardinality approx)
+Ref: kai_fa_jin_bu_qi_jian.kai_fa_jin_bu > old_kai_fa_jin_bu.id // Notion relation (cardinality approx)
+Ref: kai_fa_jin_bu_qi_jian.tasuku > old_kai_fa_jin_bu.id // Notion relation (cardinality approx)
+Ref: old_kai_fa_jin_bu.product > product.id // Notion relation (cardinality approx)
+Ref: old_kai_fa_jin_bu.zi_dong_fu_zhi_torikayong_kai_fa_jin_bu_qi_jian > kai_fa_jin_bu_qi_jian.id // Notion relation (cardinality approx)
+Ref: old_kai_fa_jin_bu.quan_she_gong_tong_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: old_kai_fa_jin_bu.qi_jian > kai_fa_jin_bu_qi_jian.id // Notion relation (cardinality approx)
+Ref: kai_fa_jin_bu.quan_she_gong_tong_release > quan_she_gong_tong_release.id // Notion relation (cardinality approx)
+Ref: kai_fa_jin_bu.product > product.id // Notion relation (cardinality approx)
+Ref: musttexin_kakerukoto.shi_li > shi_li.id // Notion relation (cardinality approx)
+Ref: hong_ranai_zhong_fu_tietuku.tenhureto_1 > fan_xin_tenhureto.id // Notion relation (cardinality approx)
+Ref: hiarinkuxiang_mu.tenhureto > fan_xin_tenhureto.id // Notion relation (cardinality approx)
+Ref: hiarinkuxiang_mu.xuan_ze_zhi > hiarinkuxuan_ze_zhi_yi_lan.id // Notion relation (cardinality approx)
+Ref: hiarinkuxiang_mu.huomu > huomu.id // Notion relation (cardinality approx)
+Ref: huomu.hiarinkuxiang_mu > hiarinkuxiang_mu.id // Notion relation (cardinality approx)
+Ref: huomu.fan_xin_shi_nibi_yao_nazhi > fan_xin_shi_nibi_yao_nazhi.id // Notion relation (cardinality approx)
+Ref: huiruto.hiarinkuxuan_ze_zhi_yi_lan > hiarinkuxuan_ze_zhi_yi_lan.id // Notion relation (cardinality approx)
+Ref: fan_xin_shi_nibi_yao_nazhi.huomu > huomu.id // Notion relation (cardinality approx)
+Ref: qi.quan_she_objectives > quan_she_objectives.id // Notion relation (cardinality approx)
+Ref: pan_ding_jie_guo.tenhureto > fan_xin_tenhureto.id // Notion relation (cardinality approx)
+Ref: hiarinkuxuan_ze_zhi_yi_lan.hiarinkuxiang_mu > hiarinkuxiang_mu.id // Notion relation (cardinality approx)
+Ref: hiarinkuxuan_ze_zhi_yi_lan.tenhureto > fan_xin_tenhureto.id // Notion relation (cardinality approx)
+Ref: hiarinkuxuan_ze_zhi_yi_lan.huiruto > huiruto.id // Notion relation (cardinality approx)
+Ref: fan_xin_tenhureto.wen_ti > hiarinkuxuan_ze_zhi_yi_lan.id // Notion relation (cardinality approx)
+Ref: fan_xin_tenhureto.zhong_fu_tietukudb > hong_ranai_zhong_fu_tietuku.id // Notion relation (cardinality approx)
+Ref: fan_xin_tenhureto.yi_ci_fan_xin_shi_nibi_yao_nazhi > fan_xin_shi_nibi_yao_nazhi.id // Notion relation (cardinality approx)
+Ref: fan_xin_tenhureto.pan_ding_jie_guo > pan_ding_jie_guo.id // Notion relation (cardinality approx)
+Ref: yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1.qin_tasuku > yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1.id // Notion relation (cardinality approx)
+Ref: yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1.sahutasuku > yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1.id // Notion relation (cardinality approx)
+Ref: moalaren_zheng_ahuri_hirutohasiyonguan_li.li_yong_hatona > businessentity_jiu_partner.id // Notion relation (cardinality approx)
+Ref: hurotakutotaku.qin_aitemu > hurotakutotaku.id // Notion relation (cardinality approx)
+Ref: hurotakutotaku.quan_she_gong_tong_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: hurotakutotaku.sahuaitemu > hurotakutotaku.id // Notion relation (cardinality approx)
+Ref: mp_she_ji_shu_db.tag_library_1_tonoriresiyon_mp_she_ji_shu_dbtonoriresiyon_tag_library_1 > tag_library_1.id // Notion relation (cardinality approx)
+Ref: mp_she_ji_shu_db.mpahurihasiyon > mpahurihasiyon.id // Notion relation (cardinality approx)
+Ref: mp_she_ji_shu_db.tag_library > tag_library.id // Notion relation (cardinality approx)
+Ref: mt_c_yao_yi_lun.mt_c_zhu_yao_ji_neng > mt_c_zhu_yao_ji_neng.id // Notion relation (cardinality approx)
+Ref: sakuden_mt_c_issueonazheng_li.quan_she_gong_tong_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1.qin_tasuku > yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1.id // Notion relation (cardinality approx)
+Ref: yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1.sahutasuku > yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1.id // Notion relation (cardinality approx)
+Ref: yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1.qin_tasuku > yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1.id // Notion relation (cardinality approx)
+Ref: yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1.sahutasuku > yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1.id // Notion relation (cardinality approx)
+Ref: bu_shu_kuruhu.bu_shu > bu_shu.id // Notion relation (cardinality approx)
+Ref: bu_shu_kuruhu.zhu_guan_chapter > chapter.id // Notion relation (cardinality approx)
+Ref: sakuden_mt_c_issueonazheng_li.quan_she_gong_tong_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: deprecated_quan_she_gong_tong_feedback.quan_she_gong_tong_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: deprecated_quan_she_gong_tong_feedback.partner > businessentity_jiu_partner.id // Notion relation (cardinality approx)
+Ref: deprecated_quan_she_gong_tong_feedback.bu_shu_key_results > bu_shu_key_results.id // Notion relation (cardinality approx)
+Ref: deprecated_quan_she_gong_tong_feedback.timu > team.id // Notion relation (cardinality approx)
+Ref: deprecated_quan_she_gong_tong_feedback.hurotakuto > product.id // Notion relation (cardinality approx)
+Ref: deprecated_quan_she_gong_tong_feedback.beta_activity > activity.id // Notion relation (cardinality approx)
+Ref: deprecated_quan_she_gong_tong_feedback.quan_she_gong_tong_project > quan_she_gong_tong_project.id // Notion relation (cardinality approx)
+Ref: notionhesisheng_cheng_riakusiyonshe_ding.dui_xiang_db > quan_she_gong_tong_dbs.id // Notion relation (cardinality approx)
+Ref: chapter.zhu_guan_bu_shu_kuruhu > bu_shu_kuruhu.id // Notion relation (cardinality approx)
+Ref: chapter.guan_lian_activity > activity.id // Notion relation (cardinality approx)
+Ref: chapter.zhu_guan_activity > activity.id // Notion relation (cardinality approx)
+Ref: chapter.document > document_jiu_meeting.id // Notion relation (cardinality approx)
+Ref: projectgroup.quan_she_gong_tong_project > quan_she_gong_tong_project.id // Notion relation (cardinality approx)
+Ref: projectgroup.document > document_jiu_meeting.id // Notion relation (cardinality approx)
+Ref: quan_she_objectives.qi > qi.id // Notion relation (cardinality approx)
+Ref: quan_she_objectives.quan_she_key_results > cxo_objectives_jiu_quan_she_key_results.id // Notion relation (cardinality approx)
+Ref: cxo_objectives_jiu_quan_she_key_results.bu_shu_objectives > cxo_bu_shu_objectives.id // Notion relation (cardinality approx)
+Ref: cxo_objectives_jiu_quan_she_key_results.cxo > bu_shu_kuruhu.id // Notion relation (cardinality approx)
+Ref: cxo_objectives_jiu_quan_she_key_results.quan_she_objectives > quan_she_objectives.id // Notion relation (cardinality approx)
+Ref: cxo_bu_shu_objectives.quan_she_key_results > cxo_objectives_jiu_quan_she_key_results.id // Notion relation (cardinality approx)
+Ref: cxo_bu_shu_objectives.bu_shu > bu_shu.id // Notion relation (cardinality approx)
+Ref: cxo_bu_shu_objectives.bu_shu_key_results > bu_shu_key_results.id // Notion relation (cardinality approx)
+Ref: t_119risuto.product > product.id // Notion relation (cardinality approx)
+Ref: t_119risuto.guan_lian_tokiyumento > old_119miteinku.id // Notion relation (cardinality approx)
+Ref: t_119risuto.tag_library > tag_library.id // Notion relation (cardinality approx)
+Ref: t_119risuto.guan_lian_119tasuku > old_119tasuku.id // Notion relation (cardinality approx)
+Ref: t_119risuto.quan_she_gong_tong_meeting > document_jiu_meeting.id // Notion relation (cardinality approx)
+Ref: t_119risuto.quan_she_gong_tong_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: tag_library_1.mp_she_ji_shu_dbtonoriresiyon_tag_library_1 > mp_she_ji_shu_db.id // Notion relation (cardinality approx)
+Ref: tag_library_1.menhayi_lan_3 > menha.id // Notion relation (cardinality approx)
+Ref: tag_library_1.menhayi_lan_5 > menha.id // Notion relation (cardinality approx)
+Ref: tag_library_1.119tasuku > old_119tasuku.id // Notion relation (cardinality approx)
+Ref: tag_library_1.menhayi_lan_1 > menha.id // Notion relation (cardinality approx)
+Ref: tag_library_1.miteinkuzuo_ye_jian_tao_tokiyumento_1_tonoriresiyon_tag_library_62 > old_119miteinku.id // Notion relation (cardinality approx)
+Ref: tag_library_1.menhayi_lan_4 > menha.id // Notion relation (cardinality approx)
+Ref: tag_library_1.menhayi_lan_2 > menha.id // Notion relation (cardinality approx)
+Ref: mt_c_zhu_yao_ji_neng.mt_c_yao_yi_lun > mt_c_yao_yi_lun.id // Notion relation (cardinality approx)
+Ref: activity.zhu_guan_chapter > chapter.id // Notion relation (cardinality approx)
+Ref: activity.guan_lian_chapter > chapter.id // Notion relation (cardinality approx)
+Ref: activity.quan_she_gong_tong_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: activity.quan_she_gong_tong_task > quan_she_gong_tong_task.id // Notion relation (cardinality approx)
+Ref: activity.quan_she_gong_tong_project > quan_she_gong_tong_project.id // Notion relation (cardinality approx)
+Ref: activity.quan_she_gong_tong_meeting > document_jiu_meeting.id // Notion relation (cardinality approx)
+Ref: team.quan_she_gong_tong_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: team.quan_she_gong_tong_meeting > document_jiu_meeting.id // Notion relation (cardinality approx)
+Ref: team.bu_shu > bu_shu.id // Notion relation (cardinality approx)
+Ref: team.announce > announce.id // Notion relation (cardinality approx)
+Ref: bu_shu_key_results.bu_shu_objective > cxo_bu_shu_objectives.id // Notion relation (cardinality approx)
+Ref: bu_shu_key_results.issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: bu_shu_key_results.quan_she_gong_tong_meeting > document_jiu_meeting.id // Notion relation (cardinality approx)
+Ref: bu_shu_key_results.quan_she_gong_tong_project > quan_she_gong_tong_project.id // Notion relation (cardinality approx)
+Ref: ririsunixiang_ketasukesiyuru.ririsu_nei_rong > quan_she_gong_tong_release.id // Notion relation (cardinality approx)
+Ref: ririsunixiang_ketasukesiyuru_2.ririsu_nei_rong > quan_she_gong_tong_release.id // Notion relation (cardinality approx)
+Ref: menha.xue_chu_yu_ding_bu_men > tag_library.id // Notion relation (cardinality approx)
+Ref: menha.temp_ccoyi_gua_taskasainyong_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: menha.xue_chu_yu_ding_gu_yong_xing_tai > tag_library.id // Notion relation (cardinality approx)
+Ref: menha.guan_watuteiruhurotakuto > tag_library.id // Notion relation (cardinality approx)
+Ref: menha.bu_men > bu_shu_kuruhu.id // Notion relation (cardinality approx)
+Ref: menha.xue_chu_yu_ding_zhi_wei > tag_library.id // Notion relation (cardinality approx)
+Ref: menha.suo_shu_bu_shu > tag_library.id // Notion relation (cardinality approx)
+Ref: menha.mbti > tag_library.id // Notion relation (cardinality approx)
+Ref: adminsukesiyuru.ririsu_nei_rong > quan_she_gong_tong_release.id // Notion relation (cardinality approx)
+Ref: businessentity_jiu_partner.mtauthahuri_for_ipad_hirutohasiyon > moalaren_zheng_ahuri_hirutohasiyonguan_li.id // Notion relation (cardinality approx)
+Ref: businessentity_jiu_partner.quan_she_gong_tong_project > quan_she_gong_tong_project.id // Notion relation (cardinality approx)
+Ref: businessentity_jiu_partner.document > document_jiu_meeting.id // Notion relation (cardinality approx)
+Ref: businessentity_jiu_partner.ihento_xing_xing_zhu > ihento.id // Notion relation (cardinality approx)
+Ref: businessentity_jiu_partner.quan_she_gong_tong_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: businessentity_jiu_partner.ihento_ticketprovider > ihento.id // Notion relation (cardinality approx)
+Ref: businessentity_jiu_partner.company > businessentity_jiu_partner.id // Notion relation (cardinality approx)
+Ref: businessentity_jiu_partner.entertainmentip > businessentity_jiu_partner.id // Notion relation (cardinality approx)
+Ref: adminsukesiyuru.ririsu_nei_rong > quan_she_gong_tong_release.id // Notion relation (cardinality approx)
+Ref: ririsunixiang_ketasukesiyuru.ririsu_nei_rong > quan_she_gong_tong_release.id // Notion relation (cardinality approx)
+Ref: ririsunixiang_ketasukesiyuru.ririsu_nei_rong > quan_she_gong_tong_release.id // Notion relation (cardinality approx)
+Ref: ding_xing_ye_wu_issueding_yi.fei_zhi_timu > team.id // Notion relation (cardinality approx)
+Ref: ding_xing_ye_wu_issueding_yi.hurosiekuto > quan_she_gong_tong_project.id // Notion relation (cardinality approx)
+Ref: ding_xing_ye_wu_issueding_yi.hurotakuto > product.id // Notion relation (cardinality approx)
+Ref: ding_xing_ye_wu_issueding_yi.ding_xing_ye_wu_task > ding_xing_ye_wu_taskding_yi.id // Notion relation (cardinality approx)
+Ref: ding_xing_ye_wu_issueding_yi.akuteihitei > activity.id // Notion relation (cardinality approx)
+Ref: ding_xing_ye_wu_taskding_yi.ding_xing_ye_wu_issue > ding_xing_ye_wu_issueding_yi.id // Notion relation (cardinality approx)
+Ref: tag_library.mp_she_ji_shu_dbtonoriresiyon_tag_library_1 > mp_she_ji_shu_db.id // Notion relation (cardinality approx)
+Ref: tag_library.menhayi_lan_3 > menha.id // Notion relation (cardinality approx)
+Ref: tag_library.menhayi_lan_5 > menha.id // Notion relation (cardinality approx)
+Ref: tag_library.119tasuku > old_119tasuku.id // Notion relation (cardinality approx)
+Ref: tag_library.menhayi_lan_1 > menha.id // Notion relation (cardinality approx)
+Ref: tag_library.miteinkuzuo_ye_jian_tao_tokiyumento_1_tonoriresiyon_tag_library_62 > old_119miteinku.id // Notion relation (cardinality approx)
+Ref: tag_library.menhayi_lan_4 > menha.id // Notion relation (cardinality approx)
+Ref: tag_library.menhayi_lan_2 > menha.id // Notion relation (cardinality approx)
+Ref: she_wai_yi_shi_lu_yong_meeting.timu > team.id // Notion relation (cardinality approx)
+Ref: she_wai_yi_shi_lu_yong_meeting.beta_activity > activity.id // Notion relation (cardinality approx)
+Ref: she_wai_yi_shi_lu_yong_meeting.hurotakuto > product.id // Notion relation (cardinality approx)
+Ref: she_wai_yi_shi_lu_yong_meeting.119risuto > t_119risuto.id // Notion relation (cardinality approx)
+Ref: she_wai_yi_shi_lu_yong_meeting.quan_she_gong_tong_project > quan_she_gong_tong_project.id // Notion relation (cardinality approx)
+Ref: she_wai_yi_shi_lu_yong_meeting.businessentity > businessentity_jiu_partner.id // Notion relation (cardinality approx)
+Ref: she_wai_yi_shi_lu_yong_meeting.yi_lun_dui_xiang_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: she_wai_yi_shi_lu_yong_meeting.bu_shu_key_results > bu_shu_key_results.id // Notion relation (cardinality approx)
+Ref: adminsukesiyuru.ririsu_nei_rong > quan_she_gong_tong_release.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_task.activity > activity.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_task.fu_zhi_xian_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_task.document > document_jiu_meeting.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_task.hou_sok_task > quan_she_gong_tong_task.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_task.xian_xing_task > quan_she_gong_tong_task.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_task.issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.hurotakuto > product.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.ci_notasukuniyoribao_liu_zhong > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.hurosiekuto > quan_she_gong_tong_project.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.hurotakutotaku > hurotakutotaku.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.ci_notasukuwobao_liu_zhong > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.activity > activity.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.fa_sheng_sitabu_ju_he > bu_ju_he_guan_li.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.automation_trigger_for_routine_workflow > issue_db_automation_trigger_for_routine_workflow.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.ririsu > quan_she_gong_tong_release.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.dui_ying_surubu_ju_he > bu_ju_he_guan_li.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.bu_shu_key_results > bu_shu_key_results.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.businessentity > businessentity_jiu_partner.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.automation_trigger > issue_db_automation_trigger_for_stamp.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.119risuto > t_119risuto.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.zi_designdoc > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.qin_designdoc > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.mu_de_xing_meeting > document_jiu_meeting.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.tasuku > quan_she_gong_tong_task.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.hou_sok_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_issue.xian_xing_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: bu_ju_he_guan_li.fa_sheng_yuan_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: bu_ju_he_guan_li.hurotakuto > product.id // Notion relation (cardinality approx)
+Ref: bu_ju_he_guan_li.mp_qayong_pei_xin_ahurihasiyontonoriresiyon_qi_piao_sitaissue_1 > mp_qayong_pei_xin_ahurihasiyon.id // Notion relation (cardinality approx)
+Ref: bu_ju_he_guan_li.dui_ying_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: bu_ju_he_guan_li.quan_she_gong_tong_project > quan_she_gong_tong_project.id // Notion relation (cardinality approx)
+Ref: document_jiu_meeting.beta_activity > activity.id // Notion relation (cardinality approx)
+Ref: document_jiu_meeting.projectgroup > projectgroup.id // Notion relation (cardinality approx)
+Ref: document_jiu_meeting.quan_she_gong_tong_task > quan_she_gong_tong_task.id // Notion relation (cardinality approx)
+Ref: document_jiu_meeting.hurotakuto > product.id // Notion relation (cardinality approx)
+Ref: document_jiu_meeting.119risuto > t_119risuto.id // Notion relation (cardinality approx)
+Ref: document_jiu_meeting.quan_she_gong_tong_project > quan_she_gong_tong_project.id // Notion relation (cardinality approx)
+Ref: document_jiu_meeting.businessentity > businessentity_jiu_partner.id // Notion relation (cardinality approx)
+Ref: document_jiu_meeting.yi_lun_dui_xiang_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: document_jiu_meeting.chapter > chapter.id // Notion relation (cardinality approx)
+Ref: document_jiu_meeting.bu_shu_key_results > bu_shu_key_results.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_release.kai_fa_jin_bu > kai_fa_jin_bu.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_release.quan_she_gong_tong_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_release.hurotakuto > product.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_dbs.qin > quan_she_gong_tong_dbs.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_dbs.zi > quan_she_gong_tong_dbs.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_project.quan_she_gong_tong_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_project.projectgroup > projectgroup.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_project.product > product.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_project.bu_shu_key_results > bu_shu_key_results.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_project.tasukuqi_xian_tong_zhi_she_ding > tasukuqi_xian_tong_zhi_she_ding.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_project.document > document_jiu_meeting.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_project.businessentity_jiu_partner > businessentity_jiu_partner.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_project.productxi_tong > productxi_tong.id // Notion relation (cardinality approx)
+Ref: quan_she_gong_tong_project.activity > activity.id // Notion relation (cardinality approx)
+Ref: product.ririsu > quan_she_gong_tong_release.id // Notion relation (cardinality approx)
+Ref: product.adr_akitekutiyayi_si_jue_ding_ji_lu > adr_akitekutiyayi_si_jue_ding_ji_lu.id // Notion relation (cardinality approx)
+Ref: product.sahuhurotakuto > product.id // Notion relation (cardinality approx)
+Ref: product.quan_she_gong_tong_issue > quan_she_gong_tong_issue.id // Notion relation (cardinality approx)
+Ref: product.quan_she_gong_tong_meeting > document_jiu_meeting.id // Notion relation (cardinality approx)
+Ref: product.qin_aitemu > product.id // Notion relation (cardinality approx)
+Ref: product.tasukuqi_xian_tong_zhi_she_ding > tasukuqi_xian_tong_zhi_she_ding.id // Notion relation (cardinality approx)
+Ref: product.hurotakutoheng_duan_oshiete_product > hurotakutoheng_duan_oshiete_product.id // Notion relation (cardinality approx)
+Ref: product.productxi_tong > productxi_tong.id // Notion relation (cardinality approx)
+Ref: product.quan_she_gong_tong_project > quan_she_gong_tong_project.id // Notion relation (cardinality approx)
+Ref: tasukuqi_xian_tong_zhi_she_ding.product > product.id // Notion relation (cardinality approx)
+Ref: tasukuqi_xian_tong_zhi_she_ding.quan_she_gong_tong_project > quan_she_gong_tong_project.id // Notion relation (cardinality approx)
+Ref: adminsukesiyuru.ririsu_nei_rong > quan_she_gong_tong_release.id // Notion relation (cardinality approx)
+Ref: hui_she_objectives_2023shang_qi.da_cheng_lu > hui_she_keyresults_2023shang_qi.id // Notion rollup (average) via 会社KeyResults 1 (cardinality approx)
+Ref: hui_she_keyresults_2023shang_qi.bu_shu_ming > bu_shu_objectives_2023shang_qi.id // Notion rollup (show_original) via 部署Objectives (cardinality approx)
+Ref: hui_she_keyresultsyi_lan.da_cheng_lu > bu_shu_keyresultsyi_lan.id // Notion rollup (average) via 部署KeyResults (cardinality approx)
+Ref: hui_she_objectivesyi_lan.da_cheng_lu > bu_shu_keyresultsyi_lan.id // Notion rollup (average) via 部署KeyResults (cardinality approx)
+Ref: da_cheng_lu_que_ren_yong_hui_she_keyresults_2023shang_qi.da_cheng_lu > bu_shu_keyresults.id // Notion rollup (average) via 部署KeyResults (cardinality approx)
+Ref: bu_shu_objectivesyi_lan.da_cheng_lu > bu_shu_keyresultsyi_lan.id // Notion rollup (average) via 部署KeyResults一覧 (cardinality approx)
+Ref: bu_shu_objectives_2023shang_qi.da_cheng_lu > bu_shu_keyresultsyi_lan.id // Notion rollup (average) via 部署KeyResults (cardinality approx)
+Ref: mpihento.hui_chang > ihento.id // Notion rollup (show_original) via イベント (cardinality approx)
+Ref: mpihento.start > ihento.id // Notion rollup (show_original) via イベント (cardinality approx)
+Ref: mpihento.open > ihento.id // Notion rollup (show_original) via イベント (cardinality approx)
+Ref: adr_akitekutiyayi_si_jue_ding_ji_lu.hurotakutokuruhu > product.id // Notion rollup (show_original) via プロダクト (cardinality approx)
+Ref: hurotakutoheng_duan_oshiete_product.ihentokuruhu > product.id // Notion rollup (show_original) via [プロダクト横断] プロダクト (cardinality approx)
+Ref: quan_she_gong_tong_sprint.dan_dang_zhe > quan_she_gong_tong_task.id // Notion rollup (show_unique) via タスク (cardinality approx)
+Ref: quan_she_gong_tong_sprint.tasukuhe_ji > quan_she_gong_tong_task.id // Notion rollup (count_values) via タスク (cardinality approx)
+Ref: quan_she_gong_tong_sprint.wan_liao_sitatasuku > quan_she_gong_tong_task.id // Notion rollup (percent_per_group) via タスク (cardinality approx)
+Ref: old_119hurosiekuto_shi_yong_yu_ding_nasi.wan_liao > old_119tasuku.id // Notion rollup (percent_per_group) via タスク (cardinality approx)
+Ref: old_119tasuku.119tokiyumento > t_119risuto.id // Notion rollup (show_original) via 対応する119 (cardinality approx)
+Ref: kai_fa_jin_bu_qi_jian.tasukuhe_ji > old_kai_fa_jin_bu.id // Notion rollup (count_values) via タスク (cardinality approx)
+Ref: kai_fa_jin_bu_qi_jian.wan_liao_sitatasuku > old_kai_fa_jin_bu.id // Notion rollup (percent_per_group) via タスク (cardinality approx)
+Ref: old_kai_fa_jin_bu.pdmbu_zuo > product.id // Notion rollup (show_original) via Product (cardinality approx)
+Ref: old_kai_fa_jin_bu.sm > product.id // Notion rollup (show_original) via Product (cardinality approx)
+Ref: old_kai_fa_jin_bu.pdm > product.id // Notion rollup (show_original) via Product (cardinality approx)
+Ref: old_kai_fa_jin_bu.jin_bu_lu > quan_she_gong_tong_issue.id // Notion rollup (percent_per_group) via 全社共通 Issue (cardinality approx)
+Ref: kai_fa_jin_bu.releasesutetasu > quan_she_gong_tong_release.id // Notion rollup (show_original) via 🚀 全社共通 Release (cardinality approx)
+Ref: musttexin_kakerukoto.shi_li_shu > shi_li.id // Notion rollup (count) via 事例 (cardinality approx)
+Ref: pan_ding_jie_guo.huomu > fan_xin_tenhureto.id // Notion rollup (show_original) via テンプレート (cardinality approx)
+Ref: hiarinkuxuan_ze_zhi_yi_lan.huomu > hiarinkuxiang_mu.id // Notion rollup (show_original) via ヒアリング項目 (cardinality approx)
+Ref: fan_xin_tenhureto.wen_ti_taku > hiarinkuxuan_ze_zhi_yi_lan.id // Notion rollup (show_original) via 問題 (cardinality approx)
+Ref: fan_xin_tenhureto.jie_guo_takubu_pin > pan_ding_jie_guo.id // Notion rollup (show_original) via 判定結果 (cardinality approx)
+Ref: fan_xin_tenhureto.wen_ti_takubu_pin > hiarinkuxuan_ze_zhi_yi_lan.id // Notion rollup (show_original) via 問題 (cardinality approx)
+Ref: moalaren_zheng_ahuri_hirutohasiyonguan_li.partnerfu_dan_dang_zhe > businessentity_jiu_partner.id // Notion rollup (show_original) via 利用パートナー (cardinality approx)
+Ref: moalaren_zheng_ahuri_hirutohasiyonguan_li.partnerzhu_dan_dang_zhe > businessentity_jiu_partner.id // Notion rollup (show_original) via 利用パートナー (cardinality approx)
+Ref: mt_c_yao_yi_lun.lun_dian > mt_c_zhu_yao_ji_neng.id // Notion rollup (show_original) via MT-C 主要機能 (cardinality approx)
+Ref: mt_c_yao_yi_lun.shuo_ming > mt_c_zhu_yao_ji_neng.id // Notion rollup (show_original) via MT-C 主要機能 (cardinality approx)
+Ref: mt_c_yao_yi_lun.ji_neng_katekori > mt_c_zhu_yao_ji_neng.id // Notion rollup (show_original) via MT-C 主要機能 (cardinality approx)
+Ref: sakuden_mt_c_issueonazheng_li.sutetasu > quan_she_gong_tong_issue.id // Notion rollup (show_original) via 全社共通 Issue (cardinality approx)
+Ref: sakuden_mt_c_issueonazheng_li.hurotakuto > quan_she_gong_tong_issue.id // Notion rollup (show_original) via 全社共通 Issue (cardinality approx)
+Ref: sakuden_mt_c_issueonazheng_li.issueona > quan_she_gong_tong_issue.id // Notion rollup (show_original) via 全社共通 Issue (cardinality approx)
+Ref: bu_shu_kuruhu.bu_shu_objective > bu_shu.id // Notion rollup (show_original) via 部署 (cardinality approx)
+Ref: bu_shu_kuruhu.timu > bu_shu.id // Notion rollup (show_original) via 部署 (cardinality approx)
+Ref: sakuden_mt_c_issueonazheng_li.sutetasu > quan_she_gong_tong_issue.id // Notion rollup (show_original) via 全社共通 Issue (cardinality approx)
+Ref: sakuden_mt_c_issueonazheng_li.hurotakuto > quan_she_gong_tong_issue.id // Notion rollup (show_original) via 全社共通 Issue (cardinality approx)
+Ref: sakuden_mt_c_issueonazheng_li.issueona > quan_she_gong_tong_issue.id // Notion rollup (show_original) via 全社共通 Issue (cardinality approx)
+Ref: deprecated_quan_she_gong_tong_feedback.hurosiekuto > quan_she_gong_tong_issue.id // Notion rollup (show_original) via 全社共通 Issue (cardinality approx)
+Ref: deprecated_quan_she_gong_tong_feedback.timu_issue > quan_she_gong_tong_issue.id // Notion rollup (show_original) via 全社共通 Issue (cardinality approx)
+Ref: deprecated_quan_she_gong_tong_feedback.hurotakuto_issue > quan_she_gong_tong_issue.id // Notion rollup (show_unique) via 全社共通 Issue (cardinality approx)
+Ref: t_119risuto.can_tasukuzhong_bie > old_119tasuku.id // Notion rollup (show_original) via 関連119タスク (cardinality approx)
+Ref: t_119risuto.productxi_tong > product.id // Notion rollup (show_unique) via Product (cardinality approx)
+Ref: activity.chapterona > chapter.id // Notion rollup (show_original) via 主管Chapter (cardinality approx)
+Ref: team.cxo > bu_shu.id // Notion rollup (show_original) via 部署 (cardinality approx)
+Ref: team.bu_shu_kuruhu > bu_shu.id // Notion rollup (show_original) via 部署 (cardinality approx)
+Ref: team.manesiya > bu_shu.id // Notion rollup (show_original) via 部署 (cardinality approx)
+Ref: bu_shu_key_results.issueshu > quan_she_gong_tong_issue.id // Notion rollup (count) via Issue (cardinality approx)
+Ref: bu_shu_key_results.quan_she_key_result > cxo_bu_shu_objectives.id // Notion rollup (show_original) via 部署Objective (cardinality approx)
+Ref: bu_shu_key_results.jin_bu_tasukukaraji_suan > quan_she_gong_tong_issue.id // Notion rollup (sum) via Issue (cardinality approx)
+Ref: bu_shu_key_results.jin_bu_issuekaraji_suan > quan_she_gong_tong_issue.id // Notion rollup (percent_per_group) via Issue (cardinality approx)
+Ref: businessentity_jiu_partner.project > ihento.id // Notion rollup (show_original) via イベント(TicketProvider) (cardinality approx)
+Ref: she_wai_yi_shi_lu_yong_meeting.hurotakuto_issue > quan_she_gong_tong_issue.id // Notion rollup (show_original) via 議論対象Issue (cardinality approx)
+Ref: she_wai_yi_shi_lu_yong_meeting.hurosiekuto_issue > quan_she_gong_tong_project.id // Notion rollup (show_original) via 全社共通 Project (cardinality approx)
+Ref: quan_she_gong_tong_task.issueona > quan_she_gong_tong_issue.id // Notion rollup (show_original) via Issue (cardinality approx)
+Ref: quan_she_gong_tong_task.product > quan_she_gong_tong_issue.id // Notion rollup (show_unique) via Issue (cardinality approx)
+Ref: quan_she_gong_tong_task.issueqi_xian > quan_she_gong_tong_issue.id // Notion rollup (show_original) via Issue (cardinality approx)
+Ref: quan_she_gong_tong_task.issueda_fen_lei > quan_she_gong_tong_issue.id // Notion rollup (show_original) via Issue (cardinality approx)
+Ref: quan_she_gong_tong_task.businessentity > quan_she_gong_tong_issue.id // Notion rollup (show_original) via Issue (cardinality approx)
+Ref: quan_she_gong_tong_task.release > quan_she_gong_tong_issue.id // Notion rollup (show_original) via Issue (cardinality approx)
+Ref: quan_she_gong_tong_task.issuezuo_cheng_zhe > quan_she_gong_tong_issue.id // Notion rollup (show_original) via Issue (cardinality approx)
+Ref: quan_she_gong_tong_task.project > quan_she_gong_tong_issue.id // Notion rollup (show_original) via Issue (cardinality approx)
+Ref: quan_she_gong_tong_task.issuesutanhuqi_piao_zhe > quan_she_gong_tong_issue.id // Notion rollup (show_original) via Issue (cardinality approx)
+Ref: quan_she_gong_tong_task.issueyou_xian_du > quan_she_gong_tong_issue.id // Notion rollup (show_original) via Issue (cardinality approx)
+Ref: quan_she_gong_tong_task.miteinku > quan_she_gong_tong_issue.id // Notion rollup (show_original) via Issue (cardinality approx)
+Ref: quan_she_gong_tong_task.xian_xing_taskwan_liao_shu > quan_she_gong_tong_task.id // Notion rollup (count_per_group) via 先行Task (cardinality approx)
+Ref: quan_she_gong_tong_issue.taskqi_xian_wei_ru_li_shu > quan_she_gong_tong_task.id // Notion rollup (empty) via タスク (cardinality approx)
+Ref: quan_she_gong_tong_issue.tasukujian_ji_he_ji > quan_she_gong_tong_task.id // Notion rollup (sum) via タスク (cardinality approx)
+Ref: quan_she_gong_tong_issue.wan_liao_tasukushu > quan_she_gong_tong_task.id // Notion rollup (count_per_group) via タスク (cardinality approx)
+Ref: quan_she_gong_tong_issue.tasukudan_dang_zhe_wei_ru_li_shu > quan_she_gong_tong_task.id // Notion rollup (empty) via タスク (cardinality approx)
+Ref: quan_she_gong_tong_issue.wan_liao_lu > quan_she_gong_tong_task.id // Notion rollup (percent_per_group) via タスク (cardinality approx)
+Ref: document_jiu_meeting.hurotakuto_issue > quan_she_gong_tong_issue.id // Notion rollup (show_original) via 議論対象Issue (cardinality approx)
+Ref: document_jiu_meeting.hurosiekuto_issue > quan_she_gong_tong_project.id // Notion rollup (show_original) via 全社共通 Project (cardinality approx)
+Ref: quan_she_gong_tong_release.hurotakutokuruhu > product.id // Notion rollup (show_original) via プロダクト (cardinality approx)
+Ref: quan_she_gong_tong_release.jin_bu_lu > quan_she_gong_tong_issue.id // Notion rollup (percent_per_group) via 全社共通 Issue (cardinality approx)
+Ref: quan_she_gong_tong_project.hurotakuto > quan_she_gong_tong_issue.id // Notion rollup (show_unique) via 全社共通 Issue (cardinality approx)
+Ref: quan_she_gong_tong_project.wan_liao_sitataskshu > quan_she_gong_tong_issue.id // Notion rollup (sum) via 全社共通 Issue (cardinality approx)
+Ref: quan_she_gong_tong_project.issuewan_liao_shu_zong_shu > quan_she_gong_tong_issue.id // Notion rollup (count_per_group) via 全社共通 Issue (cardinality approx)
+Ref: quan_she_gong_tong_project.taskdan_dang_zhe_shu > quan_she_gong_tong_issue.id // Notion rollup (unique) via 全社共通 Issue (cardinality approx)
+Ref: quan_she_gong_tong_project.businessentity > quan_she_gong_tong_issue.id // Notion rollup (show_unique) via 全社共通 Issue (cardinality approx)
+Ref: quan_she_gong_tong_project.taskdan_dang_zhe > quan_she_gong_tong_issue.id // Notion rollup (show_unique) via 全社共通 Issue (cardinality approx)
+Ref: quan_she_gong_tong_project.taskshu > quan_she_gong_tong_issue.id // Notion rollup (sum) via 全社共通 Issue (cardinality approx)
+Ref: quan_she_gong_tong_project.issueona > quan_she_gong_tong_issue.id // Notion rollup (show_unique) via 全社共通 Issue (cardinality approx)
+Ref: quan_she_gong_tong_project.issuewan_liao_lu > quan_she_gong_tong_issue.id // Notion rollup (percent_per_group) via 全社共通 Issue (cardinality approx)
+Ref: quan_she_gong_tong_project.issueonashu > quan_she_gong_tong_issue.id // Notion rollup (unique) via 全社共通 Issue (cardinality approx)

@@ -340,23 +340,27 @@ def to_dbml(tables: Dict[str, Dict], edges: List[Dict]) -> str:
 def to_markdown_doc(tables: Dict[str, Dict], edges: List[Dict]) -> str:
     """Markdown形式の詳細ドキュメントを生成"""
     lines = ["# Notion データベース構造ドキュメント", ""]
-    lines.append("このドキュメントは、Notionワークスペース内のデータベース構造を自動生成したものです。", "")
+    lines.append("このドキュメントは、Notionワークスペース内のデータベース構造を自動生成したものです。")
+    lines.append("")
     
     # データベース一覧
-    lines.append("## データベース一覧", "")
+    lines.append("## データベース一覧")
+    lines.append("")
     for t in sorted(tables.values(), key=lambda x: x["name"]):
         lines.append(f"- **{t['title']}** (`{t['name']}`)")
     lines.append("")
     
     # 各データベースの詳細
     for t in sorted(tables.values(), key=lambda x: x["name"]):
-        lines.append(f"## {t['title']} (`{t['name']}`)", "")
-        lines.append(f"- **DB ID**: `{t['id']}`", "")
-        lines.append(f"- **プロパティ数**: {len(t['fields'])}", "")
+        lines.append(f"## {t['title']} (`{t['name']}`)")
+        lines.append("")
+        lines.append(f"- **DB ID**: `{t['id']}`")
+        lines.append(f"- **プロパティ数**: {len(t['fields'])}")
         lines.append("")
         
         # プロパティの詳細
-        lines.append("### プロパティ", "")
+        lines.append("### プロパティ")
+        lines.append("")
         lines.append("| プロパティ名 | 型 | 詳細 |")
         lines.append("|------------|-----|------|")
         
@@ -396,12 +400,14 @@ def to_markdown_doc(tables: Dict[str, Dict], edges: List[Dict]) -> str:
         lines.append("")
     
     # データベース間の関係
-    lines.append("## データベース間の関係", "")
+    lines.append("## データベース間の関係")
+    lines.append("")
     
     # Relation関係
     relation_edges = [e for e in edges if e.get("type") == "relation"]
     if relation_edges:
-        lines.append("### Relation関係", "")
+        lines.append("### Relation関係")
+        lines.append("")
         lines.append("| 元DB | プロパティ | 先DB | 双方向プロパティ |")
         lines.append("|------|-----------|------|------------------|")
         for e in sorted(relation_edges, key=lambda x: (x["src_name"], x["dst_name"])):
@@ -412,15 +418,18 @@ def to_markdown_doc(tables: Dict[str, Dict], edges: List[Dict]) -> str:
     # Rollup関係
     rollup_edges = [e for e in edges if e.get("type") == "rollup"]
     if rollup_edges:
-        lines.append("### Rollup関係", "")
+        lines.append("### Rollup関係")
+        lines.append("")
         lines.append("| 元DB | Rollupプロパティ | 先DB | 集計方法 | 元Relation |")
         lines.append("|------|----------------|------|----------|-----------|")
         for e in sorted(rollup_edges, key=lambda x: (x["src_name"], x["dst_name"])):
             lines.append(f"| `{e['src_name']}` | `{e['src_prop']}` | `{e['dst_name']}` | {e.get('function', '-')} | `{e.get('based_on_relation', '-')}` |")
         lines.append("")
     
-    lines.append("---", "")
-    lines.append(f"生成日時: {time.strftime('%Y-%m-%d %H:%M:%S')}", "")
+    lines.append("---")
+    lines.append("")
+    lines.append(f"生成日時: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+    lines.append("")
     
     return "\n".join(lines) + "\n"
 

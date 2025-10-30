@@ -1,0 +1,2099 @@
+erDiagram
+  t_9055f59c_7a65_4f5b_b71a_d0cb65c8cfec {
+    status sutetasu
+    text bi_yao_nainhututo
+    text shi_shi_yue
+    text chuan_etaikoto
+    text ming_qian
+  }
+  mtgyi_shi_lu {
+    date ri_fu
+    user[] can_jia_zhe
+    relation figma_huairu
+    text ming_qian
+  }
+  yi_shi_lu {
+    enum[] taku
+    date ri_fu
+    user[] yusa
+    text ming_qian
+  }
+  hui_she_objectives_2023shang_qi {
+    formula da_cheng_zhuang_kuang
+    rollup da_cheng_lu
+    relation bu_shu_keyresults
+    relation hui_she_keyresults_1
+    relation da_cheng_lu_que_ren_yong_hui_she_keyresults
+    text hui_she_objectives
+  }
+  hui_she_keyresults_2023shang_qi {
+    number da_cheng_lu
+    formula da_cheng_zhuang_kuang
+    relation hui_she_objectives
+    relation bu_shu_keyresults
+    rollup bu_shu_ming
+    relation bu_shu_objectives
+    text jin_bu_lu_noce_ding_fang_fa
+    text hui_she_keyresults
+  }
+  bu_shu_keyresults {
+    text jin_bu_lu_noce_ding_fang_fa
+    formula da_cheng_zhuang_kuang
+    relation bu_shu_objectives
+    enum bu_shu_ming
+    number da_cheng_lu
+    text bu_shu_keyresults
+  }
+  hui_she_keyresultsyi_lan {
+    rollup da_cheng_lu
+    enum nian_ci
+    relation bu_shu_keyresults
+    text bian_ji_lan_hui_she_keyresults
+  }
+  hui_she_objectivesyi_lan {
+    enum nian_ci
+    rollup da_cheng_lu
+    relation bu_shu_keyresults
+    text bian_ji_lan_hui_she_objectives
+  }
+  da_cheng_lu_que_ren_yong_hui_she_keyresults_2023shang_qi {
+    text jin_bu_lu_noce_ding_fang_fa
+    rollup da_cheng_lu
+    relation bu_shu_keyresults
+    formula da_cheng_zhuang_kuang
+    text hui_she_keyresults
+  }
+  okryong_bu_shu_yi_lan {
+    text ming_qian
+  }
+  dbf7dbd3_36e5_4514_8e7c_9340e8194ef0 {
+    number gui_mo
+    text hui_chang
+    text bei_kao
+    date gong_yan_ri
+    text gong_yan_ming
+  }
+  t_8a8d994a_6145_4c08_b891_186530ac2229 {
+    number gui_mo
+    text hui_chang
+    text bei_kao
+    date gong_yan_ri
+    text gong_yan_ming
+  }
+  dui_ying {
+    text xiu_zheng_surumerituto
+    text xiu_zheng_surutemerituto
+    number gong_shu_ren_ri
+    unique_id id
+    text bei_kao
+    enum type
+    enum dui_ying
+    text title
+  }
+  bu_shu_objectivesyi_lan {
+    relation bu_shu_keyresultsyi_lan
+    rollup da_cheng_lu
+    relation okryong_bu_shu_yi_lan
+    enum nian_ci
+    text bian_ji_lan_bu_shu_objectives
+  }
+  cef6fc22_8894_4634_a08d_7e378af2de07 {
+    number gui_mo
+    text hui_chang
+    text bei_kao
+    date gong_yan_ri
+    text gong_yan_ming
+  }
+  bu_shu_objectives_2023shang_qi {
+    relation bu_shu_keyresults
+    enum bu_shu_ming
+    rollup da_cheng_lu
+    formula da_cheng_zhuang_kuang
+    text bu_shu_objectives
+  }
+  t_81f86b6a_cd1e_408f_87f8_8b5104061c4a {
+    number gui_mo
+    text hui_chang
+    text bei_kao
+    date gong_yan_ri
+    text gong_yan_ming
+  }
+  t_7de9ef27_b2a3_414a_bb7a_f1c1e9a32e6d {
+    number gui_mo
+    text hui_chang
+    text bei_kao
+    date gong_yan_ri
+    text gong_yan_ming
+  }
+  t_7089f6ac_a39b_4201_bb7f_f3ea792c0a09 {
+    number gui_mo
+    text hui_chang
+    text bei_kao
+    date gong_yan_ri
+    text gong_yan_ming
+  }
+  t_2023nian_xia_qi_ge_ren_okr_cheng_guo_mu_biao_xing_dong_mu_biao {
+    text xing_dong_mu_biao
+    timestamp zui_zhong_geng_xin_ri_shi
+    text ge_ren_okr_cheng_guo_mu_biao
+    text cong_ye_yuan_fan_hao
+    user zui_zhong_geng_xin_zhe
+    relation suo_shu_bu_shu
+    relation guan_lian_surubu_shu_keyresults
+    text na
+  }
+  bu_shu_keyresultsyi_lan {
+    text bian_ji_lan_jin_bu_lu_noce_ding_fang_fa
+    enum nian_ci
+    relation okryong_bu_shu_yi_lan
+    number bian_ji_lan_da_cheng_lu
+    text bian_ji_lan_bu_shu_keyresults
+  }
+  mp_iosraihurari {
+    text yong_tu
+    text privacy_manifest_filedui_ying
+    text mpdui_ying_fang_zhen
+    text raihurariming
+  }
+  n7hou_ban_zhan_yong_epic {
+    relation n7hou_ban_zhan_yong_hurosiekuto
+    enum[] taku
+    text ming_qian
+  }
+  n7hou_ban_zhan_yong_hurosiekuto {
+    relation bu_shu_key_results
+    enum[] taku
+    user[] ona2
+    user[] ona
+    formula tasukuwan_liao_shu
+    relation timu
+    relation hurotakutoheng_duan_hurotakuto
+    relation n7hou_ban_zhan_yong_epic
+    date qi_jian
+    text ming_qian
+  }
+  hui_chang {
+    enum[] taku
+    relation ihento
+    text ming_qian
+  }
+  ateisuto {
+    relation ihento
+    enum[] taku
+    text ming_qian
+  }
+  mpihento {
+    rollup hui_chang
+    rollup start
+    enum[] taku
+    rollup open
+    relation ihento
+    text ming_qian
+  }
+  ihento {
+    date open
+    enum[] taku
+    date start
+    relation hurotakutoheng_duan_hurotakuto
+    relation ateisuto
+    relation ticketprovider
+    relation hui_chang
+    relation xing_xing_zhu
+    text ming_qian
+  }
+  b1cfa4b3_e8b9_451b_904b_5a00be2647d8 {
+    text 3
+    text memo
+    text 1
+    text guan_lian_kr
+    text 2
+    text 
+  }
+  deprecated_hurotakutoprd {
+    enum[] taku
+    text ming_qian
+  }
+  fa_quan_qing_bao_xin_gui_bundlewomatomeruchang_he_1 {
+    text seat_category_id
+    text full_name
+    text ticket_class_id
+    text external_code
+    text gate_category_id
+    text full_name_kana
+    text email
+    text fc_id
+    text phone_number
+    text ticket_item_seat_description
+    text last_name
+    text identification_identity_provider_sub
+    text identification_identity_provider
+    text last_name_kana
+    text karamuming
+    text ticket_item_seat_name
+    text first_name_kana
+    text event_id
+    text create_bundle
+    text first_name
+    text gate_id
+  }
+  adr_akitekutiyayi_si_jue_ding_ji_lu {
+    user zuo_cheng_zhe
+    timestamp zui_zhong_geng_xin_ri_shi
+    rollup hurotakutokuruhu
+    user[] ti_an_zhe
+    user[] cheng_ren_zhe
+    unique_id id
+    status sutetasu
+    timestamp zuo_cheng_ri_shi
+    relation hurotakuto
+    enum[] taku
+    text ming_qian
+  }
+  hurotakutoheng_duan_oshiete_product {
+    enum[] taku
+    rollup ihentokuruhu
+    relation hurotakutoheng_duan_hurotakuto
+    status sutetasu
+    text ming_qian
+  }
+  mp_pdmyin_kiji_kidui_xiang {
+    text memo
+    enum[] fen_lei
+    enum yin_kiji_kisutetasu
+    text ming_qian
+  }
+  mp_prd {
+    enum[] taku
+    text ming_qian
+  }
+  t_8f0b85dd_2be4_46b2_a1a4_1b3314b7ae65 {
+    text app_user_id
+    text os
+    text bid
+    text cao_zuo_lu_li
+    text cao_zuo_lu_li_roku
+    text tid
+    text shi_jian
+  }
+  keytovalueyi_lan {
+    text ying_yu
+    text value
+    text key_ios
+    text key_android
+  }
+  dian_zi_tiketutoahuri {
+    text ios_dui_ying_os
+    text android_insutorushu
+    file[] xiao_siip_mihua_mian
+    text ios_nian_ling_zhi_xian
+    file[] yi_lan_hua_mian
+    text android_nian_ling_zhi_xian
+    text ios_insutorushu
+    text ios_saisu
+    text android_saisu
+    enum[] taku
+    text android_dui_ying_os
+    text ming_qian
+  }
+  mp_tiketutosutetasuyi_lan {
+    text mt_c_karaku
+    text mt_cbiao_shi_tiao_jian
+    text dui_ying_hasiyon
+    enum[] tiketutosutetasuan_nei_raherunobei_jing_se
+    text tiketutosutetasuan_nei_raheru
+    text bei_kao
+    text karakubiao_shi_tiao_jian
+    text tiketutosutetasuraheru
+    text sutetasushuo_ming_tekisuto
+    text rinkuxian
+    text fen_lei
+  }
+  t_1a1dd31c_275d_4032_b216_8b9efba3f0ab {
+    text biao_shi_shi_yang
+    text ji_neng
+    number 
+    file[] huairu
+    text xiang_mu_ming
+  }
+  f361da47_3eea_4f39_8476_efead45cb677 {
+    file[] huairu
+    text biao_shi_shi_yang
+    number 
+    enum ji_neng
+    text xiang_mu_ming
+  }
+  v1_4_0_qa {
+    text bu_zu
+    text xiu_zheng_issue
+    text taunrotourl
+    text atuhutetoqian_hou
+    text hasiyonbiao_shi_ming
+  }
+  v1_4_0_qa {
+    text bu_zu
+    text xiu_zheng_issue
+    text taunrotourl
+    text atuhutetoqian_hou
+    text hasiyonbiao_shi_ming
+  }
+  b70b0818_424b_4154_8d67_6cd317edf196 {
+    relation mp_tiketutosutetasuyi_lan
+    enum[] taku
+    text ming_qian
+  }
+  mp_tiketutosutetasuyi_lan {
+    text mt_c_karaku
+    text mt_cbiao_shi_tiao_jian
+    text dui_ying_hasiyon
+    enum[] tiketutosutetasuan_nei_raherunobei_jing_se
+    text tiketutosutetasuan_nei_raheru
+    text bei_kao
+    text karakubiao_shi_tiao_jian
+    text tiketutosutetasuraheru
+    text sutetasushuo_ming_tekisuto
+    text rinkuxian
+    text fen_lei
+  }
+  mp_hua_mian_yi_lan {
+    enum[] taku
+    relation geng_xin_app_ver
+    relation xin_gui_zuo_cheng_app_ver
+    text ming_qian
+  }
+  t_9d0d8fee_eae0_4e9c_b784_4fba5317a48c {
+    file[] huairu
+    text tiketutosutetasushuo_ming
+    text biao_shi_tiao_jian
+    enum rinkuxian
+    text bei_kao
+    text tiketutosutetasuraheru
+  }
+  mp_erataiarokuyi_lan {
+    enum[] taku
+    text ming_qian
+  }
+  mp_tiketutosutetasuyi_lan {
+    text mt_c_karaku
+    text mt_cbiao_shi_tiao_jian
+    text dui_ying_hasiyon
+    enum[] tiketutosutetasuan_nei_raherunobei_jing_se
+    text tiketutosutetasuan_nei_raheru
+    text bei_kao
+    text karakubiao_shi_tiao_jian
+    text tiketutosutetasuraheru
+    text sutetasushuo_ming_tekisuto
+    text rinkuxian
+    text fen_lei
+  }
+  mp_tiketutosutetasuyi_lan {
+    text mt_c_karaku
+    text mt_cbiao_shi_tiao_jian
+    text dui_ying_hasiyon
+    enum[] tiketutosutetasuan_nei_raherunobei_jing_se
+    text tiketutosutetasuan_nei_raheru
+    text bei_kao
+    text karakubiao_shi_tiao_jian
+    text tiketutosutetasuraheru
+    text sutetasushuo_ming_tekisuto
+    text rinkuxian
+    text fen_lei
+  }
+  sync2sheets_jian_zheng {
+    enum[] taku
+    text ming_qian
+  }
+  tokiyumentoniguan_suruke_ti {
+    text jie_jue_an
+    user zuo_cheng_zhe
+    enum[] taku
+    enum[] guan_lian_bu_shu
+    text dui_ying
+    text ke_ti
+  }
+  mp_hua_mian_yi_lan {
+    enum[] taku
+    text ming_qian
+  }
+  issue_db_automation_trigger_for_stamp {
+    timestamp zuo_cheng_ri_shi
+    relation quan_she_gong_tong_issue
+    enum[] taku
+    text ming_qian
+  }
+  issue_db_automation_trigger_for_routine_workflow {
+    enum[] taku
+    relation quan_she_gong_tong_issue
+    timestamp zuo_cheng_ri_shi
+    text ming_qian
+  }
+  zi_dong_tesutogong_shu_jian_ji_mori {
+    number planshi_shi_pin_du_yue_hui
+    number shi_shi_gong_shu_1hui_h
+    formula xue_jian_lu
+    number planshi_xing_h
+    formula xue_jian_saretashi_shi_gong_shu_h
+    number shi_shi_pin_du_yue_hui
+    formula zuo_cheng_gong_shu_h
+    formula zi_dong_hua_gong_shu_h
+    number branchshu
+    formula shou_dong_he_hui_fen_tezuo_cheng_gong_shu_woshang_hui_ruka_hui
+    number zi_dong_hua_lu
+    number zuo_cheng_gong_shu_branch_h
+    formula shi_shi_gong_shu_h
+    text ming_qian
+  }
+  t_2024_09_be_firsttuariseru119diao_cha_dui_ce_zhun_bei {
+    date qi_jian
+    text ming_qian
+  }
+  t_2024_09_be_firsttuariseruqi_jian {
+    date qi_jian
+    text ming_qian
+  }
+  t_2024_09_be_firsttuariseru119shi_xiang {
+    date qi_jian
+    text ming_qian
+  }
+  t_2024_09_be_firsttuariseru119dui_ying {
+    date qi_jian
+    text ming_qian
+  }
+  mpahurihasiyon {
+    enum[] taku
+    text gai_yao
+    date iosgong_kai_ri_shi
+    date androidgong_kai_ri_shi
+    text ahurisutoagai_yao_lan
+    text ahurisutoazui_xin_qing_bao_lan
+    text ming_qian
+  }
+  fa_sheng_yi_lan {
+    url slack
+    date gong_yan_ri
+    status fa_quan_zhuang_kuang
+    text fa_sheng_ri
+  }
+  notion_aitoraiarunojian_yi_gan_xiang_huitohatuku {
+    user[] menha_bi_xu
+    text bu_zu_xiang_xi_ren_yi
+    status sutetasu_aixxiang_mu
+    enum ping_jia_bi_xu
+    text bei_kao_aixxiang_mu
+    text jian_yi_gan_xiang_ren_yi
+  }
+  quan_she_gong_tong_sprint {
+    rollup dan_dang_zhe
+    user zuo_cheng_zhe
+    formula aix_tasukuwan_liao
+    formula aix_tasukuhe_ji
+    formula aix_tasukuwan_liao_lu
+    text suhurintoming
+    date ri_fu
+    unique_id suhurintoid
+    relation tasuku
+    rollup tasukuhe_ji
+    rollup wan_liao_sitatasuku
+    status suhurintosutetasu
+  }
+  suretutonei_riakusiyonshi_xing_huronhutoshe_ding {
+    user zuo_cheng_zhe
+    text roru
+    boolean notionhesizuo_cheng
+    text sutanhuming
+  }
+  apiyi_lan {
+    text gai_yao
+    enum hatukuentosaha
+    text entohointo
+    text fang_shi
+    enum ji_neng_fen_lei
+    text korusurutaiminku
+    relation mpahurihasiyon
+    text taitoru
+  }
+  quan_xian_tesutodb {
+    enum[] taku
+    text hurohatei1
+    text ming_qian
+  }
+  old_119hurosiekuto_shi_yong_yu_ding_nasi {
+    text hurosiekutoming
+    user[] ona
+    status sutetasu
+    rollup wan_liao
+    enum you_xian_du
+    date ri_fu
+    text yao_yue
+    relation tasuku
+    relation ci_nohurosiekutowobao_liu_zhong
+    relation ci_nohurosiekutoniyoribao_liu_zhong
+  }
+  old_119miteinku {
+    relation 119risuto
+    relation tag_library
+    relation tag_library_1_tonoriresiyon_miteinkuzuo_ye_jian_tao_tokiyumento_1_tonoriresiyon_tag_library_62
+    relation guan_lian_tasuku
+    text jian_ming
+    enum[] ji_shu
+    user[] can_jia_zhe
+    user zuo_cheng_zhe
+    timestamp zuo_cheng_ri_shi
+    date ihentoshi_jian
+    enum zhong_bie
+    user zui_zhong_geng_xin_zhe
+    timestamp zui_zhong_geng_xin_ri_shi
+  }
+  bu_shu {
+    relation bu_shu_kuruhu
+    relation bu_shu_objective
+    formula cxo
+    user[] manesiya
+    enum[] taku
+    relation timu
+    text ming_qian
+  }
+  productxi_tong {
+    relation quan_she_gong_tong_project
+    relation product
+    text ming_qian
+  }
+  old_119tasuku {
+    relation xian_xing_tasuku
+    relation tag_library
+    enum tasukuqu_fen
+    relation dui_ying_suru119
+    timestamp zuo_cheng_ri_shi
+    rollup 119tokiyumento
+    relation hou_sok_tasuku
+    formula wei_wan_liao_tasukuqu_fen
+    text tasukuming
+    user[] dan_dang_zhe
+    status sutetasu
+    date qi_xian
+    enum you_xian_du
+    relation sahutasuku
+    text yao_yue
+    relation qin_tasuku
+    relation is_blocking
+    relation blocked_by
+    relation hurosiekuto
+  }
+  diao_heru {
+    enum[] taku
+    url url
+    text ming_qian
+  }
+  shi_li {
+    relation ruru
+    enum[] taku
+    date ri_fu
+    text ming_qian
+  }
+  mp_qayong_pei_xin_ahurihasiyon {
+    timestamp zuo_cheng_ri_shi
+    enum[] taku
+    relation qi_piao_sitaissue
+    enum huan_jing
+    text nei_rong
+    text ming_qian
+  }
+  kai_fa_jin_bu_qi_jian {
+    relation kai_fa_jin_bu
+    text suhurintoming
+    date ri_fu
+    unique_id suhurintoid
+    relation tasuku
+    rollup tasukuhe_ji
+    rollup wan_liao_sitatasuku
+    status suhurintosutetasu
+  }
+  old_kai_fa_jin_bu {
+    user[] ru_li_dan_dang_zhe
+    text ke_ti
+    relation product
+    rollup pdmbu_zuo
+    text ta_timuhenooyuan_i
+    status ru_li_sutetasu
+    rollup sm
+    rollup pdm
+    enum herusu
+    relation zi_dong_fu_zhi_torikayong_kai_fa_jin_bu_qi_jian
+    date ru_li_qi_xian
+    rollup jin_bu_lu
+    relation quan_she_gong_tong_issue
+    text taitoru
+    relation qi_jian
+  }
+  kai_fa_jin_bu {
+    date qi_jian
+    enum fu_zhi_torika
+    formula zui_jin_noririsu
+    enum herusu
+    text tekisuto
+    relation quan_she_gong_tong_release
+    text ke_ti
+    rollup releasesutetasu
+    relation product
+    text ta_timuhenooyuan_i
+    text ming_qian
+  }
+  musttexin_kakerukoto {
+    number xi_de_nibi_yao_nashi_li_shu_nomu_biao
+    rollup shi_li_shu
+    enum[] taku
+    relation shi_li
+    text ming_qian
+  }
+  hong_ranai_zhong_fu_tietuku {
+    relation tenhureto_1
+    text ming_qian
+  }
+  hiarinkuxiang_mu {
+    text huirutoming
+    relation tenhureto
+    relation xuan_ze_zhi
+    relation huomu
+    text ming_qian
+  }
+  aratodui_ying {
+    text yuan_yin
+    text eragai_yao
+    text dui_ying
+    text nei_rong
+    text dui_ying_li
+    enum tiyanneru
+    text gong_shu_mu_an
+    text ming_qian
+  }
+  huomu {
+    relation hiarinkuxiang_mu
+    text takubu_pin
+    relation fan_xin_shi_nibi_yao_nazhi
+    text ming_qian
+  }
+  tcicui_ruo_xing_zhen_duan_jie_guo {
+    text tomein
+    text ahuricui_ruo_xing
+    text inhuracui_ruo_xing
+    text huan_jing
+    text ahurizhen_duan
+    url zhen_duan_jie_guo
+    text hurotakutoming
+  }
+  huiruto {
+    text id
+    relation hiarinkuxuan_ze_zhi_yi_lan
+    text ming_qian
+  }
+  moalaren_zheng_li_yong_yu_ding {
+    enum[] taku
+    date gong_yan_ri
+    user zuo_cheng_zhe
+    text ihentoming
+    enum ahuritaihu
+    enum duan_mo
+    date gong_kai_ri
+    enum[] li_yong_yong_tu
+  }
+  fan_xin_shi_nibi_yao_nazhi {
+    text karamuming
+    text jian_suo_tiao_jian
+    relation huomu
+    url kueri
+    text ming_qian
+  }
+  qi {
+    relation quan_she_objectives
+    text ming_qian
+  }
+  pan_ding_jie_guo {
+    formula shu_shi
+    rollup huomu
+    text takubu_pin
+    relation tenhureto
+    timestamp geng_xin_ri
+    text ming_qian
+  }
+  hiarinkuxuan_ze_zhi_yi_lan {
+    boolean tmp_20250426chai_fen
+    formula taku_da_wen_zi
+    timestamp geng_xin_ri
+    relation hiarinkuxiang_mu
+    text takubu_pin
+    relation tenhureto
+    relation huiruto
+    rollup huomu
+    enum shu_xing
+    timestamp zuo_cheng_ri
+    formula taku
+    text ming_qian
+  }
+  fan_xin_tenhureto {
+    enum fan_xin_hou_sutetasu
+    enum dbshang_noma
+    formula taku_da_wen_zi
+    enum li_yong_hurausa
+    relation wen_ti
+    rollup wen_ti_taku
+    enum li_yong_duan_mo
+    rollup jie_guo_takubu_pin
+    enum tui_hui_xi_wang_ma
+    enum bian_geng_qian_ma
+    enum[] shen_gao_manozheng_sisa
+    rollup wen_ti_takubu_pin
+    formula taku
+    formula huomu_takubu_pin
+    enum[] shen_gao_tidnozai_chu
+    relation zhong_fu_tietukudb
+    relation yi_ci_fan_xin_shi_nibi_yao_nazhi
+    formula huomu
+    enum zai_song_jin_hui_shu
+    timestamp geng_xin_ri
+    relation pan_ding_jie_guo
+    text fan_xin_ben_wen
+    enum tiketutoyou_wu
+    text ming_qian
+  }
+  yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1 {
+    user[] dan_dang_zhe
+    enum[] xiang_mu
+    relation qin_tasuku
+    url dui_ying_zhuang_kuang_matahacheng_guo_wu_henorinku
+    text xiang_mu_gai_yao
+    text dan_dang_zhe_bei_kao
+    relation sahutasuku
+    status pdmtietuku
+    text bei_kao
+    timestamp zui_zhong_geng_xin_ri_shi
+    text que_ren_nei_rong
+  }
+  moalaren_zheng_ahuri_hirutohasiyonguan_li {
+    enum hurotakuto
+    rollup partnerfu_dan_dang_zhe
+    enum duan_mo
+    rollup partnerzhu_dan_dang_zhe
+    enum ahuritaihu
+    user[] pdm_tong_zhi_yong
+    relation li_yong_hatona
+    formula testflightqi_xian
+    text li_yong_an_jian
+    enum[] li_yong_yong_tu
+    text bei_kao
+    date gong_kai_ri
+    text hirutover
+  }
+  hurotakutotaku {
+    relation qin_aitemu
+    user zuo_cheng_zhe
+    relation quan_she_gong_tong_issue
+    relation sahuaitemu
+    enum[] taku
+    timestamp zuo_cheng_ri_shi
+    user zui_zhong_geng_xin_zhe
+    timestamp zui_zhong_geng_xin_ri_shi
+    text ming_qian
+  }
+  mp_she_ji_shu_db {
+    enum ji_neng_fen_lei
+    relation tag_library_1_tonoriresiyon_mp_she_ji_shu_dbtonoriresiyon_tag_library_1
+    relation mpahurihasiyon
+    timestamp zui_zhong_geng_xin_ri_shi
+    timestamp zuo_cheng_ri_shi
+    user zuo_cheng_zhe
+    user zui_zhong_geng_xin_zhe
+    relation tag_library
+    date que_ren_ri_shi
+    text ai_yao_yue
+    text ming_qian
+    status sutetasu
+  }
+  mt_c_yao_yi_lun {
+    rollup lun_dian
+    rollup shuo_ming
+    relation mt_c_zhu_yao_ji_neng
+    rollup ji_neng_katekori
+    enum yi_lun_gong_shu
+    text ming_qian
+  }
+  sakuden_mt_c_issueonazheng_li {
+    relation quan_she_gong_tong_issue
+    rollup sutetasu
+    boolean yin_kiji_kique_ren_lou_re
+    enum zheng_li_qian_2025_05_22shi_dian_noona_1
+    enum zheng_li_hou_noona
+    enum ding_chang_suhotutodui_ying_or_wan_liao_matedui_ying
+    text gong_shu_mu_an
+    enum zheng_li_qian_2025_03_11shi_dian_noona
+    text pin_du
+    rollup hurotakuto
+    rollup issueona
+    text ming_qian
+  }
+  yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1 {
+    user[] dan_dang_zhe
+    enum[] xiang_mu
+    relation qin_tasuku
+    url dui_ying_zhuang_kuang_matahacheng_guo_wu_henorinku
+    text xiang_mu_gai_yao
+    text dan_dang_zhe_bei_kao
+    relation sahutasuku
+    status pdmtietuku
+    text bei_kao
+    timestamp zui_zhong_geng_xin_ri_shi
+    text que_ren_nei_rong
+  }
+  yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1 {
+    user[] dan_dang_zhe
+    enum[] xiang_mu
+    relation qin_tasuku
+    url dui_ying_zhuang_kuang_matahacheng_guo_wu_henorinku
+    text xiang_mu_gai_yao
+    text dan_dang_zhe_bei_kao
+    relation sahutasuku
+    status pdmtietuku
+    text bei_kao
+    timestamp zui_zhong_geng_xin_ri_shi
+    text que_ren_nei_rong
+  }
+  gou_shang_ye_wu_nei_rong_yi_lan {
+    text gong_shu
+    enum sutetasu
+    text bei_kao
+    enum[] yi_ge
+    enum ding_qi_dui_ying_suhotutodui_ying
+    text yin_kiji_kinei_rong
+  }
+  t_20a7d6b7_b8c6_8078_a8e8_d5fc3e8ea093 {
+    enum[] dui_xiang_zhong_bie
+    text ming_qian
+  }
+  bu_shu_kuruhu {
+    enum[] taku
+    user[] cxo
+    relation bu_shu
+    relation zhu_guan_chapter
+    rollup bu_shu_objective
+    rollup timu
+    text ming_qian
+  }
+  sakuden_mt_c_issueonazheng_li {
+    relation quan_she_gong_tong_issue
+    rollup sutetasu
+    enum zheng_li_hou_noona
+    enum suhotutodui_ying_or_wan_liao_matedui_ying
+    text gong_shu_mu_an
+    boolean yin_kiji_kilou_re
+    enum[] yi_ge
+    enum zheng_li_qian_2025_03_11shi_dian_noona
+    text pin_du
+    rollup hurotakuto
+    rollup issueona
+    enum zheng_li_qian_2025_05_27shi_dian_noona_1
+    text ming_qian
+  }
+  sakuden_mt_ckai_fa_guan_lian_noyun_ying_sukesiyuru {
+    date ri_fu
+    enum[] taku
+    text ming_qian
+  }
+  wip_she_nei_li_yong_saas_sahisuyi_lan {
+    status sutetasu
+    text ming_qian
+  }
+  zuo_ye_jin_bu {
+    boolean locationnodeng_lu
+    text events_id
+    text 2ticket_class_id
+    text 3ticket_class_id
+    text 1ticket_class_id
+    boolean output_jsonhuairunozuo_cheng
+    boolean eventnodeng_lu
+    boolean ticket_class_itemnodeng_lu
+    text ming_qian
+  }
+  t_2187d6b7_b8c6_8068_9e0f_f07169d7ab9d {
+    date qi_jian
+    user[] yusa
+    enum issue
+    text ming_qian
+  }
+  deprecated_quan_she_gong_tong_feedback {
+    relation quan_she_gong_tong_issue
+    rollup hurosiekuto
+    timestamp zuo_cheng_ri_shi
+    relation partner
+    rollup timu_issue
+    user zuo_cheng_zhe
+    relation bu_shu_key_results
+    relation timu
+    user[] ti_an_zhe
+    enum katekori
+    user zui_zhong_geng_xin_zhe
+    user[] cheng_ren_zhe
+    rollup hurotakuto_issue
+    enum[] taku
+    status sutetasu
+    relation hurotakuto
+    relation beta_activity
+    text ai_summary
+    relation quan_she_gong_tong_project
+    timestamp zui_zhong_geng_xin_ri_shi
+    user[] sutanhuqi_piao_zhe
+    text ming_qian
+    enum[] ai_kiwato
+  }
+  announce {
+    enum[] taku
+    timestamp zuo_cheng_ri_shi
+    text ming_qian
+  }
+  notionhesisheng_cheng_riakusiyonshe_ding {
+    text taitoruhurohateiming
+    text cha_ru_3
+    text prop2nozhi
+    text tenhuretohesiid
+    enum tasukuqi_piao_yuan_prop
+    relation dui_xiang_db
+    text cha_ru_2
+    text cha_ru_1
+    text zhi_she_ding_dui_xiang_prop1
+    text taitorusheng_cheng_shi_nozhi_shi
+    text yao_yue_ji_lu_xian_hurohatei
+    text prop1nozhi
+    boolean tasukuqi_piao
+    enum zuo_cheng_xian
+    text zhi_she_ding_dui_xiang_prop2
+    text sutanhuming
+  }
+  chapter {
+    relation zhu_guan_bu_shu_kuruhu
+    enum[] taku
+    relation guan_lian_activity
+    user[] ona
+    relation zhu_guan_activity
+    relation document
+    text ming_qian
+  }
+  projectgroup {
+    relation quan_she_gong_tong_project
+    relation document
+    text ming_qian
+  }
+  quan_she_objectives {
+    relation qi
+    relation quan_she_key_results
+    enum[] taku
+    text objective
+  }
+  cxo_objectives_jiu_quan_she_key_results {
+    relation bu_shu_objectives
+    relation cxo
+    formula qi
+    relation quan_she_objectives
+    enum[] taku
+    text ming_qian
+  }
+  cxo_bu_shu_objectives {
+    formula cxo
+    relation quan_she_key_results
+    relation bu_shu
+    formula qi
+    relation bu_shu_key_results
+    enum xue_chu_yu_ding_qi
+    text ming_qian
+  }
+  t_119risuto {
+    formula can_heng_jiu_dui_ying_shu
+    relation product
+    rollup can_tasukuzhong_bie
+    user zuo_cheng_zhe
+    user[] dui_ying_zhe_guan_xi_zhe
+    enum[] deprecated_hurotakuto
+    formula can_zan_ding_dui_ying_shu
+    relation guan_lian_tokiyumento
+    enum tier
+    user[] dan_dang_komanta
+    timestamp qi_piao_ri_shi
+    relation tag_library
+    status sutetasu
+    relation guan_lian_119tasuku
+    url slackrinku
+    relation quan_she_gong_tong_meeting
+    unique_id 119guan_li_no
+    relation quan_she_gong_tong_issue
+    text gai_yao
+    rollup productxi_tong
+    timestamp zui_zhong_geng_xin_ri_shi
+    text qi_piao_zhe
+    text taitoru
+  }
+  tag_library_1 {
+    date ri_fu
+    relation mp_she_ji_shu_dbtonoriresiyon_tag_library_1
+    relation menhayi_lan_3
+    relation menhayi_lan_5
+    relation 119tasuku
+    relation menhayi_lan_1
+    relation miteinkuzuo_ye_jian_tao_tokiyumento_1_tonoriresiyon_tag_library_62
+    relation menhayi_lan_4
+    relation menhayi_lan_2
+    text kiwato
+    enum[] taku
+    user[] dan_dang_zhe
+    status sutetasu
+    date qi_xian
+  }
+  ding_li_torikayong {
+    text ming_qian
+  }
+  mt_c_zhu_yao_ji_neng {
+    enum issuer_table
+    text lun_dian
+    status sutetasu
+    enum issuer_table_by_zhou_kou_san
+    relation mt_c_yao_yi_lun
+    text shuo_ming
+    text fang_zhen
+    enum katekori
+    text ming_qian
+  }
+  onhoteinku {
+    enum[] taku
+    text ming_qian
+  }
+  fei_shi_yong_converterhiayao_he_yi_risuto {
+    text guan_lian_qing_bao
+    text nei_rong
+    text ming_qian
+  }
+  fei_ji_neng_chong_zu_du {
+    text yao_jian_ding_yi
+    enum yun_yong_wozhi_eruyao_jian
+    enum yao_jian_tearuka
+    enum te_ding_gong_yan_xiang_keyao_jian
+    enum[] yao_jian_da_xiang_mu
+    enum chong_zu_du
+    text rinku
+    text li_you
+    text yao_jian_xiao_xiang_mu
+    text yao_jian_zhong_xiang_mu
+  }
+  t_23b7d6b7_b8c6_8086_aa9e_c0b6bab40da3 {
+    date date
+    user[] assign
+    status status
+    text name
+  }
+  activity {
+    formula bu_shu_kuruhu
+    relation zhu_guan_chapter
+    relation guan_lian_chapter
+    relation quan_she_gong_tong_issue
+    rollup chapterona
+    enum[] taku
+    relation quan_she_gong_tong_task
+    relation quan_she_gong_tong_project
+    relation quan_she_gong_tong_meeting
+    text ming_qian
+  }
+  shi_zhuang_sukesiyuru {
+    text tekisuto
+    date ri_fu
+    text ming_qian
+  }
+  c9652849_3349_447d_9ad3_17bf1a16e975 {
+    boolean diao_cha_wan_liao
+    enum[] tags
+    boolean dui_ying_wan_liao
+    text name
+  }
+  team {
+    relation quan_she_gong_tong_issue
+    text ai_yao_yue
+    user[] rita
+    status sutetasu
+    boolean gong_shi
+    relation quan_she_gong_tong_meeting
+    timestamp zuo_cheng_ri_shi
+    rollup cxo
+    relation bu_shu
+    rollup bu_shu_kuruhu
+    enum[] taku
+    rollup manesiya
+    relation announce
+    formula cxo
+    user[] menha
+    user zuo_cheng_zhe
+    text timu
+  }
+  bu_shu_key_results {
+    formula bu_shu
+    formula cxo
+    relation bu_shu_objective
+    relation issue
+    date ri_fu
+    user[] ona
+    rollup issueshu
+    user[] menha
+    formula qi
+    rollup quan_she_key_result
+    relation quan_she_gong_tong_meeting
+    timestamp zuo_cheng_ri_shi
+    relation quan_she_gong_tong_project
+    rollup jin_bu_tasukukaraji_suan
+    rollup jin_bu_issuekaraji_suan
+    text bu_shu_key_result
+  }
+  ac {
+    text feature
+    text ac_id
+    enum release
+    text expected_then
+    text preconditions
+    text action_when
+    text out_of_scope
+    text cuj
+    text notes
+    enum actor
+    text objs
+    url source_link
+    enum status
+    text title
+  }
+  obj {
+    enum tier
+    enum[] viewpoint_tags
+    enum status
+    enum[] routes
+    text capability
+    text obj_id
+    enum[] cuj
+    text description
+    user[] owner
+    text acs
+    text obj_name
+  }
+  rtm {
+    enum gate
+    boolean do
+    enum al
+    text route
+    text aspect
+    text obj
+    text notes
+    text name
+  }
+  scn {
+    text scn_id
+    boolean primary
+    enum env_pattern
+    text steps
+    text evidence_refs
+    text route
+    text obj
+    text name
+  }
+  clm {
+    number timeout_ms
+    enum mode
+    enum check_type
+    text clm_id
+    text target
+    text obj
+    boolean primary
+    text scn
+    text expectation
+    text name
+  }
+  cuj {
+    text primary_outcome
+    text version
+    user[] owner
+    text entry
+    text notes
+    text exit
+    text name
+  }
+  capability {
+    text services
+    text description
+    text version
+    user[] owner
+    text notes
+    text name
+  }
+  feature {
+    text notes
+    enum[] default_cuj
+    user[] owner
+    enum[] tags
+    enum status
+    text description
+    text capability
+    text product
+    text feature_key
+    text name
+  }
+  viewpoints {
+    text tag
+    text oneline_definition
+    text includes
+    text typical_evidence
+    text excludes
+    enum tier_default
+    text display_name
+    text aspect_key
+  }
+  taxonomy {
+    text oneline_definition
+    enum default_route
+    text tag
+    enum default_al
+    text typical_evidence
+    text excludes
+    text includes
+    text display_name
+    text aspect_key
+  }
+  route {
+    user[] owner
+    enum default_gate
+    text description
+    enum default_al
+    text notes
+    text name
+  }
+  t_26a7d6b7_b8c6_8013_b606_ed871930424e {
+    text ming_qian
+  }
+  ririsunixiang_ketasukesiyuru {
+    relation ririsu_nei_rong
+    status sutetasu
+    text kai_fa_nei_rong
+    enum ririsu
+    enum dan_dang
+    date ri_fu
+    text ming_qian
+  }
+  ririsunixiang_ketasukesiyuru_2 {
+    relation ririsu_nei_rong
+    status sutetasu
+    text kai_fa_nei_rong
+    enum ririsu
+    enum dan_dang
+    date ri_fu
+    text ming_qian
+  }
+  riserusukesiyuru {
+    enum[] taku
+    date ri_fu
+    text ming_qian
+  }
+  menha {
+    email meru
+    formula she_li
+    user zuo_cheng_zhe
+    timestamp zuo_cheng_ri_shi
+    text xing
+    enum bu_shu_hui_ji_shang
+    user[] akauntoming
+    phone dian_hua
+    user zui_zhong_geng_xin_zhe
+    date ru_she_ri_can_hua_ri
+    enum[] zhi_wei
+    relation xue_chu_yu_ding_bu_men
+    relation temp_ccoyi_gua_taskasainyong_issue
+    text cong_ye_yuan_fan_hao
+    text sei
+    relation xue_chu_yu_ding_gu_yong_xing_tai
+    relation guan_watuteiruhurotakuto
+    relation bu_men
+    enum gu_yong_xing_tai
+    text hao_kinaentame
+    relation xue_chu_yu_ding_zhi_wei
+    text hurikana
+    relation suo_shu_bu_shu
+    timestamp zui_zhong_geng_xin_ri_shi
+    relation mbti
+    text shi_ming
+  }
+  adminsukesiyuru {
+    relation ririsu_nei_rong
+    status sutetasu
+    text kai_fa_nei_rong
+    enum ririsu
+    enum dan_dang
+    date ri_fu
+    text ming_qian
+  }
+  businessentity_jiu_partner {
+    relation mtauthahuri_for_ipad_hirutohasiyon
+    relation quan_she_gong_tong_project
+    user[] fu_dan_dang_zhe
+    relation document
+    user zui_zhong_geng_xin_zhe
+    timestamp zui_zhong_geng_xin_ri_shi
+    number hubspot_record_id
+    rollup project
+    relation ihento_xing_xing_zhu
+    user zuo_cheng_zhe
+    relation quan_she_gong_tong_issue
+    enum[] businesstype
+    user[] zhu_dan_dang_zhe
+    enum[] taku
+    relation ihento_ticketprovider
+    timestamp zuo_cheng_ri_shi
+    relation company
+    relation entertainmentip
+    enum type
+    boolean qi_yue_you_wu
+    text ming_qian
+  }
+  testhuan_jing_tehuroiqi_jian {
+    text lie_2
+    date ri_fu
+    text lie_1
+    text taitoru
+  }
+  adminsukesiyuru {
+    relation ririsu_nei_rong
+    status sutetasu
+    text kai_fa_nei_rong
+    enum ririsu
+    enum dan_dang
+    date ri_fu
+    text ming_qian
+  }
+  ririsunixiang_ketasukesiyuru {
+    relation ririsu_nei_rong
+    status sutetasu
+    text kai_fa_nei_rong
+    enum ririsu
+    enum dan_dang
+    date ri_fu
+    text ming_qian
+  }
+  ririsunixiang_ketasukesiyuru {
+    relation ririsu_nei_rong
+    status sutetasu
+    text kai_fa_nei_rong
+    enum ririsu
+    enum dan_dang
+    date ri_fu
+    text ming_qian
+  }
+  ding_xing_ye_wu_issueding_yi {
+    enum[] taku
+    relation fei_zhi_timu
+    text to_be
+    relation hurosiekuto
+    relation hurotakuto
+    relation ding_xing_ye_wu_task
+    relation akuteihitei
+    text as_is
+    text gai_yao
+    text ye_wu_ming
+  }
+  rotikeshi_yong_ji_neng {
+    boolean she_ding_bi_xu
+    text she_ding_tehuru_karamu
+    formula ji_neng_katekori
+    enum she_ding_fang_fa
+    text ming_qian
+  }
+  ding_xing_ye_wu_taskding_yi {
+    number issuexiang_dui_qi_xian
+    user[] fu_dan_dang_zhe
+    relation ding_xing_ye_wu_issue
+    user[] dan_dang_zhe
+    enum[] taku
+    text ming_qian
+  }
+  tag_library {
+    date ri_fu
+    relation mp_she_ji_shu_dbtonoriresiyon_tag_library_1
+    relation menhayi_lan_3
+    relation menhayi_lan_5
+    relation 119tasuku
+    relation menhayi_lan_1
+    relation miteinkuzuo_ye_jian_tao_tokiyumento_1_tonoriresiyon_tag_library_62
+    relation menhayi_lan_4
+    relation menhayi_lan_2
+    text kiwato
+    enum[] taku
+    user[] dan_dang_zhe
+    status sutetasu
+    date qi_xian
+  }
+  she_wai_yi_shi_lu_yong_meeting {
+    relation timu
+    relation beta_activity
+    relation hurotakuto
+    text ai_yao_yue
+    formula huirutayong_timu
+    relation 119risuto
+    rollup hurotakuto_issue
+    relation quan_she_gong_tong_project
+    rollup hurosiekuto_issue
+    relation businessentity
+    relation yi_lun_dui_xiang_issue
+    relation bu_shu_key_results
+    text jian_ming
+    enum[] zuo_cheng_nian
+    enum[] taku
+    date ri_fu
+    user[] xue_chu_yu_ding_person
+    user[] xue_chu_yu_ding_yusa
+    user[] dan_dang_zhe
+    user[] can_jia_zhe
+    user zuo_cheng_zhe
+    timestamp zuo_cheng_ri_shi
+    date xue_chu_yu_ding_ihentoshi_jian
+    user zui_zhong_geng_xin_zhe
+    timestamp zui_zhong_geng_xin_ri_shi
+  }
+  adminsukesiyuru {
+    relation ririsu_nei_rong
+    status sutetasu
+    text kai_fa_nei_rong
+    enum ririsu
+    enum dan_dang
+    date ri_fu
+    text ming_qian
+  }
+  quan_she_gong_tong_task {
+    rollup issueona
+    formula scrummaster
+    rollup product
+    formula issuesutetasu
+    formula project_productxi_tong
+    relation google_drive_huairu
+    relation activity
+    rollup issueqi_xian
+    formula ready
+    rollup issueda_fen_lei
+    relation fu_zhi_xian_issue
+    rollup businessentity
+    formula issue_task_zui_zao_qi_xian_shi_shi_ri_status
+    timestamp zuo_cheng_ri_shi
+    formula dan_dang_zhe_shu
+    user[] fu_dan_dang_zhe
+    formula activity_task_issue_project
+    user zuo_cheng_zhe
+    rollup release
+    timestamp zui_zhong_geng_xin_ri_shi
+    rollup issuezuo_cheng_zhe
+    formula issue_task_zui_zao_qi_xian_shi_shi_ri
+    rollup project
+    number shi_xing_shun_xu
+    user[] rehiyua
+    formula jian_ji_number
+    formula roruatuhuyong_timu
+    rollup issuesutanhuqi_piao_zhe
+    relation document
+    date shi_shi_ri
+    rollup issueyou_xian_du
+    rollup miteinku
+    formula timu_shu_shi
+    rollup xian_xing_taskwan_liao_shu
+    text ming_qian
+    user[] dan_dang_zhe
+    status tasksutetasu
+    date taskqi_xian
+    text yao_yue
+    enum you_xian_du
+    url slackrinku
+    number jin_bu_lu
+    user[] guan_xi_zhe
+    enum jian_ji_ri
+    relation hou_sok_task
+    relation xian_xing_task
+    relation issue
+    unique_id tasukuid
+    relation github_pr
+  }
+  quan_she_gong_tong_issue {
+    formula issueqi_xian_status
+    formula qi_xian_dao_lai_tasukudan_dang_zhe
+    user[] sutanhuqi_piao_zhe
+    formula scrummaster
+    formula project_productxi_tong
+    formula wei_wan_liao_taskqi_xian_wei_ru_li_shu
+    relation hurotakuto
+    user zuo_cheng_zhe
+    enum jian_ji
+    relation ci_notasukuniyoribao_liu_zhong
+    relation hurosiekuto
+    relation hurotakutotaku
+    relation ci_notasukuwobao_liu_zhong
+    formula wei_wan_liao_tasukujian_ji_he_ji
+    formula kr_jin_bu_ji_yu
+    relation activity
+    number shi_xing_shun_xu
+    enum katekori
+    formula cxo
+    rollup taskqi_xian_wei_ru_li_shu
+    relation fa_sheng_sitabu_ju_he
+    rollup tasukujian_ji_he_ji
+    formula zhi_jin_1zhou_jian_qi_xian_wei_wan_liao_tasukudan_dang_zhe
+    button issue_taskfu_zhi
+    relation automation_trigger_for_routine_workflow
+    rollup wan_liao_tasukushu
+    relation ririsu
+    relation dui_ying_surubu_ju_he
+    relation bu_shu_key_results
+    formula activity_issue_project
+    url google_drivehuoruta
+    relation businessentity
+    relation automation_trigger
+    formula wei_wan_liao_tasukudan_dang_zhe
+    formula wei_wan_liao_tasukuzui_zao_qi_xian
+    timestamp zui_zhong_geng_xin_ri_shi
+    formula issue_taskzui_zao_qi_xian
+    timestamp zuo_cheng_ri_shi
+    rollup tasukudan_dang_zhe_wei_ru_li_shu
+    text shou_shun_shu
+    formula wan_liao_sitataskshu
+    number kr_nei_bi_zhong
+    formula tasukushu
+    date issueqi_xian
+    relation 119risuto
+    relation zi_designdoc
+    relation qin_designdoc
+    formula taskdan_dang_zhe
+    relation mu_de_xing_meeting
+    formula wei_wan_liao_tasuku
+    text ming_qian
+    user[] ona
+    status sutetasu
+    rollup wan_liao_lu
+    enum you_xian_du
+    number jin_bu_lu
+    date taskqi_xian
+    boolean tietukuari
+    user[] dan_dang_zhe
+    date qi_jian
+    text yao_yue
+    relation tasuku
+    relation hou_sok_issue
+    relation xian_xing_issue
+  }
+  bu_ju_he_guan_li {
+    enum[] os
+    user[] dan_dang_zhe
+    enum[] qadan_wei
+    enum you_xian_du
+    status sutetasu
+    relation fa_sheng_yuan_issue
+    relation hurotakuto
+    timestamp zui_zhong_geng_xin_ri_shi
+    enum[] hakufen_lei
+    user zuo_cheng_zhe
+    relation mp_qayong_pei_xin_ahurihasiyontonoriresiyon_qi_piao_sitaissue_1
+    relation dui_ying_issue
+    enum hakushen_ke_du
+    date dui_ying_qi_ri
+    unique_id id
+    relation quan_she_gong_tong_project
+    text url
+    enum[] ji_neng_fen_lei
+    enum[] shi_xiang_fen_lei
+    timestamp zuo_cheng_ri_shi
+    text ming_qian
+  }
+  document_jiu_meeting {
+    relation beta_activity
+    enum type
+    relation projectgroup
+    relation quan_she_gong_tong_task
+    relation hurotakuto
+    text ai_yao_yue
+    formula huirutayong_timu
+    relation 119risuto
+    rollup hurotakuto_issue
+    relation quan_she_gong_tong_project
+    rollup hurosiekuto_issue
+    relation businessentity
+    relation yi_lun_dui_xiang_issue
+    relation chapter
+    relation bu_shu_key_results
+    text jian_ming
+    enum[] zuo_cheng_nian
+    enum[] taku
+    date ri_fu
+    user[] xue_chu_yu_ding_person
+    user[] xue_chu_yu_ding_yusa
+    user[] dan_dang_zhe
+    user[] can_jia_zhe
+    user zuo_cheng_zhe
+    timestamp zuo_cheng_ri_shi
+    date xue_chu_yu_ding_ihentoshi_jian
+    user zui_zhong_geng_xin_zhe
+    timestamp zui_zhong_geng_xin_ri_shi
+  }
+  quan_she_gong_tong_release {
+    text memo
+    relation kai_fa_jin_bu
+    timestamp zuo_cheng_ri_shi
+    status sutetasu
+    text karentaihentoid
+    relation quan_she_gong_tong_issue
+    rollup hurotakutokuruhu
+    rollup jin_bu_lu
+    date ririsuri
+    enum[] taku
+    relation hurotakuto
+    text ming_qian
+    date qi_jian
+    date issueqi_xian
+    enum katekori
+    enum jian_ji
+    user[] ona
+    url google_drivehuoruta
+    number shi_xing_shun_xu
+  }
+  quan_she_gong_tong_dbs {
+    enum[] taku
+    date ri_fu
+    relation qin
+    timestamp zui_zhong_geng_xin_ri_shi
+    verification you_xiao_qi_xian
+    relation zi
+    text hesi
+    user[] ona
+  }
+  quan_she_gong_tong_project {
+    user zuo_cheng_zhe
+    relation quan_she_gong_tong_issue
+    formula sisutemuli_yong_projectid
+    user zui_zhong_geng_xin_zhe
+    relation projectgroup
+    rollup hurotakuto
+    rollup wan_liao_sitataskshu
+    date qi_jian
+    rollup issuewan_liao_shu_zong_shu
+    formula taskwan_liao_shu_zong_shu
+    unique_id projectid
+    relation product
+    timestamp zuo_cheng_ri_shi
+    relation bu_shu_key_results
+    rollup taskdan_dang_zhe_shu
+    enum[] taku
+    relation tasukuqi_xian_tong_zhi_she_ding
+    rollup businessentity
+    formula taskwan_liao_lu
+    rollup taskdan_dang_zhe
+    url google_drivehuoruta
+    timestamp zui_zhong_geng_xin_ri_shi
+    rollup taskshu
+    relation document
+    formula issuewan_liao_shu_hurosiekutoguan_li
+    rollup issueona
+    relation businessentity_jiu_partner
+    rollup issuewan_liao_lu
+    rollup issueonashu
+    relation productxi_tong
+    relation activity
+    text ming_qian
+    user[] pjm_jiu_dan_dang_zhe
+    user[] ona
+    status sutetasu
+  }
+  product {
+    text yomikana
+    relation ririsu
+    user[] sukuramumasuta
+    relation adr_akitekutiyayi_si_jue_ding_ji_lu
+    relation sahuhurotakuto
+    relation quan_she_gong_tong_issue
+    relation quan_she_gong_tong_meeting
+    user[] pdm
+    date ri_fu
+    relation qin_aitemu
+    relation tasukuqi_xian_tong_zhi_she_ding
+    relation hurotakutoheng_duan_oshiete_product
+    relation productxi_tong
+    relation quan_she_gong_tong_project
+    text 
+    user zuo_cheng_zhe
+    user[] sukuramumasutabu_zuo
+    timestamp zuo_cheng_ri_shi
+    user[] pdmbu_zuo
+    enum[] taku
+    text ming_qian
+  }
+  tasukuqi_xian_tong_zhi_she_ding {
+    relation product
+    boolean tong_zhi
+    relation quan_she_gong_tong_project
+    text tong_zhi_tiyanneru
+    text ming_qian
+  }
+  adminsukesiyuru {
+    relation ririsu_nei_rong
+    status sutetasu
+    text kai_fa_nei_rong
+    enum ririsu
+    enum dan_dang
+    date ri_fu
+    text ming_qian
+  }
+  hui_she_objectives_2023shang_qi }o--o{ bu_shu_keyresults : bu_shu_keyresults
+  hui_she_objectives_2023shang_qi }o--o{ hui_she_keyresults_2023shang_qi : hui_she_keyresults_1
+  hui_she_objectives_2023shang_qi }o--o{ hui_she_keyresults_2023shang_qi : da_cheng_lu_que_ren_yong_hui_she_keyresults
+  hui_she_keyresults_2023shang_qi }o--o{ hui_she_objectives_2023shang_qi : hui_she_objectives
+  hui_she_keyresults_2023shang_qi }o--o{ bu_shu_keyresults : bu_shu_keyresults
+  hui_she_keyresults_2023shang_qi }o--o{ bu_shu_objectives_2023shang_qi : bu_shu_objectives
+  bu_shu_keyresults }o--o{ bu_shu_objectives_2023shang_qi : bu_shu_objectives
+  hui_she_keyresultsyi_lan }o--o{ bu_shu_keyresultsyi_lan : bu_shu_keyresults
+  hui_she_objectivesyi_lan }o--o{ bu_shu_keyresultsyi_lan : bu_shu_keyresults
+  da_cheng_lu_que_ren_yong_hui_she_keyresults_2023shang_qi }o--o{ bu_shu_keyresults : bu_shu_keyresults
+  bu_shu_objectivesyi_lan }o--o{ bu_shu_keyresultsyi_lan : bu_shu_keyresultsyi_lan
+  bu_shu_objectivesyi_lan }o--o{ okryong_bu_shu_yi_lan : okryong_bu_shu_yi_lan
+  bu_shu_objectives_2023shang_qi }o--o{ bu_shu_keyresultsyi_lan : bu_shu_keyresults
+  t_2023nian_xia_qi_ge_ren_okr_cheng_guo_mu_biao_xing_dong_mu_biao }o--o{ tag_library : suo_shu_bu_shu
+  t_2023nian_xia_qi_ge_ren_okr_cheng_guo_mu_biao_xing_dong_mu_biao }o--o{ bu_shu_keyresultsyi_lan : guan_lian_surubu_shu_keyresults
+  bu_shu_keyresultsyi_lan }o--o{ okryong_bu_shu_yi_lan : okryong_bu_shu_yi_lan
+  n7hou_ban_zhan_yong_epic }o--o{ n7hou_ban_zhan_yong_hurosiekuto : n7hou_ban_zhan_yong_hurosiekuto
+  n7hou_ban_zhan_yong_hurosiekuto }o--o{ bu_shu_key_results : bu_shu_key_results
+  n7hou_ban_zhan_yong_hurosiekuto }o--o{ team : timu
+  n7hou_ban_zhan_yong_hurosiekuto }o--o{ product : hurotakutoheng_duan_hurotakuto
+  n7hou_ban_zhan_yong_hurosiekuto }o--o{ n7hou_ban_zhan_yong_epic : n7hou_ban_zhan_yong_epic
+  hui_chang }o--o{ ihento : ihento
+  ateisuto }o--o{ ihento : ihento
+  mpihento }o--o{ ihento : ihento
+  ihento }o--o{ product : hurotakutoheng_duan_hurotakuto
+  ihento }o--o{ ateisuto : ateisuto
+  ihento }o--o{ businessentity_jiu_partner : ticketprovider
+  ihento }o--o{ hui_chang : hui_chang
+  ihento }o--o{ businessentity_jiu_partner : xing_xing_zhu
+  adr_akitekutiyayi_si_jue_ding_ji_lu }o--o{ product : hurotakuto
+  hurotakutoheng_duan_oshiete_product }o--o{ product : hurotakutoheng_duan_hurotakuto
+  b70b0818_424b_4154_8d67_6cd317edf196 }o--o{ mp_tiketutosutetasuyi_lan : mp_tiketutosutetasuyi_lan
+  mp_hua_mian_yi_lan }o--o{ mpahurihasiyon : geng_xin_app_ver
+  mp_hua_mian_yi_lan }o--o{ mpahurihasiyon : xin_gui_zuo_cheng_app_ver
+  issue_db_automation_trigger_for_stamp }o--o{ quan_she_gong_tong_issue : quan_she_gong_tong_issue
+  issue_db_automation_trigger_for_routine_workflow }o--o{ quan_she_gong_tong_issue : quan_she_gong_tong_issue
+  quan_she_gong_tong_sprint }o--o{ quan_she_gong_tong_task : tasuku
+  apiyi_lan }o--o{ mpahurihasiyon : mpahurihasiyon
+  old_119hurosiekuto_shi_yong_yu_ding_nasi }o--o{ old_119tasuku : tasuku
+  old_119hurosiekuto_shi_yong_yu_ding_nasi }o--o{ old_119hurosiekuto_shi_yong_yu_ding_nasi : ci_nohurosiekutowobao_liu_zhong
+  old_119hurosiekuto_shi_yong_yu_ding_nasi }o--o{ old_119hurosiekuto_shi_yong_yu_ding_nasi : ci_nohurosiekutoniyoribao_liu_zhong
+  old_119miteinku }o--o{ t_119risuto : 119risuto
+  old_119miteinku }o--o{ tag_library : tag_library
+  old_119miteinku }o--o{ tag_library_1 : tag_library_1_tonoriresiyon_miteinkuzuo_ye_jian_tao_tokiyumento_1_tonoriresiyon_tag_library_62
+  old_119miteinku }o--o{ old_119tasuku : guan_lian_tasuku
+  bu_shu }o--o{ bu_shu_kuruhu : bu_shu_kuruhu
+  bu_shu }o--o{ cxo_bu_shu_objectives : bu_shu_objective
+  bu_shu }o--o{ team : timu
+  productxi_tong }o--o{ quan_she_gong_tong_project : quan_she_gong_tong_project
+  productxi_tong }o--o{ product : product
+  old_119tasuku }o--o{ old_119tasuku : xian_xing_tasuku
+  old_119tasuku }o--o{ tag_library : tag_library
+  old_119tasuku }o--o{ t_119risuto : dui_ying_suru119
+  old_119tasuku }o--o{ old_119tasuku : hou_sok_tasuku
+  old_119tasuku }o--o{ old_119tasuku : sahutasuku
+  old_119tasuku }o--o{ old_119tasuku : qin_tasuku
+  old_119tasuku }o--o{ old_119tasuku : is_blocking
+  old_119tasuku }o--o{ old_119tasuku : blocked_by
+  old_119tasuku }o--o{ old_119hurosiekuto_shi_yong_yu_ding_nasi : hurosiekuto
+  shi_li }o--o{ musttexin_kakerukoto : ruru
+  mp_qayong_pei_xin_ahurihasiyon }o--o{ bu_ju_he_guan_li : qi_piao_sitaissue
+  kai_fa_jin_bu_qi_jian }o--o{ old_kai_fa_jin_bu : kai_fa_jin_bu
+  kai_fa_jin_bu_qi_jian }o--o{ old_kai_fa_jin_bu : tasuku
+  old_kai_fa_jin_bu }o--o{ product : product
+  old_kai_fa_jin_bu }o--o{ kai_fa_jin_bu_qi_jian : zi_dong_fu_zhi_torikayong_kai_fa_jin_bu_qi_jian
+  old_kai_fa_jin_bu }o--o{ quan_she_gong_tong_issue : quan_she_gong_tong_issue
+  old_kai_fa_jin_bu }o--o{ kai_fa_jin_bu_qi_jian : qi_jian
+  kai_fa_jin_bu }o--o{ quan_she_gong_tong_release : quan_she_gong_tong_release
+  kai_fa_jin_bu }o--o{ product : product
+  musttexin_kakerukoto }o--o{ shi_li : shi_li
+  hong_ranai_zhong_fu_tietuku }o--o{ fan_xin_tenhureto : tenhureto_1
+  hiarinkuxiang_mu }o--o{ fan_xin_tenhureto : tenhureto
+  hiarinkuxiang_mu }o--o{ hiarinkuxuan_ze_zhi_yi_lan : xuan_ze_zhi
+  hiarinkuxiang_mu }o--o{ huomu : huomu
+  huomu }o--o{ hiarinkuxiang_mu : hiarinkuxiang_mu
+  huomu }o--o{ fan_xin_shi_nibi_yao_nazhi : fan_xin_shi_nibi_yao_nazhi
+  huiruto }o--o{ hiarinkuxuan_ze_zhi_yi_lan : hiarinkuxuan_ze_zhi_yi_lan
+  fan_xin_shi_nibi_yao_nazhi }o--o{ huomu : huomu
+  qi }o--o{ quan_she_objectives : quan_she_objectives
+  pan_ding_jie_guo }o--o{ fan_xin_tenhureto : tenhureto
+  hiarinkuxuan_ze_zhi_yi_lan }o--o{ hiarinkuxiang_mu : hiarinkuxiang_mu
+  hiarinkuxuan_ze_zhi_yi_lan }o--o{ fan_xin_tenhureto : tenhureto
+  hiarinkuxuan_ze_zhi_yi_lan }o--o{ huiruto : huiruto
+  fan_xin_tenhureto }o--o{ hiarinkuxuan_ze_zhi_yi_lan : wen_ti
+  fan_xin_tenhureto }o--o{ hong_ranai_zhong_fu_tietuku : zhong_fu_tietukudb
+  fan_xin_tenhureto }o--o{ fan_xin_shi_nibi_yao_nazhi : yi_ci_fan_xin_shi_nibi_yao_nazhi
+  fan_xin_tenhureto }o--o{ pan_ding_jie_guo : pan_ding_jie_guo
+  yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1 }o--o{ yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1 : qin_tasuku
+  yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1 }o--o{ yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1 : sahutasuku
+  moalaren_zheng_ahuri_hirutohasiyonguan_li }o--o{ businessentity_jiu_partner : li_yong_hatona
+  hurotakutotaku }o--o{ hurotakutotaku : qin_aitemu
+  hurotakutotaku }o--o{ quan_she_gong_tong_issue : quan_she_gong_tong_issue
+  hurotakutotaku }o--o{ hurotakutotaku : sahuaitemu
+  mp_she_ji_shu_db }o--o{ tag_library_1 : tag_library_1_tonoriresiyon_mp_she_ji_shu_dbtonoriresiyon_tag_library_1
+  mp_she_ji_shu_db }o--o{ mpahurihasiyon : mpahurihasiyon
+  mp_she_ji_shu_db }o--o{ tag_library : tag_library
+  mt_c_yao_yi_lun }o--o{ mt_c_zhu_yao_ji_neng : mt_c_zhu_yao_ji_neng
+  sakuden_mt_c_issueonazheng_li }o--o{ quan_she_gong_tong_issue : quan_she_gong_tong_issue
+  yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1 }o--o{ yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1 : qin_tasuku
+  yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1 }o--o{ yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1 : sahutasuku
+  yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1 }o--o{ yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1 : qin_tasuku
+  yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1 }o--o{ yyyymmdd_hurotakutomatahaji_neng_ming_ririsuqian_noque_ren_shi_xiang_1 : sahutasuku
+  bu_shu_kuruhu }o--o{ bu_shu : bu_shu
+  bu_shu_kuruhu }o--o{ chapter : zhu_guan_chapter
+  sakuden_mt_c_issueonazheng_li }o--o{ quan_she_gong_tong_issue : quan_she_gong_tong_issue
+  deprecated_quan_she_gong_tong_feedback }o--o{ quan_she_gong_tong_issue : quan_she_gong_tong_issue
+  deprecated_quan_she_gong_tong_feedback }o--o{ businessentity_jiu_partner : partner
+  deprecated_quan_she_gong_tong_feedback }o--o{ bu_shu_key_results : bu_shu_key_results
+  deprecated_quan_she_gong_tong_feedback }o--o{ team : timu
+  deprecated_quan_she_gong_tong_feedback }o--o{ product : hurotakuto
+  deprecated_quan_she_gong_tong_feedback }o--o{ activity : beta_activity
+  deprecated_quan_she_gong_tong_feedback }o--o{ quan_she_gong_tong_project : quan_she_gong_tong_project
+  notionhesisheng_cheng_riakusiyonshe_ding }o--o{ quan_she_gong_tong_dbs : dui_xiang_db
+  chapter }o--o{ bu_shu_kuruhu : zhu_guan_bu_shu_kuruhu
+  chapter }o--o{ activity : guan_lian_activity
+  chapter }o--o{ activity : zhu_guan_activity
+  chapter }o--o{ document_jiu_meeting : document
+  projectgroup }o--o{ quan_she_gong_tong_project : quan_she_gong_tong_project
+  projectgroup }o--o{ document_jiu_meeting : document
+  quan_she_objectives }o--o{ qi : qi
+  quan_she_objectives }o--o{ cxo_objectives_jiu_quan_she_key_results : quan_she_key_results
+  cxo_objectives_jiu_quan_she_key_results }o--o{ cxo_bu_shu_objectives : bu_shu_objectives
+  cxo_objectives_jiu_quan_she_key_results }o--o{ bu_shu_kuruhu : cxo
+  cxo_objectives_jiu_quan_she_key_results }o--o{ quan_she_objectives : quan_she_objectives
+  cxo_bu_shu_objectives }o--o{ cxo_objectives_jiu_quan_she_key_results : quan_she_key_results
+  cxo_bu_shu_objectives }o--o{ bu_shu : bu_shu
+  cxo_bu_shu_objectives }o--o{ bu_shu_key_results : bu_shu_key_results
+  t_119risuto }o--o{ product : product
+  t_119risuto }o--o{ old_119miteinku : guan_lian_tokiyumento
+  t_119risuto }o--o{ tag_library : tag_library
+  t_119risuto }o--o{ old_119tasuku : guan_lian_119tasuku
+  t_119risuto }o--o{ document_jiu_meeting : quan_she_gong_tong_meeting
+  t_119risuto }o--o{ quan_she_gong_tong_issue : quan_she_gong_tong_issue
+  tag_library_1 }o--o{ mp_she_ji_shu_db : mp_she_ji_shu_dbtonoriresiyon_tag_library_1
+  tag_library_1 }o--o{ menha : menhayi_lan_3
+  tag_library_1 }o--o{ menha : menhayi_lan_5
+  tag_library_1 }o--o{ old_119tasuku : 119tasuku
+  tag_library_1 }o--o{ menha : menhayi_lan_1
+  tag_library_1 }o--o{ old_119miteinku : miteinkuzuo_ye_jian_tao_tokiyumento_1_tonoriresiyon_tag_library_62
+  tag_library_1 }o--o{ menha : menhayi_lan_4
+  tag_library_1 }o--o{ menha : menhayi_lan_2
+  mt_c_zhu_yao_ji_neng }o--o{ mt_c_yao_yi_lun : mt_c_yao_yi_lun
+  activity }o--o{ chapter : zhu_guan_chapter
+  activity }o--o{ chapter : guan_lian_chapter
+  activity }o--o{ quan_she_gong_tong_issue : quan_she_gong_tong_issue
+  activity }o--o{ quan_she_gong_tong_task : quan_she_gong_tong_task
+  activity }o--o{ quan_she_gong_tong_project : quan_she_gong_tong_project
+  activity }o--o{ document_jiu_meeting : quan_she_gong_tong_meeting
+  team }o--o{ quan_she_gong_tong_issue : quan_she_gong_tong_issue
+  team }o--o{ document_jiu_meeting : quan_she_gong_tong_meeting
+  team }o--o{ bu_shu : bu_shu
+  team }o--o{ announce : announce
+  bu_shu_key_results }o--o{ cxo_bu_shu_objectives : bu_shu_objective
+  bu_shu_key_results }o--o{ quan_she_gong_tong_issue : issue
+  bu_shu_key_results }o--o{ document_jiu_meeting : quan_she_gong_tong_meeting
+  bu_shu_key_results }o--o{ quan_she_gong_tong_project : quan_she_gong_tong_project
+  ririsunixiang_ketasukesiyuru }o--o{ quan_she_gong_tong_release : ririsu_nei_rong
+  ririsunixiang_ketasukesiyuru_2 }o--o{ quan_she_gong_tong_release : ririsu_nei_rong
+  menha }o--o{ tag_library : xue_chu_yu_ding_bu_men
+  menha }o--o{ quan_she_gong_tong_issue : temp_ccoyi_gua_taskasainyong_issue
+  menha }o--o{ tag_library : xue_chu_yu_ding_gu_yong_xing_tai
+  menha }o--o{ tag_library : guan_watuteiruhurotakuto
+  menha }o--o{ bu_shu_kuruhu : bu_men
+  menha }o--o{ tag_library : xue_chu_yu_ding_zhi_wei
+  menha }o--o{ tag_library : suo_shu_bu_shu
+  menha }o--o{ tag_library : mbti
+  adminsukesiyuru }o--o{ quan_she_gong_tong_release : ririsu_nei_rong
+  businessentity_jiu_partner }o--o{ moalaren_zheng_ahuri_hirutohasiyonguan_li : mtauthahuri_for_ipad_hirutohasiyon
+  businessentity_jiu_partner }o--o{ quan_she_gong_tong_project : quan_she_gong_tong_project
+  businessentity_jiu_partner }o--o{ document_jiu_meeting : document
+  businessentity_jiu_partner }o--o{ ihento : ihento_xing_xing_zhu
+  businessentity_jiu_partner }o--o{ quan_she_gong_tong_issue : quan_she_gong_tong_issue
+  businessentity_jiu_partner }o--o{ ihento : ihento_ticketprovider
+  businessentity_jiu_partner }o--o{ businessentity_jiu_partner : company
+  businessentity_jiu_partner }o--o{ businessentity_jiu_partner : entertainmentip
+  adminsukesiyuru }o--o{ quan_she_gong_tong_release : ririsu_nei_rong
+  ririsunixiang_ketasukesiyuru }o--o{ quan_she_gong_tong_release : ririsu_nei_rong
+  ririsunixiang_ketasukesiyuru }o--o{ quan_she_gong_tong_release : ririsu_nei_rong
+  ding_xing_ye_wu_issueding_yi }o--o{ team : fei_zhi_timu
+  ding_xing_ye_wu_issueding_yi }o--o{ quan_she_gong_tong_project : hurosiekuto
+  ding_xing_ye_wu_issueding_yi }o--o{ product : hurotakuto
+  ding_xing_ye_wu_issueding_yi }o--o{ ding_xing_ye_wu_taskding_yi : ding_xing_ye_wu_task
+  ding_xing_ye_wu_issueding_yi }o--o{ activity : akuteihitei
+  ding_xing_ye_wu_taskding_yi }o--o{ ding_xing_ye_wu_issueding_yi : ding_xing_ye_wu_issue
+  tag_library }o--o{ mp_she_ji_shu_db : mp_she_ji_shu_dbtonoriresiyon_tag_library_1
+  tag_library }o--o{ menha : menhayi_lan_3
+  tag_library }o--o{ menha : menhayi_lan_5
+  tag_library }o--o{ old_119tasuku : 119tasuku
+  tag_library }o--o{ menha : menhayi_lan_1
+  tag_library }o--o{ old_119miteinku : miteinkuzuo_ye_jian_tao_tokiyumento_1_tonoriresiyon_tag_library_62
+  tag_library }o--o{ menha : menhayi_lan_4
+  tag_library }o--o{ menha : menhayi_lan_2
+  she_wai_yi_shi_lu_yong_meeting }o--o{ team : timu
+  she_wai_yi_shi_lu_yong_meeting }o--o{ activity : beta_activity
+  she_wai_yi_shi_lu_yong_meeting }o--o{ product : hurotakuto
+  she_wai_yi_shi_lu_yong_meeting }o--o{ t_119risuto : 119risuto
+  she_wai_yi_shi_lu_yong_meeting }o--o{ quan_she_gong_tong_project : quan_she_gong_tong_project
+  she_wai_yi_shi_lu_yong_meeting }o--o{ businessentity_jiu_partner : businessentity
+  she_wai_yi_shi_lu_yong_meeting }o--o{ quan_she_gong_tong_issue : yi_lun_dui_xiang_issue
+  she_wai_yi_shi_lu_yong_meeting }o--o{ bu_shu_key_results : bu_shu_key_results
+  adminsukesiyuru }o--o{ quan_she_gong_tong_release : ririsu_nei_rong
+  quan_she_gong_tong_task }o--o{ activity : activity
+  quan_she_gong_tong_task }o--o{ quan_she_gong_tong_issue : fu_zhi_xian_issue
+  quan_she_gong_tong_task }o--o{ document_jiu_meeting : document
+  quan_she_gong_tong_task }o--o{ quan_she_gong_tong_task : hou_sok_task
+  quan_she_gong_tong_task }o--o{ quan_she_gong_tong_task : xian_xing_task
+  quan_she_gong_tong_task }o--o{ quan_she_gong_tong_issue : issue
+  quan_she_gong_tong_issue }o--o{ product : hurotakuto
+  quan_she_gong_tong_issue }o--o{ quan_she_gong_tong_issue : ci_notasukuniyoribao_liu_zhong
+  quan_she_gong_tong_issue }o--o{ quan_she_gong_tong_project : hurosiekuto
+  quan_she_gong_tong_issue }o--o{ hurotakutotaku : hurotakutotaku
+  quan_she_gong_tong_issue }o--o{ quan_she_gong_tong_issue : ci_notasukuwobao_liu_zhong
+  quan_she_gong_tong_issue }o--o{ activity : activity
+  quan_she_gong_tong_issue }o--o{ bu_ju_he_guan_li : fa_sheng_sitabu_ju_he
+  quan_she_gong_tong_issue }o--o{ issue_db_automation_trigger_for_routine_workflow : automation_trigger_for_routine_workflow
+  quan_she_gong_tong_issue }o--o{ quan_she_gong_tong_release : ririsu
+  quan_she_gong_tong_issue }o--o{ bu_ju_he_guan_li : dui_ying_surubu_ju_he
+  quan_she_gong_tong_issue }o--o{ bu_shu_key_results : bu_shu_key_results
+  quan_she_gong_tong_issue }o--o{ businessentity_jiu_partner : businessentity
+  quan_she_gong_tong_issue }o--o{ issue_db_automation_trigger_for_stamp : automation_trigger
+  quan_she_gong_tong_issue }o--o{ t_119risuto : 119risuto
+  quan_she_gong_tong_issue }o--o{ quan_she_gong_tong_issue : zi_designdoc
+  quan_she_gong_tong_issue }o--o{ quan_she_gong_tong_issue : qin_designdoc
+  quan_she_gong_tong_issue }o--o{ document_jiu_meeting : mu_de_xing_meeting
+  quan_she_gong_tong_issue }o--o{ quan_she_gong_tong_task : tasuku
+  quan_she_gong_tong_issue }o--o{ quan_she_gong_tong_issue : hou_sok_issue
+  quan_she_gong_tong_issue }o--o{ quan_she_gong_tong_issue : xian_xing_issue
+  bu_ju_he_guan_li }o--o{ quan_she_gong_tong_issue : fa_sheng_yuan_issue
+  bu_ju_he_guan_li }o--o{ product : hurotakuto
+  bu_ju_he_guan_li }o--o{ mp_qayong_pei_xin_ahurihasiyon : mp_qayong_pei_xin_ahurihasiyontonoriresiyon_qi_piao_sitaissue_1
+  bu_ju_he_guan_li }o--o{ quan_she_gong_tong_issue : dui_ying_issue
+  bu_ju_he_guan_li }o--o{ quan_she_gong_tong_project : quan_she_gong_tong_project
+  document_jiu_meeting }o--o{ activity : beta_activity
+  document_jiu_meeting }o--o{ projectgroup : projectgroup
+  document_jiu_meeting }o--o{ quan_she_gong_tong_task : quan_she_gong_tong_task
+  document_jiu_meeting }o--o{ product : hurotakuto
+  document_jiu_meeting }o--o{ t_119risuto : 119risuto
+  document_jiu_meeting }o--o{ quan_she_gong_tong_project : quan_she_gong_tong_project
+  document_jiu_meeting }o--o{ businessentity_jiu_partner : businessentity
+  document_jiu_meeting }o--o{ quan_she_gong_tong_issue : yi_lun_dui_xiang_issue
+  document_jiu_meeting }o--o{ chapter : chapter
+  document_jiu_meeting }o--o{ bu_shu_key_results : bu_shu_key_results
+  quan_she_gong_tong_release }o--o{ kai_fa_jin_bu : kai_fa_jin_bu
+  quan_she_gong_tong_release }o--o{ quan_she_gong_tong_issue : quan_she_gong_tong_issue
+  quan_she_gong_tong_release }o--o{ product : hurotakuto
+  quan_she_gong_tong_dbs }o--o{ quan_she_gong_tong_dbs : qin
+  quan_she_gong_tong_dbs }o--o{ quan_she_gong_tong_dbs : zi
+  quan_she_gong_tong_project }o--o{ quan_she_gong_tong_issue : quan_she_gong_tong_issue
+  quan_she_gong_tong_project }o--o{ projectgroup : projectgroup
+  quan_she_gong_tong_project }o--o{ product : product
+  quan_she_gong_tong_project }o--o{ bu_shu_key_results : bu_shu_key_results
+  quan_she_gong_tong_project }o--o{ tasukuqi_xian_tong_zhi_she_ding : tasukuqi_xian_tong_zhi_she_ding
+  quan_she_gong_tong_project }o--o{ document_jiu_meeting : document
+  quan_she_gong_tong_project }o--o{ businessentity_jiu_partner : businessentity_jiu_partner
+  quan_she_gong_tong_project }o--o{ productxi_tong : productxi_tong
+  quan_she_gong_tong_project }o--o{ activity : activity
+  product }o--o{ quan_she_gong_tong_release : ririsu
+  product }o--o{ adr_akitekutiyayi_si_jue_ding_ji_lu : adr_akitekutiyayi_si_jue_ding_ji_lu
+  product }o--o{ product : sahuhurotakuto
+  product }o--o{ quan_she_gong_tong_issue : quan_she_gong_tong_issue
+  product }o--o{ document_jiu_meeting : quan_she_gong_tong_meeting
+  product }o--o{ product : qin_aitemu
+  product }o--o{ tasukuqi_xian_tong_zhi_she_ding : tasukuqi_xian_tong_zhi_she_ding
+  product }o--o{ hurotakutoheng_duan_oshiete_product : hurotakutoheng_duan_oshiete_product
+  product }o--o{ productxi_tong : productxi_tong
+  product }o--o{ quan_she_gong_tong_project : quan_she_gong_tong_project
+  tasukuqi_xian_tong_zhi_she_ding }o--o{ product : product
+  tasukuqi_xian_tong_zhi_she_ding }o--o{ quan_she_gong_tong_project : quan_she_gong_tong_project
+  adminsukesiyuru }o--o{ quan_she_gong_tong_release : ririsu_nei_rong
+  hui_she_objectives_2023shang_qi }o--o{ hui_she_keyresults_2023shang_qi : da_cheng_lu (average)
+  hui_she_keyresults_2023shang_qi }o--o{ bu_shu_objectives_2023shang_qi : bu_shu_ming (show_original)
+  hui_she_keyresultsyi_lan }o--o{ bu_shu_keyresultsyi_lan : da_cheng_lu (average)
+  hui_she_objectivesyi_lan }o--o{ bu_shu_keyresultsyi_lan : da_cheng_lu (average)
+  da_cheng_lu_que_ren_yong_hui_she_keyresults_2023shang_qi }o--o{ bu_shu_keyresults : da_cheng_lu (average)
+  bu_shu_objectivesyi_lan }o--o{ bu_shu_keyresultsyi_lan : da_cheng_lu (average)
+  bu_shu_objectives_2023shang_qi }o--o{ bu_shu_keyresultsyi_lan : da_cheng_lu (average)
+  mpihento }o--o{ ihento : hui_chang (show_original)
+  mpihento }o--o{ ihento : start (show_original)
+  mpihento }o--o{ ihento : open (show_original)
+  adr_akitekutiyayi_si_jue_ding_ji_lu }o--o{ product : hurotakutokuruhu (show_original)
+  hurotakutoheng_duan_oshiete_product }o--o{ product : ihentokuruhu (show_original)
+  quan_she_gong_tong_sprint }o--o{ quan_she_gong_tong_task : dan_dang_zhe (show_unique)
+  quan_she_gong_tong_sprint }o--o{ quan_she_gong_tong_task : tasukuhe_ji (count_values)
+  quan_she_gong_tong_sprint }o--o{ quan_she_gong_tong_task : wan_liao_sitatasuku (percent_per_group)
+  old_119hurosiekuto_shi_yong_yu_ding_nasi }o--o{ old_119tasuku : wan_liao (percent_per_group)
+  old_119tasuku }o--o{ t_119risuto : 119tokiyumento (show_original)
+  kai_fa_jin_bu_qi_jian }o--o{ old_kai_fa_jin_bu : tasukuhe_ji (count_values)
+  kai_fa_jin_bu_qi_jian }o--o{ old_kai_fa_jin_bu : wan_liao_sitatasuku (percent_per_group)
+  old_kai_fa_jin_bu }o--o{ product : pdmbu_zuo (show_original)
+  old_kai_fa_jin_bu }o--o{ product : sm (show_original)
+  old_kai_fa_jin_bu }o--o{ product : pdm (show_original)
+  old_kai_fa_jin_bu }o--o{ quan_she_gong_tong_issue : jin_bu_lu (percent_per_group)
+  kai_fa_jin_bu }o--o{ quan_she_gong_tong_release : releasesutetasu (show_original)
+  musttexin_kakerukoto }o--o{ shi_li : shi_li_shu (count)
+  pan_ding_jie_guo }o--o{ fan_xin_tenhureto : huomu (show_original)
+  hiarinkuxuan_ze_zhi_yi_lan }o--o{ hiarinkuxiang_mu : huomu (show_original)
+  fan_xin_tenhureto }o--o{ hiarinkuxuan_ze_zhi_yi_lan : wen_ti_taku (show_original)
+  fan_xin_tenhureto }o--o{ pan_ding_jie_guo : jie_guo_takubu_pin (show_original)
+  fan_xin_tenhureto }o--o{ hiarinkuxuan_ze_zhi_yi_lan : wen_ti_takubu_pin (show_original)
+  moalaren_zheng_ahuri_hirutohasiyonguan_li }o--o{ businessentity_jiu_partner : partnerfu_dan_dang_zhe (show_original)
+  moalaren_zheng_ahuri_hirutohasiyonguan_li }o--o{ businessentity_jiu_partner : partnerzhu_dan_dang_zhe (show_original)
+  mt_c_yao_yi_lun }o--o{ mt_c_zhu_yao_ji_neng : lun_dian (show_original)
+  mt_c_yao_yi_lun }o--o{ mt_c_zhu_yao_ji_neng : shuo_ming (show_original)
+  mt_c_yao_yi_lun }o--o{ mt_c_zhu_yao_ji_neng : ji_neng_katekori (show_original)
+  sakuden_mt_c_issueonazheng_li }o--o{ quan_she_gong_tong_issue : sutetasu (show_original)
+  sakuden_mt_c_issueonazheng_li }o--o{ quan_she_gong_tong_issue : hurotakuto (show_original)
+  sakuden_mt_c_issueonazheng_li }o--o{ quan_she_gong_tong_issue : issueona (show_original)
+  bu_shu_kuruhu }o--o{ bu_shu : bu_shu_objective (show_original)
+  bu_shu_kuruhu }o--o{ bu_shu : timu (show_original)
+  sakuden_mt_c_issueonazheng_li }o--o{ quan_she_gong_tong_issue : sutetasu (show_original)
+  sakuden_mt_c_issueonazheng_li }o--o{ quan_she_gong_tong_issue : hurotakuto (show_original)
+  sakuden_mt_c_issueonazheng_li }o--o{ quan_she_gong_tong_issue : issueona (show_original)
+  deprecated_quan_she_gong_tong_feedback }o--o{ quan_she_gong_tong_issue : hurosiekuto (show_original)
+  deprecated_quan_she_gong_tong_feedback }o--o{ quan_she_gong_tong_issue : timu_issue (show_original)
+  deprecated_quan_she_gong_tong_feedback }o--o{ quan_she_gong_tong_issue : hurotakuto_issue (show_unique)
+  t_119risuto }o--o{ old_119tasuku : can_tasukuzhong_bie (show_original)
+  t_119risuto }o--o{ product : productxi_tong (show_unique)
+  activity }o--o{ chapter : chapterona (show_original)
+  team }o--o{ bu_shu : cxo (show_original)
+  team }o--o{ bu_shu : bu_shu_kuruhu (show_original)
+  team }o--o{ bu_shu : manesiya (show_original)
+  bu_shu_key_results }o--o{ quan_she_gong_tong_issue : issueshu (count)
+  bu_shu_key_results }o--o{ cxo_bu_shu_objectives : quan_she_key_result (show_original)
+  bu_shu_key_results }o--o{ quan_she_gong_tong_issue : jin_bu_tasukukaraji_suan (sum)
+  bu_shu_key_results }o--o{ quan_she_gong_tong_issue : jin_bu_issuekaraji_suan (percent_per_group)
+  businessentity_jiu_partner }o--o{ ihento : project (show_original)
+  she_wai_yi_shi_lu_yong_meeting }o--o{ quan_she_gong_tong_issue : hurotakuto_issue (show_original)
+  she_wai_yi_shi_lu_yong_meeting }o--o{ quan_she_gong_tong_project : hurosiekuto_issue (show_original)
+  quan_she_gong_tong_task }o--o{ quan_she_gong_tong_issue : issueona (show_original)
+  quan_she_gong_tong_task }o--o{ quan_she_gong_tong_issue : product (show_unique)
+  quan_she_gong_tong_task }o--o{ quan_she_gong_tong_issue : issueqi_xian (show_original)
+  quan_she_gong_tong_task }o--o{ quan_she_gong_tong_issue : issueda_fen_lei (show_original)
+  quan_she_gong_tong_task }o--o{ quan_she_gong_tong_issue : businessentity (show_original)
+  quan_she_gong_tong_task }o--o{ quan_she_gong_tong_issue : release (show_original)
+  quan_she_gong_tong_task }o--o{ quan_she_gong_tong_issue : issuezuo_cheng_zhe (show_original)
+  quan_she_gong_tong_task }o--o{ quan_she_gong_tong_issue : project (show_original)
+  quan_she_gong_tong_task }o--o{ quan_she_gong_tong_issue : issuesutanhuqi_piao_zhe (show_original)
+  quan_she_gong_tong_task }o--o{ quan_she_gong_tong_issue : issueyou_xian_du (show_original)
+  quan_she_gong_tong_task }o--o{ quan_she_gong_tong_issue : miteinku (show_original)
+  quan_she_gong_tong_task }o--o{ quan_she_gong_tong_task : xian_xing_taskwan_liao_shu (count_per_group)
+  quan_she_gong_tong_issue }o--o{ quan_she_gong_tong_task : taskqi_xian_wei_ru_li_shu (empty)
+  quan_she_gong_tong_issue }o--o{ quan_she_gong_tong_task : tasukujian_ji_he_ji (sum)
+  quan_she_gong_tong_issue }o--o{ quan_she_gong_tong_task : wan_liao_tasukushu (count_per_group)
+  quan_she_gong_tong_issue }o--o{ quan_she_gong_tong_task : tasukudan_dang_zhe_wei_ru_li_shu (empty)
+  quan_she_gong_tong_issue }o--o{ quan_she_gong_tong_task : wan_liao_lu (percent_per_group)
+  document_jiu_meeting }o--o{ quan_she_gong_tong_issue : hurotakuto_issue (show_original)
+  document_jiu_meeting }o--o{ quan_she_gong_tong_project : hurosiekuto_issue (show_original)
+  quan_she_gong_tong_release }o--o{ product : hurotakutokuruhu (show_original)
+  quan_she_gong_tong_release }o--o{ quan_she_gong_tong_issue : jin_bu_lu (percent_per_group)
+  quan_she_gong_tong_project }o--o{ quan_she_gong_tong_issue : hurotakuto (show_unique)
+  quan_she_gong_tong_project }o--o{ quan_she_gong_tong_issue : wan_liao_sitataskshu (sum)
+  quan_she_gong_tong_project }o--o{ quan_she_gong_tong_issue : issuewan_liao_shu_zong_shu (count_per_group)
+  quan_she_gong_tong_project }o--o{ quan_she_gong_tong_issue : taskdan_dang_zhe_shu (unique)
+  quan_she_gong_tong_project }o--o{ quan_she_gong_tong_issue : businessentity (show_unique)
+  quan_she_gong_tong_project }o--o{ quan_she_gong_tong_issue : taskdan_dang_zhe (show_unique)
+  quan_she_gong_tong_project }o--o{ quan_she_gong_tong_issue : taskshu (sum)
+  quan_she_gong_tong_project }o--o{ quan_she_gong_tong_issue : issueona (show_unique)
+  quan_she_gong_tong_project }o--o{ quan_she_gong_tong_issue : issuewan_liao_lu (percent_per_group)
+  quan_she_gong_tong_project }o--o{ quan_she_gong_tong_issue : issueonashu (unique)
