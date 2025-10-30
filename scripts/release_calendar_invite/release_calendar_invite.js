@@ -29,9 +29,11 @@ const NOTION_PROP = {
   // プロダクトDB
   PRODUCT_SCRUM_MASTER: 'スクラムマスター',
   PRODUCT_NAME: '名前',
+  PRODUCT_PDM: 'PdM',
+  PRODUCT_PDM_ASSISTANT: 'PdM補佐',
   
   // Issue DB
-  ISSUE_TASKS: '全社共通Task',
+  ISSUE_TASKS: 'タスク', // Notion DB構造ドキュメントに基づき、Issue DBのプロパティ名は「タスク」
   ISSUE_NAME: '名前',
   
   // Task DB
@@ -39,6 +41,47 @@ const NOTION_PROP = {
   TASK_NAME: '名前',
   TASK_ISSUE_CATEGORY: 'Issue大分類' // Issue大分類（rollupプロパティ）
 };
+
+/**
+ * DRY-RUNモード判定
+ */
+function isDryRun() {
+  return (CONFIG.DRY_RUN || 'false').toLowerCase() === 'true';
+}
+
+/**
+ * 柔軟なプロパティ解決（プロパティ名の表記揺れ対策）
+ */
+function resolveProp(page, candidates) {
+  const props = page && page.properties ? page.properties : {};
+  for (const key of Object.keys(props)) {
+    if (candidates.includes(key)) return props[key];
+  }
+  return undefined;
+}
+
+/**
+ * タイトル取得（複数DBのtitleプロパティ候補を順に探す）
+ */
+function getTitleProp(page) {
+  const candidates = [
+    NOTION_PROP.RELEASE_TITLE,
+    NOTION_PROP.PRODUCT_NAME,
+    NOTION_PROP.ISSUE_NAME,
+    NOTION_PROP.TASK_NAME,
+    '名前'
+  ];
+  for (const key of candidates) {
+    const prop = page.properties[key];
+    if (prop && prop.title && prop.title.length > 0) return prop;
+  }
+  // フォールバック：最初のtitle型を探す
+  for (const key of Object.keys(page.properties || {})) {
+    const prop = page.properties[key];
+    if (prop && prop.title && prop.title.length > 0) return prop;
+  }
+  return null;
+}
 
 /**
  * アプリケーション定数
@@ -63,14 +106,15 @@ const CONFIG = {
   NOTION_RELEASE_DB_ID: PropertiesService.getScriptProperties().getProperty('NOTION_RELEASE_DB_ID') || '0cc4931427714c6bafe5f05bdc66ac22',
   NOTION_ISSUE_DB_ID: PropertiesService.getScriptProperties().getProperty('NOTION_ISSUE_DB_ID') || '61b50f425ae14687b44ba250869f09ae',
   NOTION_TASK_DB_ID: PropertiesService.getScriptProperties().getProperty('NOTION_TASK_DB_ID') || 'afafabe758044461a3e9e9b4c037e5aa',
-  NOTION_PRODUCT_DB_ID: PropertiesService.getScriptProperties().getProperty('NOTION_PRODUCT_DB_ID') || '0d0V0f9639454862af2b2c401f229ca6',
+  NOTION_PRODUCT_DB_ID: PropertiesService.getScriptProperties().getProperty('NOTION_PRODUCT_DB_ID') || '0d0b0f9639454862af2b2c401f229ca6',
   CALENDAR_ID: PropertiesService.getScriptProperties().getProperty('CALENDAR_ID') || '',
   USER_MAPPING_FILE_ID: PropertiesService.getScriptProperties().getProperty('USER_MAPPING_FILE_ID') || '1HjSu0MogpG38GqlHwxLOmNCJrAiRC_iG',
-  EVENT_LOG_FOLDER_ID: PropertiesService.getScriptProperties().getProperty('EVENT_LOG_FOLDER_ID') || '' // Google DriveフォルダID（ログファイルを保存するフォルダ）
+  EVENT_LOG_FOLDER_ID: PropertiesService.getScriptProperties().getProperty('EVENT_LOG_FOLDER_ID') || '1c-vpPiGQb-_oFQvgPN3_k_a82NRK1a4h', // Google DriveフォルダID（ログファイルを保存するフォルダ）
+  DRY_RUN: PropertiesService.getScriptProperties().getProperty('DRY_RUN') || 'false'
 };
 
 /**
- * 設定値の検証
+ * 設定値の検証（未設定キーとフォーマット検証）
  */
 function validateConfig() {
   const requiredKeys = ['NOTION_API_TOKEN', 'NOTION_RELEASE_DB_ID', 'NOTION_ISSUE_DB_ID', 'NOTION_TASK_DB_ID', 'NOTION_PRODUCT_DB_ID', 'USER_MAPPING_FILE_ID'];
@@ -78,6 +122,33 @@ function validateConfig() {
   
   if (missingKeys.length > 0) {
     throw new Error(`スクリプトプロパティが設定されていません: ${missingKeys.join(', ')}`);
+  }
+  
+  // UUID/Hex形式の検証（Notion DB ID）
+  const dbIdPattern = /^[0-9a-f]{32}$/i; // 32桁hex（ハイフンなし）
+  const dbIdKeys = ['NOTION_RELEASE_DB_ID', 'NOTION_ISSUE_DB_ID', 'NOTION_TASK_DB_ID', 'NOTION_PRODUCT_DB_ID'];
+  for (const key of dbIdKeys) {
+    if (CONFIG[key] && !dbIdPattern.test(CONFIG[key])) {
+      throw new Error(`スクリプトプロパティ「${key}」の形式が不正です（32桁の16進数である必要があります）: ${CONFIG[key]}`);
+    }
+  }
+  
+  // Google Drive IDの検証（簡易的）
+  const driveIdPattern = /^[a-zA-Z0-9_-]+$/;
+  const driveIdKeys = ['USER_MAPPING_FILE_ID', 'EVENT_LOG_FOLDER_ID'];
+  for (const key of driveIdKeys) {
+    if (CONFIG[key] && !driveIdPattern.test(CONFIG[key])) {
+      throw new Error(`スクリプトプロパティ「${key}」の形式が不正です（Google Drive ID形式である必要があります）: ${CONFIG[key]}`);
+    }
+  }
+  
+  // CALENDAR_IDの検証（任意項目）
+  if (CONFIG.CALENDAR_ID && CONFIG.CALENDAR_ID !== '') {
+    // @group.calendar.google.comを含むか、または通常のカレンダーID形式を許可
+    const calendarIdPattern = /^[a-zA-Z0-9._-]+(@group\.calendar\.google\.com)?$/;
+    if (!calendarIdPattern.test(CONFIG.CALENDAR_ID)) {
+      console.warn(`スクリプトプロパティ「CALENDAR_ID」の形式が不正です: ${CONFIG.CALENDAR_ID}（空欄の場合はデフォルトカレンダーが使用されます）`);
+    }
   }
   
   console.log('設定値の検証完了');
@@ -111,22 +182,50 @@ function callNotionAPI(endpoint, method = 'GET', body = null) {
       
       if (responseCode === 200) {
         return JSON.parse(responseText);
-      } else if (responseCode === 429) {
-        // レート制限
-        const retryAfter = parseInt(response.getHeaders()['Retry-After'] || '1', 10);
-        console.warn(`レート制限に達しました。${retryAfter}秒待機します... (試行 ${attempt}/${NOTION_API.RETRY_ATTEMPTS})`);
-        Utilities.sleep(retryAfter * 1000);
-        lastError = new Error(`Notion API エラー (${responseCode}): ${responseText}`);
-        continue;
+      } else if (responseCode === 429 || responseCode >= 500) {
+        // レート制限またはサーバーエラー: 指数バックオフ
+        const baseDelayMs = NOTION_API.RETRY_DELAY_MS;
+        let delayMs;
+        
+        if (responseCode === 429) {
+          // レート制限: Retry-Afterヘッダーを優先、なければ指数バックオフ
+          const retryAfter = parseInt(response.getHeaders()['Retry-After'] || '0', 10);
+          delayMs = retryAfter > 0 ? retryAfter * 1000 : Math.min(baseDelayMs * Math.pow(2, attempt - 1), 8000);
+          console.warn(`レート制限に達しました。${delayMs}ms待機します... (試行 ${attempt}/${NOTION_API.RETRY_ATTEMPTS})`);
+        } else {
+          // 5xxエラー: 指数バックオフ
+          delayMs = Math.min(baseDelayMs * Math.pow(2, attempt - 1), 8000);
+          console.warn(`サーバーエラー (${responseCode})。${delayMs}ms後に再試行します... (試行 ${attempt}/${NOTION_API.RETRY_ATTEMPTS})`);
+        }
+        
+        if (attempt < NOTION_API.RETRY_ATTEMPTS) {
+          Utilities.sleep(delayMs);
+          lastError = new Error(`Notion API エラー (${responseCode}): ${responseText}`);
+          continue;
+        } else {
+          throw new Error(`Notion API エラー (${responseCode}): ${responseText}`);
+        }
+      } else if (responseCode >= 400 && responseCode < 500) {
+        // 4xxエラー（429以外）: 即座に失敗（リトライしない）
+        const errorMsg = `Notion API エラー (${responseCode}): ${responseText}`;
+        console.error(errorMsg);
+        throw new Error(errorMsg);
       } else {
         throw new Error(`Notion API エラー (${responseCode}): ${responseText}`);
       }
     } catch (error) {
+      // 既にエラーをthrowした場合は再スロー
+      if (error.message && error.message.includes('Notion API エラー')) {
+        throw error;
+      }
+      
       lastError = error;
       if (attempt < NOTION_API.RETRY_ATTEMPTS) {
-        const delay = NOTION_API.RETRY_DELAY_MS * attempt;
-        console.warn(`Notion API呼び出しエラー。${delay}ms後に再試行します... (試行 ${attempt}/${NOTION_API.RETRY_ATTEMPTS})`);
-        Utilities.sleep(delay);
+        // ネットワークエラーなど: 指数バックオフ
+        const baseDelayMs = NOTION_API.RETRY_DELAY_MS;
+        const delayMs = Math.min(baseDelayMs * Math.pow(2, attempt - 1), 8000);
+        console.warn(`Notion API呼び出しエラー。${delayMs}ms後に再試行します... (試行 ${attempt}/${NOTION_API.RETRY_ATTEMPTS})`);
+        Utilities.sleep(delayMs);
       }
     }
   }
@@ -172,26 +271,20 @@ function notionQueryAll(databaseId, filter = null, sorts = null) {
 }
 
 /**
+ * ユーザーマッピングのキャッシュをクリア
+ * デバッグ・トラブルシューティング用
+ */
+function clearUserMappingCache() {
+  const cacheKey = CONSTANTS.USER_MAPPING_CACHE_KEY;
+  PropertiesService.getScriptProperties().deleteProperty(cacheKey);
+  console.log('ユーザーマッピングのキャッシュをクリアしました');
+}
+
+/**
  * Google Driveからユーザーマッピングファイルを読み込み
- * キャッシュ機能付き（24時間）
+ * キャッシュ機能は無効化（常にファイルから読み込み）
  */
 function loadUserMappingFromDrive(fileId) {
-  // キャッシュ確認
-  const cacheKey = CONSTANTS.USER_MAPPING_CACHE_KEY;
-  const cached = PropertiesService.getScriptProperties().getProperty(cacheKey);
-  if (cached) {
-    try {
-      const cacheData = JSON.parse(cached);
-      const now = Date.now();
-      if (now - cacheData.timestamp < CONSTANTS.USER_MAPPING_CACHE_TTL_MS) {
-        console.log('ユーザーマッピングをキャッシュから読み込み');
-        return cacheData.mapping;
-      }
-    } catch (e) {
-      console.warn('キャッシュの解析に失敗しました。ファイルから再読み込みします。');
-    }
-  }
-  
   // ファイルを読み込み
   try {
     const file = DriveApp.getFileById(fileId);
@@ -201,42 +294,94 @@ function loadUserMappingFromDrive(fileId) {
     const lines = content.split('\n');
     const mapping = {};
     
-    // ヘッダー行をスキップ（2行目まで）
-    for (let i = 2; i < lines.length; i++) {
+    // ヘッダー行を探す（列位置ドリフト対策）
+    let headerRowIndex = -1;
+    let emailColumnIndex = -1;
+    let notionUserIdColumnIndex = -1;
+    
+    for (let i = 0; i < Math.min(3, lines.length); i++) {
       const line = lines[i].trim();
       if (!line || line.startsWith('|---')) continue;
       
       const columns = line.split('|').map(col => col.trim()).filter(col => col);
-      if (columns.length >= 6) {
-        // 列構造: 名前 | slack表示名 | ハンドル | メールアドレス | Notionユーザー名 | NotionユーザーID | SlackユーザーID | ...
-        // 注意: 最初の空列を除くと、インデックスは0から始まる
-        // 例: |名前|slack表示名|... の場合、split('|')すると['', '名前', 'slack表示名', ...]
-        // そのため、filterで空文字を削除すると ['名前', 'slack表示名', ...]
-        // 実際の列位置: 
-        // - columns[0]: 名前
-        // - columns[1]: slack表示名
-        // - columns[2]: ハンドル
-        // - columns[3]: メールアドレス
-        // - columns[4]: Notionユーザー名
-        // - columns[5]: NotionユーザーID
-        // - columns[6]: SlackユーザーID
-        const email = columns[3]; // メールアドレス（4列目、インデックス3）
-        const notionUserId = columns[5]; // NotionユーザーID（6列目、インデックス5）
-        
-        if (email && notionUserId) {
-          mapping[notionUserId] = email;
-        }
+      // ヘッダー候補: 「メールアドレス」と「NotionユーザーID」を含む行
+      if (columns.includes('メールアドレス') && columns.includes('NotionユーザーID')) {
+        headerRowIndex = i;
+        emailColumnIndex = columns.indexOf('メールアドレス');
+        notionUserIdColumnIndex = columns.indexOf('NotionユーザーID');
+        break;
       }
     }
     
-    // キャッシュに保存
-    const cacheData = {
-      timestamp: Date.now(),
-      mapping: mapping
-    };
-    PropertiesService.getScriptProperties().setProperty(cacheKey, JSON.stringify(cacheData));
+    // ヘッダーが見つからない場合は従来の固定位置方式にフォールバック
+    const useHeaderDetection = headerRowIndex >= 0 && emailColumnIndex >= 0 && notionUserIdColumnIndex >= 0;
     
+    // UUIDパターン（ハイフン有無を許可）
+    const uuidPattern = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$/i;
+    // メールアドレス簡易バリデーション
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    // データ行を処理（ヘッダー行+セパレーター行の後から）
+    const startRow = useHeaderDetection ? headerRowIndex + 2 : 2;
+    
+    for (let i = startRow; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line || line.startsWith('|---')) continue;
+      
+      const columns = line.split('|').map(col => col.trim()).filter(col => col);
+      
+      let email, notionUserId;
+      if (useHeaderDetection && emailColumnIndex < columns.length && notionUserIdColumnIndex < columns.length) {
+        // ヘッダー検出方式
+        email = columns[emailColumnIndex];
+        notionUserId = columns[notionUserIdColumnIndex];
+      } else if (columns.length >= 6) {
+        // フォールバック: 固定位置（従来方式）
+        email = columns[3];
+        notionUserId = columns[5];
+      } else {
+        continue; // 列数不足
+      }
+      
+      // バリデーション
+      if (!email || !notionUserId) continue;
+      
+      // メールアドレスの簡易バリデーション
+      if (!emailPattern.test(email)) {
+        console.warn(`[loadUserMappingFromDrive] メールアドレス形式が不正: ${email}`);
+        continue;
+      }
+      
+      // NotionユーザーIDはUUID形式のみ受け入れる（ハイフン有無を許可）
+      if (!uuidPattern.test(notionUserId)) {
+        console.warn(`[loadUserMappingFromDrive] UUID形式でないNotionユーザーIDをスキップ: ${notionUserId} (メール: ${email})`);
+        continue;
+      }
+      
+      // マッピングに追加
+      mapping[notionUserId] = email;
+    }
+    
+    // キャッシュ機能は無効化（保存しない）
     console.log(`ユーザーマッピングを読み込みました（${Object.keys(mapping).length}件）`);
+    // デバッグ: マッピングのサンプルを出力（最初の3件）
+    const mappingKeys = Object.keys(mapping);
+    if (mappingKeys.length > 0) {
+      console.log(`[デバッグ] マッピングサンプル（最初の3件）:`);
+      mappingKeys.slice(0, 3).forEach(key => {
+        console.log(`  ${key} -> ${mapping[key]}`);
+      });
+      
+      // デバッグ: 対象ユーザーIDが含まれているか確認
+      const targetUserIds = ['223d872b-594c-81e6-9225-00025e9954cc', '7fe220b2-6cd7-49b8-8c7c-18a17c1d8c77'];
+      targetUserIds.forEach(userId => {
+        if (mapping[userId]) {
+          console.log(`[デバッグ] ✅ 対象ユーザーIDが見つかりました: ${userId} -> ${mapping[userId]}`);
+        } else {
+          console.warn(`[デバッグ] ⚠️ 対象ユーザーIDが見つかりませんでした: ${userId}`);
+        }
+      });
+    }
     return mapping;
   } catch (error) {
     console.error('ユーザーマッピングファイルの読み込みエラー:', error);
@@ -246,9 +391,45 @@ function loadUserMappingFromDrive(fileId) {
 
 /**
  * NotionユーザーIDからメールアドレスを取得
+ * 1. Notion APIから直接取得したメールアドレスを優先
+ * 2. マッピングファイルから取得
+ * 3. Notion Users APIでユーザー情報を取得してメールアドレスを取得（マッピングファイルにない場合）
  */
-function getUserEmailByNotionId(notionUserId, userMapping) {
-  return userMapping[notionUserId] || null;
+function getUserEmailByNotionId(notionUserId, userMapping, notionPersonData = null) {
+  // 1. Notion APIから直接取得したメールアドレスを優先
+  if (notionPersonData && notionPersonData.person && notionPersonData.person.email) {
+    console.log(`[getUserEmailByNotionId] Notion APIから直接メールアドレスを取得: ${notionPersonData.person.email} (ユーザーID: ${notionUserId})`);
+    return notionPersonData.person.email;
+  }
+  
+  // 2. マッピングファイルから取得
+  if (userMapping[notionUserId]) {
+    console.log(`[getUserEmailByNotionId] マッピングファイルからメールアドレスを取得: ${userMapping[notionUserId]} (ユーザーID: ${notionUserId})`);
+    return userMapping[notionUserId];
+  }
+  
+  // 3. Notion Users APIでユーザー情報を取得してメールアドレスを取得（マッピングファイルにない場合）
+  console.log(`[getUserEmailByNotionId] マッピングファイルに存在しないため、Notion Users APIから取得を試行: ${notionUserId}`);
+  try {
+    const userInfo = callNotionAPI(`/users/${notionUserId}`, 'GET');
+    console.log(`[getUserEmailByNotionId] Notion Users APIレスポンス: type=${userInfo?.type}, hasPerson=${!!userInfo?.person}, hasEmail=${!!userInfo?.person?.email}`);
+    
+    if (userInfo && userInfo.type === 'person' && userInfo.person && userInfo.person.email) {
+      console.log(`[getUserEmailByNotionId] Notion Users APIからメールアドレスを取得: ${userInfo.person.email} (ユーザーID: ${notionUserId})`);
+      return userInfo.person.email;
+    } else {
+      console.warn(`[getUserEmailByNotionId] Notion Users APIからメールアドレスを取得できませんでした（条件不一致）: ${notionUserId}`);
+      if (userInfo) {
+        console.warn(`[getUserEmailByNotionId] userInfo構造:`, JSON.stringify(userInfo).substring(0, 200));
+      }
+    }
+  } catch (error) {
+    // ユーザー情報の取得に失敗した場合は無視（マッピングファイルから取得できない場合はnullを返す）
+    console.error(`[getUserEmailByNotionId] Notion Users APIからユーザー情報を取得できませんでした: ${notionUserId}`, error.message);
+    console.error(`[getUserEmailByNotionId] エラー詳細:`, error);
+  }
+  
+  return null;
 }
 
 /**
@@ -271,14 +452,12 @@ function getJSTDate(date = new Date()) {
 }
 
 /**
- * 日付のみを比較（時間部分を無視）
+ * 日付のみを比較（時間部分を無視、タイムゾーンを考慮）
  */
 function compareDatesOnly(date1, date2) {
-  const d1 = new Date(date1);
-  const d2 = new Date(date2);
-  d1.setHours(0, 0, 0, 0);
-  d2.setHours(0, 0, 0, 0);
-  return d1.getTime() === d2.getTime();
+  const s1 = Utilities.formatDate(new Date(date1), CONSTANTS.TIME.TIMEZONE, 'yyyy-MM-dd');
+  const s2 = Utilities.formatDate(new Date(date2), CONSTANTS.TIME.TIMEZONE, 'yyyy-MM-dd');
+  return s1 === s2;
 }
 
 /**
@@ -298,7 +477,7 @@ function createEventDateTimes(releaseDate) {
  * Notionページのタイトルを取得
  */
 function getPageTitle(page) {
-  const titleProp = page.properties[NOTION_PROP.RELEASE_TITLE] || page.properties[NOTION_PROP.PRODUCT_NAME] || page.properties[NOTION_PROP.ISSUE_NAME] || page.properties[NOTION_PROP.TASK_NAME];
+  const titleProp = getTitleProp(page);
   if (titleProp && titleProp.title && titleProp.title.length > 0) {
     return titleProp.title.map(t => t.plain_text).join('');
   }
@@ -315,21 +494,55 @@ function getNotionPageUrl(pageId) {
 }
 
 /**
- * イベント説明文を生成
+ * 「バージョン名 リリース」パターンのIssueかどうかを判定
+ * @param {string} issueTitle - Issueのタイトル
+ * @returns {boolean} リリース作業関連Issueの場合true
  */
-function generateEventDescription(releasePageId, issuePageIds = []) {
+function isReleaseTaskIssue(issueTitle) {
+  // 「リリース」で終わるIssue名を除外（例: "1.30.0リリース", "Juko-1.30.0リリース"）
+  return /リリース$/.test(issueTitle);
+}
+
+/**
+ * イベント説明文を生成
+ * @param {string} releasePageId - リリースページID
+ * @param {Array<Object>} issues - Issueオブジェクトの配列
+ */
+function generateEventDescription(releasePageId, issues = []) {
   const releaseUrl = getNotionPageUrl(releasePageId);
-  let description = `リリース情報: ${releaseUrl}\n\n`;
+  let description = `${releaseUrl}\n\n`;
   
-  if (issuePageIds && issuePageIds.length > 0) {
-    description += '関連Issue:\n';
-    issuePageIds.forEach(issueId => {
-      const issueUrl = getNotionPageUrl(issueId);
-      description += `- ${issueUrl}\n`;
+  if (issues && issues.length > 0) {
+    // 「バージョン名 リリース」パターンのIssueを除外
+    const filteredIssues = issues.filter(issue => {
+      const issueTitle = getPageTitle(issue);
+      return !isReleaseTaskIssue(issueTitle);
     });
+    
+    if (filteredIssues.length > 0) {
+      description += '関連Issue:\n';
+      filteredIssues.forEach(issue => {
+        const issueTitle = getPageTitle(issue);
+        description += `- ${issueTitle}\n`;
+      });
+    }
   }
   
   return description;
+}
+
+/**
+ * イベントタイトルを生成
+ */
+function buildEventTitle(releaseTitle) {
+  return `${CONSTANTS.CALENDAR.EVENT_TITLE_PREFIX}${releaseTitle}`;
+}
+
+/**
+ * イベント説明文を生成（Issueオブジェクトから）
+ */
+function buildEventDescriptionFromIssues(releasePageId, issues) {
+  return generateEventDescription(releasePageId, issues);
 }
 
 /**
@@ -395,7 +608,34 @@ function getTargetReleases(productIds) {
     return [];
   }
   
-  // リリース日が設定されているリリースを取得
+  // 現在の日時を取得（JST）
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const todayStr = today.toISOString().split('T')[0]; // YYYY-MM-DD形式
+  
+  // リリース日が設定されているリリースを取得（未来のリリースのみ）
+  // Notion APIのrelation.containsは配列を受け付けないため、複数プロダクトの場合はor条件を使用
+  let productFilter;
+  if (productIds.length === 1) {
+    // 1つのプロダクトのみの場合はそのまま
+    productFilter = {
+      property: NOTION_PROP.RELEASE_PRODUCTS,
+      relation: {
+        contains: productIds[0]
+      }
+    };
+  } else {
+    // 複数プロダクトの場合はor条件で各プロダクトIDごとにフィルタを作成
+    productFilter = {
+      or: productIds.map(productId => ({
+        property: NOTION_PROP.RELEASE_PRODUCTS,
+        relation: {
+          contains: productId
+        }
+      }))
+    };
+  }
+  
   const filter = {
     and: [
       {
@@ -405,11 +645,12 @@ function getTargetReleases(productIds) {
         }
       },
       {
-        property: NOTION_PROP.RELEASE_PRODUCTS,
-        relation: {
-          contains: productIds
+        property: NOTION_PROP.RELEASE_DATE,
+        date: {
+          on_or_after: todayStr
         }
-      }
+      },
+      productFilter
     ]
   };
   
@@ -423,8 +664,9 @@ function getIssuesForRelease(release) {
   // デバッグ: リリースページのプロパティ構造を確認
   console.log(`リリースページのプロパティ一覧:`, Object.keys(release.properties || {}));
   
-  const issueRelation = release.properties[NOTION_PROP.RELEASE_ISSUES]?.relation || [];
-  console.log(`「${NOTION_PROP.RELEASE_ISSUES}」プロパティ:`, release.properties[NOTION_PROP.RELEASE_ISSUES]);
+  const issueProp = resolveProp(release, [NOTION_PROP.RELEASE_ISSUES, '全社共通Issue', '全社共通 Issue']);
+  const issueRelation = issueProp?.relation || [];
+  console.log(`「${NOTION_PROP.RELEASE_ISSUES}」プロパティ:`, issueProp);
   console.log(`取得したIssue関係の数: ${issueRelation.length}`);
   
   const issueIds = issueRelation.map(rel => rel.id);
@@ -452,13 +694,14 @@ function getIssuesForRelease(release) {
 /**
  * Issueに紐づくTaskを取得し、担当者を抽出
  * 「実装」に関連するタスクの担当者も含める
+ * @returns {Array<Object>} personオブジェクトの配列
  */
 function getTasksAndAssignees(issues) {
-  const assigneeNotionUserIds = new Set();
+  const assigneeMap = new Map(); // NotionユーザーIDをキーに、personオブジェクトを値として保持
   
   if (issues.length === 0) {
     console.log(`[getTasksAndAssignees] Issueが0件のため、Taskを取得できません`);
-    return Array.from(assigneeNotionUserIds);
+    return Array.from(assigneeMap.values());
   }
   
   for (const issue of issues) {
@@ -487,8 +730,15 @@ function getTasksAndAssignees(issues) {
           
           assignees.forEach(person => {
             if (person.id) {
-              assigneeNotionUserIds.add(person.id);
-              console.log(`  担当者を追加: ${person.name || person.id}`);
+              // personオブジェクト全体を保持（メールアドレス取得のため）
+              assigneeMap.set(person.id, person);
+              // personオブジェクトの構造をデバッグ出力
+              if (!person.person?.email && !person.email) {
+                console.log(`  [デバッグ] personオブジェクト構造: ${JSON.stringify(person).substring(0, 200)}...`);
+              }
+              // personオブジェクトにemailが含まれているか確認
+              const email = person.person?.email || person.email || null;
+              console.log(`  担当者を追加: ${person.name || person.id} (ID: ${person.id})${email ? ` (メール: ${email})` : ' (メール未取得)'}`);
             }
           });
         }
@@ -500,345 +750,367 @@ function getTasksAndAssignees(issues) {
     }
   }
   
-  return Array.from(assigneeNotionUserIds);
+  return Array.from(assigneeMap.values());
 }
 
 /**
  * タスクが「実装」に関連するかどうかを判定
+ * 設計、QA、デザイン、検討、テストといったタスクは除外する
  */
 function isImplementationRelatedTask(task) {
-  // 1. Issue大分類をチェック（rollupプロパティから）
-  const issueCategoryProp = task.properties[NOTION_PROP.TASK_ISSUE_CATEGORY];
-  if (issueCategoryProp && issueCategoryProp.rollup && issueCategoryProp.rollup.array) {
-    const categories = issueCategoryProp.rollup.array;
-    for (const categoryItem of categories) {
-      if (categoryItem && categoryItem.select) {
-        const categoryName = categoryItem.select.name || '';
-        // 「実装」「プロダクト開発」など実装関連のカテゴリをチェック
-        if (categoryName.includes('実装') || 
-            categoryName.includes('プロダクト開発') ||
-            categoryName.includes('開発')) {
-          return true;
-        }
-      }
+  // 除外するキーワード（タスク名に含まれている場合は実装関連として扱わない）
+  const excludeKeywords = ['設計', 'QA', 'デザイン', '検討', 'テスト', 'test', 'design', 'qa', 'review', 'レビュー', '仕様', '要件'];
+  
+  // 1. タスク名に除外キーワードが含まれている場合は除外
+  const taskTitle = getPageTitle(task);
+  const taskTitleLower = taskTitle.toLowerCase();
+  for (const excludeKeyword of excludeKeywords) {
+    if (taskTitle.includes(excludeKeyword) || taskTitleLower.includes(excludeKeyword.toLowerCase())) {
+      return false; // 除外キーワードが含まれている場合は実装関連ではない
     }
   }
   
-  // 2. タスク名に「実装」が含まれるかチェック
-  const taskTitle = getPageTitle(task);
-  if (taskTitle.includes('実装') || 
-      taskTitle.includes('開発') ||
-      taskTitle.toLowerCase().includes('implement') ||
-      taskTitle.toLowerCase().includes('development')) {
+  // 2. タスク名に「実装」または「implement」が含まれるかチェック
+  // 「開発」は除外（デザイン開発なども含むため）
+  if (taskTitle.includes('実装') || taskTitle.toLowerCase().includes('implement')) {
     return true;
   }
   
-  // 3. すべてのタスクを含める（フィルタリングしない）
-  // 実装関連の判定ができない場合、安全のためすべてのタスクを含める
-  // コメントアウト: return false;
-  return true; // 暫定的にすべてのタスクを含める
+  // 4. 上記の条件に該当しない場合は実装関連ではない
+  return false;
 }
 
 /**
- * NotionユーザーIDの配列をメールアドレスの配列に変換
+ * 担当者情報（personオブジェクトの配列）をメールアドレスの配列に変換
+ * @param {Array<Object>} assignees - personオブジェクトの配列（getTasksAndAssignees()から取得）
+ * @param {Object} userMapping - ユーザーマッピングオブジェクト
+ * @param {Array<string>} excludeEmails - 除外するメールアドレスの配列
  */
-function convertNotionUserIdsToEmails(notionUserIds, userMapping, excludeEmails = []) {
+function convertNotionUserIdsToEmails(assignees, userMapping, excludeEmails = []) {
   const emails = [];
-  for (const notionUserId of notionUserIds) {
-    const email = getUserEmailByNotionId(notionUserId, userMapping);
+  for (const person of assignees) {
+    // 1. Notion APIから直接取得したメールアドレスを優先
+    const notionEmail = person.person?.email || person.email || null;
+    const email = notionEmail || getUserEmailByNotionId(person.id, userMapping, person);
+    
     if (email && !excludeEmails.includes(email)) {
       emails.push(email);
     } else if (!email) {
-      console.warn(`メールアドレスが見つかりません: NotionユーザーID=${notionUserId}`);
+      // デバッグ情報を出力
+      console.warn(`メールアドレスが見つかりません: NotionユーザーID=${person.id}, 名前=${person.name || '不明'}`);
+      console.warn(`  person.person?.email: ${person.person?.email || 'null'}, person.email: ${person.email || 'null'}`);
+      console.warn(`  マッピングファイルに存在するか: ${userMapping[person.id] ? '存在する' : '存在しない'}`);
+      
+      // マッピングファイル全体をデバッグ出力（最初の10件）- 空でないもののみ、かつヘッダー行を除外
+      const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const mappingKeys = Object.keys(userMapping).filter(key => 
+        key && 
+        key !== '' && 
+        key !== 'NotionユーザーID' && 
+        key !== '---' &&
+        !key.includes('->') &&
+        userMapping[key] &&
+        userMapping[key] !== 'メールアドレス' &&
+        userMapping[key] !== '---' &&
+        uuidPattern.test(key) // UUID形式のキーのみ
+      );
+      if (mappingKeys.length > 0) {
+        console.warn(`  [デバッグ] マッピングファイルのNotionユーザーID（最初の10件）:`);
+        mappingKeys.slice(0, 10).forEach(key => {
+          console.warn(`    ${key} -> ${userMapping[key]}`);
+        });
+      }
+      
+      // 類似のIDを探す（部分一致）
+      const similarKeys = mappingKeys.filter(key => key.includes(person.id.substring(0, 8)) || person.id.includes(key.substring(0, 8)));
+      if (similarKeys.length > 0) {
+        console.warn(`  [デバッグ] 類似のIDが見つかりました:`);
+        similarKeys.forEach(key => {
+          console.warn(`    ${key} -> ${userMapping[key]}`);
+        });
+      }
     }
   }
   return emails;
 }
 
 
+
 /**
- * ログファイルからイベントIDログファイルを取得または作成
+ * イベントログ管理（JSONLファイル操作）
+ */
+const EventLog = {
+  /**
+   * イベントログファイルを取得または作成
+   * @returns {GoogleAppsScript.Drive.File} ログファイル
+   * @private
+   */
+  _getOrCreateFile() {
+    const folderId = CONFIG.EVENT_LOG_FOLDER_ID;
+    if (!folderId) {
+      throw new Error('EVENT_LOG_FOLDER_IDが設定されていません。Script Propertiesに設定してください。');
+    }
+    
+    try {
+      const folder = DriveApp.getFolderById(folderId);
+      const fileName = 'event_ids.jsonl';
+      const files = folder.getFilesByName(fileName);
+      
+      if (files.hasNext()) {
+        return files.next();
+      } else {
+        // ファイルが存在しない場合、新規作成
+        const newFile = folder.createFile(fileName, '');
+        console.log(`[EventLog] ログファイルを新規作成: ${fileName}`);
+        return newFile;
+      }
+    } catch (error) {
+      console.error(`[EventLog] ログファイル取得エラー:`, error);
+      throw new Error(`ログファイルの取得に失敗しました: ${error.message}`);
+    }
+  },
+
+  /**
+   * イベントIDを取得
+   * @param {string} releaseId - リリースID
+   * @param {string} executorNotionUserId - 実行者のNotionユーザーID
+   * @returns {string|null} イベントID
+   */
+  get(releaseId, executorNotionUserId) {
+    try {
+      const logFile = this._getOrCreateFile();
+      const content = logFile.getBlob().getDataAsString();
+      
+      if (!content || content.trim() === '') {
+        return null;
+      }
+      
+      // JSON Lines形式をパース（空行・壊れた行をスキップ）
+      const lines = content.trim().split('\n').filter(line => line.trim());
+      
+      // 最新のレコードから検索（最後の行から逆順）
+      for (let i = lines.length - 1; i >= 0; i--) {
+        try {
+          const record = JSON.parse(lines[i]);
+          if (record.releaseId === releaseId && record.executorNotionUserId === executorNotionUserId) {
+            console.log(`[EventLog] イベントIDを発見: ${record.eventId}`);
+            return record.eventId;
+          }
+        } catch (e) {
+          // パースエラーは警告してスキップ（壊れた行の許可）
+          console.warn(`[EventLog] 行のパースエラーをスキップ (行${i + 1}):`, e.message);
+        }
+      }
+      
+      return null;
+    } catch (error) {
+      console.warn(`[EventLog] ログファイル読み込みエラー:`, error);
+      return null;
+    }
+  },
+
+  /**
+   * イベントIDを保存
+   * @param {string} releaseId - リリースID
+   * @param {string} eventId - イベントID
+   * @param {string} executorNotionUserId - 実行者のNotionユーザーID
+   * @param {Date} [timestamp] - タイムスタンプ（省略時は現在時刻）
+   */
+  put(releaseId, eventId, executorNotionUserId, timestamp = null) {
+    try {
+      const logFile = this._getOrCreateFile();
+      const now = timestamp || new Date();
+      const timestampStr = Utilities.formatDate(now, CONSTANTS.TIME.TIMEZONE, "yyyy-MM-dd'T'HH:mm:ssXXX");
+      
+      // JSON Lines形式で追記
+      const record = {
+        releaseId: releaseId,
+        executorNotionUserId: executorNotionUserId,
+        eventId: eventId,
+        timestamp: timestampStr
+      };
+      
+      // 既存の内容を読み取る（エラー時は空文字列として扱う）
+      let existingContent = '';
+      try {
+        existingContent = logFile.getBlob().getDataAsString();
+      } catch (e) {
+        existingContent = '';
+      }
+      
+      // 新しい行を追加
+      const line = JSON.stringify(record) + '\n';
+      const newContent = existingContent + line;
+      
+      // ファイルを更新
+      logFile.setContent(newContent);
+      console.log(`[EventLog] イベントIDを保存: ${eventId}`);
+    } catch (error) {
+      console.error(`[EventLog] ログファイル保存エラー:`, error);
+      // エラーが発生しても処理は継続（カレンダーイベント自体は作成済みのため）
+    }
+  },
+
+  /**
+   * イベントIDを削除
+   * @param {string} releaseId - リリースID
+   * @param {string} executorNotionUserId - 実行者のNotionユーザーID
+   */
+  delete(releaseId, executorNotionUserId) {
+    try {
+      const logFile = this._getOrCreateFile();
+      const content = logFile.getBlob().getDataAsString();
+      
+      if (!content || content.trim() === '') {
+        return;
+      }
+      
+      // JSON Lines形式をパースして、該当レコードを除外（壊れた行は保持）
+      const lines = content.trim().split('\n').filter(line => line.trim());
+      const filteredLines = [];
+      
+      for (const line of lines) {
+        try {
+          const record = JSON.parse(line);
+          // 該当レコード以外を保持
+          if (!(record.releaseId === releaseId && record.executorNotionUserId === executorNotionUserId)) {
+            filteredLines.push(line);
+          }
+        } catch (e) {
+          // パースエラーは保持（壊れた行も残す）
+          filteredLines.push(line);
+        }
+      }
+      
+      // ファイルを書き直し
+      const newContent = filteredLines.length > 0 ? filteredLines.join('\n') + '\n' : '';
+      logFile.setContent(newContent);
+      console.log(`[EventLog] イベントIDを削除`);
+    } catch (error) {
+      console.warn(`[EventLog] ログファイル削除エラー:`, error);
+    }
+  }
+};
+
+/**
+ * ログファイルからイベントIDログファイルを取得または作成（後方互換用ラッパ）
  * @returns {GoogleAppsScript.Drive.File} ログファイル
+ * @deprecated EventLog._getOrCreateFile() を使用してください
  */
 function getOrCreateEventLogFile() {
-  const folderId = CONFIG.EVENT_LOG_FOLDER_ID;
-  if (!folderId) {
-    throw new Error('EVENT_LOG_FOLDER_IDが設定されていません。Script Propertiesに設定してください。');
-  }
-  
-  try {
-    const folder = DriveApp.getFolderById(folderId);
-    const fileName = 'event_ids.jsonl';
-    const files = folder.getFilesByName(fileName);
-    
-    if (files.hasNext()) {
-      return files.next();
-    } else {
-      // ファイルが存在しない場合、新規作成
-      const newFile = folder.createFile(fileName, '');
-      console.log(`[getOrCreateEventLogFile] ログファイルを新規作成: ${fileName}`);
-      return newFile;
-    }
-  } catch (error) {
-    console.error(`[getOrCreateEventLogFile] ログファイル取得エラー:`, error);
-    throw new Error(`ログファイルの取得に失敗しました: ${error.message}`);
-  }
+  return EventLog._getOrCreateFile();
 }
 
 /**
- * ログファイルからイベントIDを取得
+ * ログファイルからイベントIDを取得（後方互換用ラッパ）
  * @param {string} releaseId - リリースID
  * @param {string} executorNotionUserId - 実行者のNotionユーザーID
  * @returns {string|null} イベントID
+ * @deprecated EventLog.get() を使用してください
  */
 function getEventIdFromLog(releaseId, executorNotionUserId) {
-  try {
-    const logFile = getOrCreateEventLogFile();
-    const content = logFile.getBlob().getDataAsString();
-    
-    if (!content || content.trim() === '') {
-      console.log(`[getEventIdFromLog] ログファイルが空です`);
-      return null;
-    }
-    
-    // JSON Lines形式をパース
-    const lines = content.trim().split('\n').filter(line => line.trim());
-    
-    // 最新のレコードから検索（最後の行から逆順）
-    for (let i = lines.length - 1; i >= 0; i--) {
-      try {
-        const record = JSON.parse(lines[i]);
-        if (record.releaseId === releaseId && record.executorNotionUserId === executorNotionUserId) {
-          console.log(`[getEventIdFromLog] イベントIDを発見: ${record.eventId}`);
-          return record.eventId;
-        }
-      } catch (e) {
-        console.warn(`[getEventIdFromLog] 行のパースエラー (${i}):`, e);
-      }
-    }
-    
-    console.log(`[getEventIdFromLog] イベントIDが見つかりませんでした`);
-    return null;
-  } catch (error) {
-    console.warn(`[getEventIdFromLog] ログファイル読み込みエラー:`, error);
-    return null;
-  }
+  return EventLog.get(releaseId, executorNotionUserId);
 }
 
 /**
- * ログファイルにイベントIDを保存
+ * ログファイルにイベントIDを保存（後方互換用ラッパ）
  * @param {string} releaseId - リリースID
  * @param {string} eventId - イベントID
  * @param {string} executorNotionUserId - 実行者のNotionユーザーID
+ * @deprecated EventLog.put() を使用してください
  */
 function saveEventIdToLog(releaseId, eventId, executorNotionUserId) {
-  try {
-    const logFile = getOrCreateEventLogFile();
-    const now = new Date();
-    const timestamp = Utilities.formatDate(now, CONSTANTS.TIME.TIMEZONE, "yyyy-MM-dd'T'HH:mm:ssXXX");
-    
-    // JSON Lines形式で追記
-    const record = {
-      releaseId: releaseId,
-      executorNotionUserId: executorNotionUserId,
-      eventId: eventId,
-      timestamp: timestamp
-    };
-    
-    const line = JSON.stringify(record) + '\n';
-    logFile.append(line);
-    console.log(`[saveEventIdToLog] イベントIDをログファイルに保存: ${eventId}`);
-  } catch (error) {
-    console.error(`[saveEventIdToLog] ログファイル保存エラー:`, error);
-    // エラーが発生しても処理は継続（カレンダーイベント自体は作成済みのため）
-  }
+  EventLog.put(releaseId, eventId, executorNotionUserId);
 }
 
 /**
- * ログファイルからイベントIDを削除（リリース日削除時など）
+ * ログファイルからイベントIDを削除（後方互換用ラッパ）
  * @param {string} releaseId - リリースID
  * @param {string} executorNotionUserId - 実行者のNotionユーザーID
+ * @deprecated EventLog.delete() を使用してください
  */
 function deleteEventIdFromLog(releaseId, executorNotionUserId) {
+  EventLog.delete(releaseId, executorNotionUserId);
+}
+
+/**
+ * リリースからプロダクトのPdMとPdM補佐のメールアドレスを取得
+ */
+function getProductPdMEmails(release, userMapping) {
+  const pdmEmails = [];
+  
   try {
-    const logFile = getOrCreateEventLogFile();
-    const content = logFile.getBlob().getDataAsString();
+    // リリースのプロダクトリレーションを取得
+    const productRelation = release.properties[NOTION_PROP.RELEASE_PRODUCTS]?.relation || [];
     
-    if (!content || content.trim() === '') {
-      return;
+    if (productRelation.length === 0) {
+      console.log('[getProductPdMEmails] リリースに紐づくプロダクトが見つかりませんでした');
+      return pdmEmails;
     }
     
-    // JSON Lines形式をパースして、該当レコードを除外
-    const lines = content.trim().split('\n').filter(line => line.trim());
-    const filteredLines = [];
-    
-    for (const line of lines) {
+    // 各プロダクトからPdMとPdM補佐を取得
+    for (const productRel of productRelation) {
       try {
-        const record = JSON.parse(line);
-        // 該当レコード以外を保持
-        if (!(record.releaseId === releaseId && record.executorNotionUserId === executorNotionUserId)) {
-          filteredLines.push(line);
-        }
-      } catch (e) {
-        // パースエラーは保持
-        filteredLines.push(line);
-      }
-    }
-    
-    // ファイルを書き直し
-    const newContent = filteredLines.length > 0 ? filteredLines.join('\n') + '\n' : '';
-    logFile.setContent(newContent);
-    console.log(`[deleteEventIdFromLog] イベントIDをログファイルから削除`);
-  } catch (error) {
-    console.warn(`[deleteEventIdFromLog] ログファイル削除エラー:`, error);
-  }
-}
-
-/**
- * Notion DBにイベントIDを保存
- * 複数の実行者が存在する場合を考慮して、JSON形式で管理
- */
-function saveEventIdToNotion(releaseId, eventId, executorNotionUserId) {
-  try {
-    // 既存のイベントIDを取得
-    const existingEventId = getEventIdFromNotion(releaseId);
-    
-    let eventIdValue;
-    if (existingEventId && typeof existingEventId === 'object') {
-      // 既にJSON形式で複数の実行者が存在する場合
-      existingEventId[executorNotionUserId] = eventId;
-      eventIdValue = JSON.stringify(existingEventId);
-    } else if (existingEventId) {
-      // 既存のイベントIDが単一のテキストの場合、JSON形式に変換
-      // 既存の実行者IDは不明のため、'unknown'として保存
-      eventIdValue = JSON.stringify({
-        'unknown': existingEventId,
-        [executorNotionUserId]: eventId
-      });
-    } else {
-      // 新規作成の場合、実行者のIDとイベントIDを保存
-      eventIdValue = JSON.stringify({
-        [executorNotionUserId]: eventId
-      });
-    }
-    
-    // Notionページを更新
-    const updateBody = {
-      properties: {
-        [NOTION_PROP.RELEASE_CALENDAR_EVENT_ID]: {
-          rich_text: [
-            {
-              text: {
-                content: eventIdValue
-              }
-            }
-          ]
-        }
-      }
-    };
-    
-    console.log(`[saveEventIdToNotion] 更新リクエスト送信:`, JSON.stringify(updateBody, null, 2));
-    const response = callNotionAPI(`/pages/${releaseId}`, 'PATCH', updateBody);
-    console.log(`[saveEventIdToNotion] 更新レスポンス:`, JSON.stringify(response, null, 2));
-    console.log(`Notion DBにイベントIDを保存しました: ${releaseId}`);
-  } catch (error) {
-    console.warn(`Notion DBへのイベントID保存エラー (${releaseId}):`, error);
-    // エラーが発生しても処理は継続（カレンダーイベント自体は作成済みのため）
-    // 403エラーの場合、Notion IntegrationにリリースDBの「更新」権限が必要です
-    if (error.message && error.message.includes('403')) {
-      console.error('⚠️ Notion IntegrationにリリースDBの「更新」権限を付与してください');
-    }
-  }
-}
-
-/**
- * Notion DBからイベントIDを削除
- * 実行者のNotionユーザーIDに紐づくイベントIDのみを削除
- */
-function deleteEventIdFromNotion(releaseId, executorNotionUserId) {
-  try {
-    const existingEventId = getEventIdFromNotion(releaseId);
-    
-    if (!existingEventId) {
-      // 既に削除されている
-      return;
-    }
-    
-    if (typeof existingEventId === 'object' && existingEventId[executorNotionUserId]) {
-      // JSON形式で複数の実行者が存在する場合、該当実行者のみ削除
-      delete existingEventId[executorNotionUserId];
-      
-      const remainingKeys = Object.keys(existingEventId);
-      if (remainingKeys.length > 0) {
-        // 他の実行者が存在する場合は、残りの実行者を保存
-        const updateBody = {
-          properties: {
-            [NOTION_PROP.RELEASE_CALENDAR_EVENT_ID]: {
-              rich_text: [
-                {
-                  text: {
-                    content: JSON.stringify(existingEventId)
-                  }
-                }
-              ]
-            }
-          }
-        };
-        callNotionAPI(`/pages/${releaseId}`, 'PATCH', updateBody);
-        console.log(`Notion DBのイベントIDから実行者の情報を削除しました: ${releaseId}`);
-      } else {
-        // すべての実行者が削除された場合、プロパティをクリア
-        const updateBody = {
-          properties: {
-            [NOTION_PROP.RELEASE_CALENDAR_EVENT_ID]: {
-              rich_text: []
-            }
-          }
-        };
-        callNotionAPI(`/pages/${releaseId}`, 'PATCH', updateBody);
-        console.log(`Notion DBのイベントIDプロパティをクリアしました: ${releaseId}`);
-      }
-    } else {
-      // 単一のイベントIDの場合、プロパティをクリア
-      const updateBody = {
-        properties: {
-          [NOTION_PROP.RELEASE_CALENDAR_EVENT_ID]: {
-            rich_text: []
+        const product = callNotionAPI(`/pages/${productRel.id}`, 'GET');
+        
+        // PdMを取得
+        const pdmPeople = product.properties[NOTION_PROP.PRODUCT_PDM]?.people || [];
+        for (const pdmPerson of pdmPeople) {
+          const email = getUserEmailByNotionId(pdmPerson.id, userMapping, pdmPerson);
+          if (email && !pdmEmails.includes(email)) {
+            pdmEmails.push(email);
+            console.log(`[getProductPdMEmails] PdMを追加: ${email} (${pdmPerson.name || pdmPerson.id})`);
           }
         }
-      };
-      callNotionAPI(`/pages/${releaseId}`, 'PATCH', updateBody);
-      console.log(`Notion DBのイベントIDプロパティをクリアしました: ${releaseId}`);
+        
+        // PdM補佐を取得
+        const pdmAssistantPeople = product.properties[NOTION_PROP.PRODUCT_PDM_ASSISTANT]?.people || [];
+        for (const pdmAssistantPerson of pdmAssistantPeople) {
+          const email = getUserEmailByNotionId(pdmAssistantPerson.id, userMapping, pdmAssistantPerson);
+          if (email && !pdmEmails.includes(email)) {
+            pdmEmails.push(email);
+            console.log(`[getProductPdMEmails] PdM補佐を追加: ${email} (${pdmAssistantPerson.name || pdmAssistantPerson.id})`);
+          }
+        }
+        
+        Utilities.sleep(200); // レート制限回避
+      } catch (error) {
+        console.warn(`[getProductPdMEmails] プロダクト取得エラー (${productRel.id}):`, error);
+      }
     }
   } catch (error) {
-    console.warn(`Notion DBからのイベントID削除エラー (${releaseId}):`, error);
-    // エラーが発生しても処理は継続
-  }
-}
-
-/**
- * Notion DBから実行者のイベントIDを取得
- */
-function getExecutorEventIdFromNotion(releaseId, executorNotionUserId) {
-  const eventIdData = getEventIdFromNotion(releaseId);
-  
-  if (!eventIdData) {
-    return null;
+    console.warn(`[getProductPdMEmails] エラー:`, error);
   }
   
-  if (typeof eventIdData === 'object') {
-    // JSON形式の場合、実行者のIDに対応するイベントIDを返す
-    return eventIdData[executorNotionUserId] || null;
-  } else {
-    // 単一のテキストの場合、そのまま返す（後方互換性のため）
-    return eventIdData;
-  }
+  return pdmEmails;
+}
+
+/**
+ * ゲストリストから除外対象のメールアドレスをフィルタリング
+ * @param {Array<string>} guests - ゲストリスト（メールアドレスの配列）
+ * @returns {Array<string>} フィルタリング後のゲストリスト
+ */
+function filterExcludedGuests(guests) {
+  // 除外対象のメールアドレスリスト
+  const EXCLUDED_EMAILS = [
+    'keiji.ito@playground.live',
+    'mamoru.shimoe@playground.live',
+    'toshi.matsumoto@playground.live'
+  ];
+  
+  return guests.filter(email => {
+    const shouldExclude = EXCLUDED_EMAILS.includes(email.toLowerCase());
+    if (shouldExclude) {
+      console.log(`[filterExcludedGuests] 除外対象のメールアドレスを除外: ${email}`);
+    }
+    return !shouldExclude;
+  });
 }
 
 /**
  * Googleカレンダーイベントを作成
  */
-function createCalendarEvent(release, executorEmail, taskAssigneeEmails) {
+function createCalendarEvent(release, executorEmail, taskAssigneeEmails, userMapping) {
   const calendar = CONFIG.CALENDAR_ID 
     ? CalendarApp.getCalendarById(CONFIG.CALENDAR_ID)
     : CalendarApp.getDefaultCalendar();
@@ -853,18 +1125,21 @@ function createCalendarEvent(release, executorEmail, taskAssigneeEmails) {
   const releaseDate = new Date(releaseDateProp.start);
   const { startDate, endDate } = createEventDateTimes(releaseDate);
   
-  const title = `${CONSTANTS.CALENDAR.EVENT_TITLE_PREFIX}${releaseTitle}`;
+  const title = buildEventTitle(releaseTitle);
   
   // Issueを取得して説明文を生成
   const issues = getIssuesForRelease(release);
-  const issueIds = issues.map(issue => issue.id);
-  const description = generateEventDescription(release.id, issueIds);
+  const description = buildEventDescriptionFromIssues(release.id, issues);
   
-  // ゲストリスト（実行者 + Task担当者、重複排除）
-  const guests = [executorEmail, ...taskAssigneeEmails];
+  // PdMとPdM補佐のメールアドレスを取得
+  const productPdMEmails = getProductPdMEmails(release, userMapping);
+  
+  // ゲストリスト（実行者 + Task担当者 + PdM + PdM補佐、重複排除、除外対象フィルタリング）
+  const guests = [executorEmail, ...taskAssigneeEmails, ...productPdMEmails];
   const uniqueGuests = [...new Set(guests)];
+  const filteredGuests = filterExcludedGuests(uniqueGuests);
   
-  console.log(`イベント作成: ${title}, 日時: ${Utilities.formatDate(startDate, CONSTANTS.TIME.TIMEZONE, 'yyyy-MM-dd HH:mm')}, ゲスト数: ${uniqueGuests.length}`);
+  console.log(`イベント作成: ${title}, 日時: ${Utilities.formatDate(startDate, CONSTANTS.TIME.TIMEZONE, 'yyyy-MM-dd HH:mm')}, ゲスト数: ${filteredGuests.length}`);
   
   const event = calendar.createEvent(
     title,
@@ -872,8 +1147,8 @@ function createCalendarEvent(release, executorEmail, taskAssigneeEmails) {
     endDate,
     {
       description: description,
-      guests: uniqueGuests.join(','),
-      sendInvites: true
+      guests: filteredGuests.join(','),
+      sendInvites: !isDryRun()
     }
   );
   
@@ -905,6 +1180,84 @@ function updateCalendarEvent(eventId, newReleaseDate) {
 }
 
 /**
+ * Googleカレンダーイベントの説明文とゲストリストを更新
+ * @param {string} eventId - イベントID
+ * @param {string} newDescription - 新しい説明文
+ * @param {Array<string>} newGuests - 新しいゲストリスト（メールアドレスの配列）
+ * @returns {boolean} 更新が行われたかどうか
+ */
+function updateCalendarEventDetails(eventId, newDescription, newGuests) {
+  const calendar = CONFIG.CALENDAR_ID 
+    ? CalendarApp.getCalendarById(CONFIG.CALENDAR_ID)
+    : CalendarApp.getDefaultCalendar();
+  
+  try {
+    const event = calendar.getEventById(eventId);
+    const currentDescription = event.getDescription() || '';
+    const currentGuests = event.getGuestList().map(guest => guest.getEmail()).sort();
+    const newGuestsSorted = [...new Set(newGuests)].sort();
+    
+    let updated = false;
+    
+    // 説明文を比較して更新
+    if (currentDescription !== newDescription) {
+      event.setDescription(newDescription);
+      console.log(`[updateCalendarEventDetails] 説明文を更新: ${eventId}`);
+      updated = true;
+    }
+    
+    // ゲストリストを比較して更新
+    const currentGuestsStr = currentGuests.join(',');
+    const newGuestsStr = newGuestsSorted.join(',');
+    if (currentGuestsStr !== newGuestsStr) {
+      // 追加すべきゲストを追加
+      const guestsToAdd = newGuestsSorted.filter(email => !currentGuests.includes(email));
+      if (guestsToAdd.length > 0) {
+        guestsToAdd.forEach(email => {
+          try {
+            event.addGuest(email);
+          } catch (e) {
+            // 既に追加済みの場合は無視
+          }
+        });
+        console.log(`[updateCalendarEventDetails] ゲストを追加: ${guestsToAdd.join(', ')}`);
+        updated = true;
+      }
+      
+      // 削除すべきゲストを削除
+      const guestsToRemove = currentGuests.filter(email => !newGuestsSorted.includes(email));
+      if (guestsToRemove.length > 0) {
+        // 主催者は削除できないため、主催者を除外
+        const organizerEmails = event.getCreators();
+        const removableGuests = guestsToRemove.filter(email => !organizerEmails.includes(email));
+        
+        removableGuests.forEach(email => {
+          try {
+            // event.removeGuest()メソッドでゲストを削除
+            event.removeGuest(email);
+            console.log(`[updateCalendarEventDetails] ゲストを削除: ${email}`);
+            updated = true;
+          } catch (e) {
+            console.warn(`[updateCalendarEventDetails] ゲスト削除エラー (${email}):`, e.message);
+          }
+        });
+        
+        // 主催者の削除が必要な場合は警告
+        const organizersToRemove = guestsToRemove.filter(email => organizerEmails.includes(email));
+        if (organizersToRemove.length > 0) {
+          console.warn(`[updateCalendarEventDetails] 主催者は削除できません: ${organizersToRemove.join(', ')}`);
+        }
+      }
+    }
+    
+    return updated;
+  } catch (error) {
+    console.warn(`[updateCalendarEventDetails] イベント更新エラー (${eventId}):`, error);
+    return false;
+  }
+}
+
+/**
  * Googleカレンダーイベントを削除
  */
 function deleteCalendarEvent(eventId) {
@@ -922,6 +1275,10 @@ function deleteCalendarEvent(eventId) {
     return false;
   }
 }
+
+/**
+ * メイン処理: リリース日の入力・変更・削除を処理
+ */
 
 /**
  * メイン処理: リリース日の入力・変更・削除を処理
@@ -963,56 +1320,96 @@ function processReleases() {
         
         if (!releaseDateProp) {
           // リリース日が未設定の場合、既存のイベントを削除
-          const notionEventId = getExecutorEventIdFromNotion(releaseId, executorNotionUserId);
+          const logEventId = EventLog.get(releaseId, executorNotionUserId);
           
-          if (notionEventId) {
-            console.log(`リリース日が未設定のため、イベントを削除します: ${releaseTitle} (${notionEventId})`);
-            deleteCalendarEvent(notionEventId);
-            deleteEventIdFromNotion(releaseId, executorNotionUserId);
+          if (logEventId) {
+            if (isDryRun()) {
+              console.log(`[DRY_RUN] would delete event for ${releaseTitle} (${logEventId})`);
+            } else {
+              console.log(`リリース日が未設定のため、イベントを削除します: ${releaseTitle} (${logEventId})`);
+              deleteCalendarEvent(logEventId);
+              EventLog.delete(releaseId, executorNotionUserId);
+            }
           }
           continue;
         }
         
         const releaseDate = new Date(releaseDateProp.start);
-        // Notion DBからイベントIDを取得
-        const notionEventId = getExecutorEventIdFromNotion(releaseId, executorNotionUserId);
+        // JSONLログファイルからイベントIDを取得
+        const logEventId = EventLog.get(releaseId, executorNotionUserId);
         
-        if (notionEventId) {
+        if (logEventId) {
           // 既存イベントがある場合、日付を確認して更新
-          console.log(`既存イベントを確認中: ${releaseTitle} (${notionEventId})`);
+          console.log(`既存イベントを確認中: ${releaseTitle} (${logEventId})`);
           
           try {
             const calendar = CONFIG.CALENDAR_ID 
               ? CalendarApp.getCalendarById(CONFIG.CALENDAR_ID)
               : CalendarApp.getDefaultCalendar();
-            const event = calendar.getEventById(notionEventId);
+            const event = calendar.getEventById(logEventId);
             const currentEventDate = event.getStartTime();
             
+            // 最新のIssueとTask担当者を取得
+            const issues = getIssuesForRelease(release);
+            const assignees = getTasksAndAssignees(issues);
+            const taskAssigneeEmails = convertNotionUserIdsToEmails(assignees, userMapping, [executorEmail]);
+            const productPdMEmails = getProductPdMEmails(release, userMapping);
+            
+            // 新しい説明文とゲストリストを生成
+            const newDescription = buildEventDescriptionFromIssues(release.id, issues);
+            const guests = [executorEmail, ...taskAssigneeEmails, ...productPdMEmails];
+            const uniqueGuests = [...new Set(guests)];
+            const newGuests = filterExcludedGuests(uniqueGuests);
+            
+            let needsUpdate = false;
+            
+            // 日付を確認
             if (!compareDatesOnly(currentEventDate, releaseDate)) {
               // 日付が異なる場合、更新
-              console.log(`リリース日が変更されました: ${releaseTitle}, 旧日付: ${getJSTDate(currentEventDate)}, 新日付: ${getJSTDate(releaseDate)}`);
-              const updated = updateCalendarEvent(notionEventId, releaseDate);
-              if (!updated) {
-                // イベントが見つからない場合（手動削除など）、新規作成
-                console.log(`イベントが見つかりません。新規作成します。`);
-                throw new Error('イベントが見つかりません');
+              if (isDryRun()) {
+                console.log(`[DRY_RUN] would update event for ${releaseTitle}, old date: ${getJSTDate(currentEventDate)}, new date: ${getJSTDate(releaseDate)}`);
+              } else {
+                console.log(`リリース日が変更されました: ${releaseTitle}, 旧日付: ${getJSTDate(currentEventDate)}, 新日付: ${getJSTDate(releaseDate)}`);
+                const updated = updateCalendarEvent(logEventId, releaseDate);
+                if (!updated) {
+                  // イベントが見つからない場合（手動削除など）、新規作成
+                  console.log(`イベントが見つかりません。新規作成します。`);
+                  throw new Error('イベントが見つかりません');
+                }
+                needsUpdate = true;
               }
+            }
+            
+            // 説明文とゲストリストを確認して更新
+            if (isDryRun()) {
+              console.log(`[DRY_RUN] would check and update description and guests for ${releaseTitle}`);
             } else {
-              console.log(`リリース日は変更されていません: ${releaseTitle}`);
+              const updated = updateCalendarEventDetails(logEventId, newDescription, newGuests);
+              if (updated) {
+                needsUpdate = true;
+              }
+            }
+            
+            if (!needsUpdate) {
+              console.log(`リリース情報に変更はありません: ${releaseTitle}`);
             }
           } catch (error) {
             // イベントが見つからない場合（手動削除など）、新規作成
-            console.log(`イベントが見つかりません（ID: ${notionEventId}）。新規作成します。`);
+            console.log(`イベントが見つかりません（ID: ${logEventId}）。新規作成します。`);
             
             // IssueとTaskを取得して担当者を抽出
             const issues = getIssuesForRelease(release);
-            const assigneeNotionUserIds = getTasksAndAssignees(issues);
-            const taskAssigneeEmails = convertNotionUserIdsToEmails(assigneeNotionUserIds, userMapping, [executorEmail]);
+            const assignees = getTasksAndAssignees(issues);
+            const taskAssigneeEmails = convertNotionUserIdsToEmails(assignees, userMapping, [executorEmail]);
             
             // 新規イベントを作成
-            const newEventId = createCalendarEvent(release, executorEmail, taskAssigneeEmails);
-            // Notion DBに保存
-            saveEventIdToNotion(releaseId, newEventId, executorNotionUserId);
+            if (isDryRun()) {
+              console.log(`[DRY_RUN] would create event for ${releaseTitle}`);
+            } else {
+              const newEventId = createCalendarEvent(release, executorEmail, taskAssigneeEmails, userMapping);
+              // JSONLログファイルに保存
+              EventLog.put(releaseId, newEventId, executorNotionUserId);
+            }
           }
         } else {
           // 新規イベントを作成
@@ -1020,13 +1417,17 @@ function processReleases() {
           
           // IssueとTaskを取得して担当者を抽出
           const issues = getIssuesForRelease(release);
-          const assigneeNotionUserIds = getTasksAndAssignees(issues);
-          const taskAssigneeEmails = convertNotionUserIdsToEmails(assigneeNotionUserIds, userMapping, [executorEmail]);
+          const assignees = getTasksAndAssignees(issues);
+          const taskAssigneeEmails = convertNotionUserIdsToEmails(assignees, userMapping, [executorEmail]);
           
           // イベントを作成
-          const eventId = createCalendarEvent(release, executorEmail, taskAssigneeEmails);
-          // Notion DBに保存
-          saveEventIdToNotion(releaseId, eventId, executorNotionUserId);
+          if (isDryRun()) {
+            console.log(`[DRY_RUN] would create event for ${releaseTitle}`);
+          } else {
+            const eventId = createCalendarEvent(release, executorEmail, taskAssigneeEmails, userMapping);
+            // JSONLログファイルに保存
+            EventLog.put(releaseId, eventId, executorNotionUserId);
+          }
         }
         
         // レート制限回避
@@ -1154,77 +1555,132 @@ function testJukoReleaseCalendarInvite() {
       console.log(`  ${index + 1}. ${releaseTitle} (${releaseDateStr})`);
     });
     
-    // 最初のリリースを処理
-    const targetRelease = releases[0];
-    const releaseId = targetRelease.id;
-    const releaseTitle = getPageTitle(targetRelease);
-    const releaseDateProp = targetRelease.properties[NOTION_PROP.RELEASE_DATE]?.date;
-    
-    if (!releaseDateProp || !releaseDateProp.start) {
-      throw new Error('リリース日が設定されていません');
+    // 各リリースを処理
+    for (const release of releases) {
+      try {
+        const releaseId = release.id;
+        const releaseTitle = getPageTitle(release);
+        const releaseDateProp = release.properties[NOTION_PROP.RELEASE_DATE]?.date;
+        
+        console.log(`\n========== 処理対象リリース ==========`);
+        console.log(`リリース名: ${releaseTitle}`);
+        console.log(`リリースID: ${releaseId}`);
+        console.log(`リリース日: ${releaseDateProp?.start || '日付なし'}`);
+        console.log(`=====================================`);
+        
+        if (!releaseDateProp || !releaseDateProp.start) {
+          console.warn(`リリース日が設定されていないため、スキップします: ${releaseTitle}`);
+          continue;
+        }
+        
+        const releaseDate = new Date(releaseDateProp.start);
+        // JSONLログファイルからイベントIDを取得
+        const logEventId = EventLog.get(releaseId, executorNotionUserId);
+        
+        if (logEventId) {
+          // 既存イベントがある場合、日付・説明文・ゲストリストを確認して更新
+          console.log(`既存イベントを確認中: ${releaseTitle} (${logEventId})`);
+          
+          try {
+            const calendar = CONFIG.CALENDAR_ID 
+              ? CalendarApp.getCalendarById(CONFIG.CALENDAR_ID)
+              : CalendarApp.getDefaultCalendar();
+            const event = calendar.getEventById(logEventId);
+            const currentEventDate = event.getStartTime();
+            
+            // 最新のIssueとTask担当者を取得
+            const issues = getIssuesForRelease(release);
+            const assignees = getTasksAndAssignees(issues);
+            const taskAssigneeEmails = convertNotionUserIdsToEmails(assignees, userMapping, [executorEmail]);
+            const productPdMEmails = getProductPdMEmails(release, userMapping);
+            
+            // 新しい説明文とゲストリストを生成
+            const newDescription = buildEventDescriptionFromIssues(release.id, issues);
+            const guests = [executorEmail, ...taskAssigneeEmails, ...productPdMEmails];
+            const uniqueGuests = [...new Set(guests)];
+            const newGuests = filterExcludedGuests(uniqueGuests);
+            
+            let needsUpdate = false;
+            
+            // 日付を確認
+            if (!compareDatesOnly(currentEventDate, releaseDate)) {
+              // 日付が異なる場合、更新
+              if (isDryRun()) {
+                console.log(`[DRY_RUN] would update event date for ${releaseTitle}, old date: ${getJSTDate(currentEventDate)}, new date: ${getJSTDate(releaseDate)}`);
+              } else {
+                console.log(`リリース日が変更されました: ${releaseTitle}, 旧日付: ${getJSTDate(currentEventDate)}, 新日付: ${getJSTDate(releaseDate)}`);
+                const updated = updateCalendarEvent(logEventId, releaseDate);
+                if (!updated) {
+                  // イベントが見つからない場合（手動削除など）、新規作成
+                  console.log(`イベントが見つかりません。新規作成します。`);
+                  throw new Error('イベントが見つかりません');
+                }
+                needsUpdate = true;
+              }
+            }
+            
+            // 説明文とゲストリストを確認して更新
+            if (isDryRun()) {
+              console.log(`[DRY_RUN] would check and update description and guests for ${releaseTitle}`);
+            } else {
+              const updated = updateCalendarEventDetails(logEventId, newDescription, newGuests);
+              if (updated) {
+                needsUpdate = true;
+              }
+            }
+            
+            if (!needsUpdate) {
+              console.log(`リリース情報に変更はありません: ${releaseTitle}`);
+            }
+          } catch (error) {
+            // イベントが見つからない場合（手動削除など）、新規作成
+            console.log(`イベントが見つかりません（ID: ${logEventId}）。新規作成します。`);
+            
+            // IssueとTaskを取得して担当者を抽出
+            const issues = getIssuesForRelease(release);
+            const assignees = getTasksAndAssignees(issues);
+            const taskAssigneeEmails = convertNotionUserIdsToEmails(assignees, userMapping, [executorEmail]);
+            
+            // 新規イベントを作成
+            if (isDryRun()) {
+              console.log(`[DRY_RUN] would create event for ${releaseTitle}`);
+            } else {
+              const newEventId = createCalendarEvent(release, executorEmail, taskAssigneeEmails, userMapping);
+              // JSONLログファイルに保存
+              EventLog.put(releaseId, newEventId, executorNotionUserId);
+              console.log(`✅ カレンダーイベント作成完了: ${releaseTitle} (${newEventId})`);
+            }
+          }
+        } else {
+          // 新規イベントを作成
+          console.log(`新規イベントを作成します: ${releaseTitle}`);
+          
+          // IssueとTaskを取得して担当者を抽出
+          const issues = getIssuesForRelease(release);
+          const assignees = getTasksAndAssignees(issues);
+          const taskAssigneeEmails = convertNotionUserIdsToEmails(assignees, userMapping, [executorEmail]);
+          
+          // イベントを作成
+          if (isDryRun()) {
+            console.log(`[DRY_RUN] would create event for ${releaseTitle}`);
+          } else {
+            const eventId = createCalendarEvent(release, executorEmail, taskAssigneeEmails, userMapping);
+            // JSONLログファイルに保存
+            EventLog.put(releaseId, eventId, executorNotionUserId);
+            console.log(`✅ カレンダーイベント作成完了: ${releaseTitle} (${eventId})`);
+          }
+        }
+        
+        // レート制限回避
+        Utilities.sleep(500);
+        
+      } catch (error) {
+        console.error(`リリース処理エラー (${release.id}):`, error);
+        // エラーが発生しても次のリリースを処理する
+      }
     }
     
-    console.log(`\n========== 処理対象リリース ==========`);
-    console.log(`リリース名: ${releaseTitle}`);
-    console.log(`リリースID: ${releaseId}`);
-    console.log(`リリース日: ${releaseDateProp.start}`);
-    console.log(`=====================================\n`);
-    
-    // 既存のイベントIDを確認（Notion DBから取得）
-    const notionEventId = getExecutorEventIdFromNotion(releaseId, executorNotionUserId);
-    
-    if (notionEventId) {
-      console.log(`⚠️  既存のイベントIDが見つかりました: ${notionEventId}`);
-      console.log('既存のままで終了します。再作成したい場合は、Notion DBのカレンダーイベントIDプロパティから削除してください。');
-      return;
-    }
-    
-    // IssueとTaskを取得して担当者を抽出
-    console.log('IssueとTaskを取得中...');
-    const issues = getIssuesForRelease(targetRelease);
-    console.log(`Issue数: ${issues.length}件`);
-    
-    if (issues.length > 0) {
-      issues.forEach((issue, index) => {
-        const issueTitle = getPageTitle(issue);
-        console.log(`  ${index + 1}. ${issueTitle}`);
-      });
-    }
-    
-    const assigneeNotionUserIds = getTasksAndAssignees(issues);
-    console.log(`\nTask担当者（NotionユーザーID）数: ${assigneeNotionUserIds.length}件`);
-    
-    const taskAssigneeEmails = convertNotionUserIdsToEmails(assigneeNotionUserIds, userMapping, [executorEmail]);
-    console.log(`Task担当者（メールアドレス）数: ${taskAssigneeEmails.length}件`);
-    if (taskAssigneeEmails.length > 0) {
-      taskAssigneeEmails.forEach(email => {
-        console.log(`  - ${email}`);
-      });
-    } else {
-      console.log('  （Task担当者が見つかりませんでした）');
-    }
-    
-    // ゲストリスト（実行者 + Task担当者）
-    const allGuests = [executorEmail, ...taskAssigneeEmails];
-    const uniqueGuests = [...new Set(allGuests)];
-    console.log(`\n招待ゲスト（重複排除済み）: ${uniqueGuests.length}人`);
-    uniqueGuests.forEach(email => {
-      console.log(`  - ${email}`);
-    });
-    
-    // カレンダーイベントを作成
-    console.log('\n========== カレンダーイベント作成中 ==========');
-    const eventId = createCalendarEvent(targetRelease, executorEmail, taskAssigneeEmails);
-    
-    // イベントIDをNotion DBに保存
-    saveEventIdToNotion(releaseId, eventId, executorNotionUserId);
-    
-    console.log('\n✅ ========== カレンダーイベント作成完了！ ==========');
-    console.log(`イベントID: ${eventId}`);
-    console.log(`リリース: ${releaseTitle}`);
-    console.log(`日時: ${releaseDateProp.start} 12:00-13:00 JST`);
-    console.log(`招待ゲスト数: ${uniqueGuests.length}人`);
-    console.log('=============================================');
+    console.log('\n✅ ========== 全リリース処理完了！ ==========');
     
   } catch (error) {
     console.error('\n❌ テスト実行エラー:', error);

@@ -27,13 +27,29 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
 MAPPING_FILE = os.path.join(REPO_ROOT, "docs/slack/user_room_mapping.md")
 
-if not os.getenv("NOTION_TOKEN"):
+# NOTION_TOKENの取得を試みる（環境変数またはコマンドライン引数）
+notion_token = os.getenv("NOTION_TOKEN")
+if not notion_token:
+    # .envファイルから読み込みを試みる
+    try:
+        import dotenv
+        dotenv.load_dotenv()
+        notion_token = os.getenv("NOTION_TOKEN")
+    except ImportError:
+        pass
+
+if not notion_token:
     print("ERROR: NOTION_TOKEN is not set.")
+    print("環境変数として設定するか、コマンドライン引数で指定してください：")
+    print("  export NOTION_TOKEN=\"your_token\"")
+    print("  python3 crawl_notion_members.py")
+    print("\nまたは、スクリプト実行時に直接指定：")
+    print("  NOTION_TOKEN=\"your_token\" python3 crawl_notion_members.py")
     sys.exit(1)
 
 session = requests.Session()
 session.headers.update({
-    "Authorization": f"Bearer {os.getenv('NOTION_TOKEN')}",
+    "Authorization": f"Bearer {notion_token}",
     "Notion-Version": NOTION_VERSION,
     "Content-Type": "application/json",
 })
@@ -92,6 +108,34 @@ def extract_text_property(prop: Dict, prop_type: str = "title") -> str:
     return ""
 
 
+def get_notion_user_info(user_id: str) -> Dict:
+    """Notion Users APIでユーザー情報を取得"""
+    try:
+        resp = session.get(f"{NOTION_API_BASE}/users/{user_id}")
+        resp.raise_for_status()
+        user_data = resp.json()
+        
+        user_info = {
+            "id": user_data.get("id", ""),
+            "name": user_data.get("name", ""),
+            "email": "",
+            "type": user_data.get("type", ""),
+        }
+        
+        if user_data.get("type") == "person" and user_data.get("person"):
+            user_info["email"] = user_data.get("person", {}).get("email", "")
+        elif user_data.get("type") == "bot":
+            bot_owner = user_data.get("bot", {}).get("owner", {})
+            if bot_owner.get("type") == "user":
+                user_info["email"] = bot_owner.get("user", {}).get("person", {}).get("email", "")
+        
+        time.sleep(0.1)  # レート制限対策
+        return user_info
+    except requests.exceptions.RequestException as e:
+        print(f"  警告: ユーザー情報取得エラー (ID: {user_id}): {e}")
+        return None
+
+
 def get_notion_members() -> Dict[str, Dict]:
     """NotionメンバーDBからメンバー情報を取得
     
@@ -131,47 +175,38 @@ def get_notion_members() -> Dict[str, Dict]:
         name = ""
         email = ""
         
-        # アカウント名を探す
-        for prop_name in ["アカウント名", "Account", "アカウント", "ユーザー名", "名前", "Name"]:
-            if prop_name in props:
-                prop = props[prop_name]
-                prop_type = prop.get("type", "")
-                if prop_type == "title":
-                    account_name = extract_text_property(prop, "title")
-                elif prop_type == "rich_text":
-                    account_name = extract_text_property(prop, "rich_text")
-                break
+        # 氏名を取得（titleプロパティ）
+        if "氏名" in props:
+            prop = props["氏名"]
+            prop_type = prop.get("type", "")
+            if prop_type == "title":
+                name = extract_text_property(prop, "title")
         
-        # NotionユーザーIDを探す（people プロパティ）
-        for prop_name in ["Notionユーザー", "User", "ユーザー", "People"]:
-            if prop_name in props:
-                prop = props[prop_name]
-                prop_type = prop.get("type", "")
-                if prop_type == "people":
-                    notion_user_id = extract_text_property(prop, "people")
-                break
+        # アカウント名（peopleプロパティ）からNotionユーザーIDを取得
+        if "アカウント名" in props:
+            prop = props["アカウント名"]
+            prop_type = prop.get("type", "")
+            if prop_type == "people":
+                people_array = prop.get("people", [])
+                if people_array:
+                    # 最初のユーザーのIDを取得
+                    notion_user_id = people_array[0].get("id", "")
+                    # ユーザー名も取得（マッチング用）
+                    person = people_array[0]
+                    if person.get("type") == "person":
+                        account_name = person.get("name", "")
+                    elif person.get("type") == "bot":
+                        account_name = person.get("name", "")
         
-        # 表示名を探す
-        for prop_name in ["名前", "Name", "表示名", "Display Name"]:
-            if prop_name in props and prop_name != account_name:
-                prop = props[prop_name]
-                prop_type = prop.get("type", "")
-                if prop_type == "title":
-                    name = extract_text_property(prop, "title")
-                elif prop_type == "rich_text":
-                    name = extract_text_property(prop, "rich_text")
-                break
         
-        # メールアドレスを探す
-        for prop_name in ["メール", "Email", "メールアドレス"]:
-            if prop_name in props:
-                prop = props[prop_name]
-                prop_type = prop.get("type", "")
-                if prop_type == "email":
-                    email = prop.get("email", "")
-                elif prop_type == "rich_text":
-                    email = extract_text_property(prop, "rich_text")
-                break
+        # メールアドレスを取得
+        if "メール" in props:
+            prop = props["メール"]
+            prop_type = prop.get("type", "")
+            if prop_type == "email":
+                email = prop.get("email", "")
+            elif prop_type == "rich_text":
+                email = extract_text_property(prop, "rich_text")
         
         # ページIDからユーザー情報を取得する場合のフォールバック
         if not notion_user_id:
@@ -180,17 +215,50 @@ def get_notion_members() -> Dict[str, Dict]:
             if created_by:
                 notion_user_id = created_by.get("id", "")
         
-        if account_name:
-            members[account_name] = {
-                "account_name": account_name,
-                "notion_user_id": notion_user_id,
-                "name": name,
-                "email": email,
-                "page_id": page.get("id", ""),
-            }
-            print(f"  取得: アカウント名={account_name}, NotionユーザーID={notion_user_id}")
+        # NotionユーザーIDがある場合は、Users APIで詳細情報を取得
+        if notion_user_id:
+            user_info = get_notion_user_info(notion_user_id)
+            if user_info:
+                # Users APIから取得した情報を優先
+                final_email = user_info.get("email") or email
+                final_name = user_info.get("name") or name
+                
+                # メールアドレスをキーとして使用（重複を防ぐ）
+                if final_email:
+                    email_key = final_email.lower().strip()
+                    # 既に存在する場合は、より詳細な情報で上書き
+                    if email_key not in members or not members[email_key].get("name"):
+                        members[email_key] = {
+                            "notion_user_id": notion_user_id,
+                            "name": final_name,
+                            "email": email_key,
+                            "page_id": page.get("id", ""),
+                        }
+                        print(f"  取得: 氏名={final_name}, NotionユーザーID={notion_user_id}, メール={email_key}")
+                else:
+                    # メールアドレスがない場合はNotionユーザーIDをキーとして使用
+                    user_key = f"user_{notion_user_id}"
+                    if user_key not in members:
+                        members[user_key] = {
+                            "notion_user_id": notion_user_id,
+                            "name": final_name,
+                            "email": "",
+                            "page_id": page.get("id", ""),
+                        }
+                        print(f"  取得（メールなし）: 氏名={final_name}, NotionユーザーID={notion_user_id}")
+        elif email and email != "None" and email.strip():
+            # NotionユーザーIDがないがメールアドレスがある場合
+            email_key = email.lower().strip()
+            if email_key not in members:
+                members[email_key] = {
+                    "notion_user_id": "",
+                    "name": name,
+                    "email": email_key,
+                    "page_id": page.get("id", ""),
+                }
+                print(f"  取得（NotionユーザーIDなし）: 氏名={name}, メール={email_key}")
         else:
-            print(f"  警告: アカウント名が見つからないレコード (ID: {page.get('id')})")
+            print(f"  警告: NotionユーザーIDもメールアドレスも見つからないレコード (ID: {page.get('id')})")
     
     return members
 
@@ -250,28 +318,43 @@ def update_mapping_file(members: Dict[str, Dict], file_path: str):
     for row in data_rows:
         name_col = row.get("名前", "").strip()  # マッピングファイルの「名前」列
         notion_user_name = row.get("Notionユーザー名", "").strip()
+        email_col = row.get("メールアドレス", "").strip().lower()  # マッピングファイルの「メールアドレス」列
         current_user_id = row.get("NotionユーザーID", "").strip()
         
         # 既にNotionユーザーIDがある場合はスキップ（オプション）
         # if current_user_id:
         #     continue
         
-        # アカウント名（マッピングファイルの「名前」列）でマッチング
+        # メールアドレスでマッチング（優先）
         matched_member = None
-        # まず完全一致で検索
-        if name_col in members:
-            matched_member = members[name_col]
+        if email_col and email_col in members:
+            matched_member = members[email_col]
         else:
-            # Notionユーザー名でも検索
-            if notion_user_name in members:
+            # 名前列やNotionユーザー名でマッチング
+            # まず完全一致で検索
+            if name_col in members:
+                matched_member = members[name_col]
+            elif notion_user_name in members:
                 matched_member = members[notion_user_name]
             else:
                 # 部分一致で検索（名前列とアカウント名）
-                for account_name, member_info in members.items():
-                    if (account_name.lower() in name_col.lower() or 
-                        name_col.lower() in account_name.lower() or
-                        account_name.lower() in notion_user_name.lower() or
-                        notion_user_name.lower() in account_name.lower()):
+                for key, member_info in members.items():
+                    member_email = member_info.get("email", "").lower() if member_info.get("email") else ""
+                    member_name = member_info.get("name", "").lower() if member_info.get("name") else ""
+                    member_account = member_info.get("account_name", "").lower() if member_info.get("account_name") else ""
+                    
+                    # メールアドレスで部分一致
+                    if email_col and member_email and (email_col in member_email or member_email in email_col):
+                        matched_member = member_info
+                        break
+                    # 名前列で部分一致
+                    if name_col and (name_col.lower() in member_name or member_name in name_col.lower() or
+                                     name_col.lower() in member_account or member_account in name_col.lower()):
+                        matched_member = member_info
+                        break
+                    # Notionユーザー名で部分一致
+                    if notion_user_name and (notion_user_name.lower() in member_name or member_name in notion_user_name.lower() or
+                                             notion_user_name.lower() in member_account or member_account in notion_user_name.lower()):
                         matched_member = member_info
                         break
         
@@ -281,20 +364,158 @@ def update_mapping_file(members: Dict[str, Dict], file_path: str):
             
             # 該当行を更新
             old_line = lines[line_idx]
-            # パイプで分割
-            parts = [p.strip() for p in old_line.split("|")]
+            # パイプで分割（先頭と末尾の空要素を除去）
+            parts = [p.strip() for p in old_line.strip().split("|")]
+            # 先頭と末尾が空の場合は除去
+            if parts and parts[0] == "":
+                parts = parts[1:]
+            if parts and parts[-1] == "":
+                parts = parts[:-1]
+            
             if len(parts) > 6:
-                parts[6] = new_user_id  # NotionユーザーID列を更新
-                new_line = "|" + "|".join(parts) + "|\n"
+                parts[6] = new_user_id  # NotionユーザーID列を更新（インデックス6）
+                # 元のフォーマットを保持（スペース付き）
+                new_line = " | ".join(parts) + "\n"
                 lines[line_idx] = new_line
                 updated_count += 1
-                print(f"更新: {notion_user_name} -> {new_user_id}")
+                print(f"更新: {notion_user_name or name_col} ({email_col}) -> {new_user_id}")
     
     # ファイルに書き戻し
     with open(file_path, "w", encoding="utf-8") as f:
         f.writelines(lines)
     
     print(f"\n更新完了: {updated_count}件のNotionユーザーIDを更新しました")
+
+
+def load_notion_members_from_file(file_path: str) -> Dict[str, str]:
+    """notion_members.mdファイルからメールアドレス→NotionユーザーIDのマッピングを読み込む"""
+    email_to_notion_id = {}
+    
+    if not os.path.exists(file_path):
+        print(f"警告: {file_path}が見つかりません")
+        return email_to_notion_id
+    
+    with open(file_path, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+    
+    # ヘッダー行を探す
+    header_found = False
+    for i, line in enumerate(lines):
+        if "NotionユーザーID" in line and "メールアドレス" in line:
+            header_found = True
+            continue
+        
+        if header_found and line.strip() and not line.strip().startswith("|"):
+            continue
+        
+        if header_found and "|" in line and "---" not in line:
+            # データ行を解析
+            parts = [p.strip() for p in line.split("|")]
+            if len(parts) >= 4:
+                notion_user_id = parts[1].strip() if len(parts) > 1 else ""
+                name = parts[2].strip() if len(parts) > 2 else ""
+                email = parts[3].strip() if len(parts) > 3 else ""
+                
+                if email and notion_user_id:
+                    email_lower = email.lower().strip()
+                    email_to_notion_id[email_lower] = notion_user_id
+    
+    print(f"  notion_members.mdから{len(email_to_notion_id)}件のマッピングを読み込みました")
+    return email_to_notion_id
+
+
+def update_mapping_file_from_notion_members(notion_members_file: str, mapping_file: str):
+    """notion_members.mdからuser_room_mapping.mdを更新"""
+    # notion_members.mdからマッピングを読み込み
+    email_to_notion_id = load_notion_members_from_file(notion_members_file)
+    
+    if not email_to_notion_id:
+        print("  notion_members.mdからマッピングを読み込めませんでした")
+        return
+    
+    # マッピングファイルを読み込み
+    data_rows, lines = parse_mapping_file(mapping_file)
+    
+    updated_count = 0
+    
+    for row in data_rows:
+        email_col = row.get("メールアドレス", "").strip().lower()
+        current_user_id = row.get("NotionユーザーID", "").strip()
+        
+        # メールアドレスでマッチング
+        if email_col and email_col in email_to_notion_id:
+            new_user_id = email_to_notion_id[email_col]
+            
+            # 既に同じIDの場合はスキップ
+            if current_user_id == new_user_id:
+                continue
+            
+            line_idx = row["line_index"]
+            
+            # 該当行を更新
+            old_line = lines[line_idx]
+            # パイプで分割（先頭と末尾の空要素を除去）
+            parts = [p.strip() for p in old_line.strip().split("|")]
+            # 先頭と末尾が空の場合は除去
+            if parts and parts[0] == "":
+                parts = parts[1:]
+            if parts and parts[-1] == "":
+                parts = parts[:-1]
+            
+            if len(parts) > 6:
+                parts[6] = new_user_id  # NotionユーザーID列を更新（インデックス6）
+                # ワークのフォーマットを保持（スペース付き）
+                new_line = " | ".join(parts) + "\n"
+                lines[line_idx] = new_line
+                updated_count += 1
+                notion_user_name = row.get("Notionユーザー名", "").strip()
+                name_col = row.get("名前", "").strip()
+                print(f"  更新: {notion_user_name or name_col} ({email_col}) -> {new_user_id}")
+    
+    # ファイルに書き戻し
+    with open(mapping_file, "w", encoding="utf-8") as f:
+        f.writelines(lines)
+    
+    print(f"\n更新完了: {updated_count}件のNotionユーザーIDを更新しました")
+
+
+def export_notion_members_list(members: Dict[str, Dict], output_dir: str):
+    """NotionメンバーリストをMarkdown形式でエクスポート"""
+    output_file = os.path.join(output_dir, "notion_members.md")
+    
+    # メールアドレスまたはNotionユーザーIDがあるメンバーでソート
+    sorted_members = sorted(
+        [(key, info) for key, info in members.items() if info.get("email") or info.get("notion_user_id")],
+        key=lambda x: (x[1].get("email", "") or "", x[1].get("name", "") or "")
+    )
+    
+    lines = []
+    lines.append("# Notionメンバーリスト")
+    lines.append("")
+    lines.append("このファイルは、NotionメンバーDBから自動生成されたメンバー情報の一覧です。")
+    lines.append("")
+    lines.append("最終更新日時: " + time.strftime('%Y-%m-%d %H:%M:%S'))
+    lines.append("")
+    lines.append("## メンバー一覧")
+    lines.append("")
+    lines.append("| NotionユーザーID | 氏名 | メールアドレス |")
+    lines.append("| --- | --- | --- |")
+    
+    for key, info in sorted_members:
+        notion_user_id = info.get("notion_user_id", "")
+        name = info.get("name", "")
+        email = info.get("email", "")
+        
+        lines.append(f"| {notion_user_id} | {name} | {email} |")
+    
+    lines.append("")
+    lines.append(f"合計: {len(sorted_members)}名")
+    lines.append("")
+    
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
+    
+    print(f"✓ Notionメンバーリストを出力: {output_file}")
 
 
 def main():
@@ -315,13 +536,26 @@ def main():
         print(f"    - メール: {info.get('email', 'なし')}")
         print()
     
-    # マッピングファイルを更新
-    if os.path.exists(MAPPING_FILE):
-        print(f"マッピングファイルを更新中: {MAPPING_FILE}")
+    # Notionメンバーリストをエクスポート
+    notion_docs_dir = os.path.join(REPO_ROOT, "docs/notion")
+    if not os.path.exists(notion_docs_dir):
+        os.makedirs(notion_docs_dir, exist_ok=True)
+        print(f"出力ディレクトリを作成: {notion_docs_dir}")
+    
+    print(f"\nNotionメンバーリストをエクスポート中...")
+    export_notion_members_list(members, notion_docs_dir)
+    
+    # notion_members.mdを使用してマッピングファイルを更新
+    notion_members_file = os.path.join(notion_docs_dir, "notion_members.md")
+    if os.path.exists(MAPPING_FILE) and os.path.exists(notion_members_file):
+        print(f"\nnotion_members.mdを使用してマッピングファイルを更新中: {MAPPING_FILE}")
+        update_mapping_file_from_notion_members(notion_members_file, MAPPING_FILE)
+    elif os.path.exists(MAPPING_FILE):
+        print(f"\nnotion_members.mdが見つからないため、既存のロジックでマッピングファイルを更新中: {MAPPING_FILE}")
         update_mapping_file(members, MAPPING_FILE)
     else:
-        print(f"ERROR: マッピングファイルが見つかりません: {MAPPING_FILE}")
-        sys.exit(1)
+        print(f"\n警告: マッピングファイルが見つかりません: {MAPPING_FILE}")
+        print("      マッピングファイルの更新はスキップします")
     
     print("\n処理完了！")
 

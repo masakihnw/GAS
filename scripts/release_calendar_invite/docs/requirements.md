@@ -45,18 +45,38 @@
      - 実行者のメールアドレスをそのまま使用（追加の変換不要）
    - **全社共通Taskの担当者**:
      - 各Issueに紐づくTaskから「担当者」プロパティ（People型）を取得
+     - **実装関連タスクのみ**を対象とする（詳細は後述）
      - NotionユーザーIDを抽出
-     - ユーザーマッピングファイル（Google Drive）を使用してメールアドレスに変換
+     - メールアドレス取得の優先順位:
+       1. Notion APIから直接取得（`person.person.email`）
+       2. ユーザーマッピングファイル（Google Drive）
+       3. Notion Users APIフォールバック（`/users/{user_id}`）
      - 重複を排除（実行者と重複している場合は除外）
+   - **プロダクトのPdMとPdM補佐**:
+     - リリースに紐づくプロダクトを取得
+     - 各プロダクトの「PdM」プロパティ（People型）からPdMを取得
+     - 各プロダクトの「PdM補佐」プロパティ（People型）からPdM補佐を取得
+     - NotionユーザーIDをメールアドレスに変換
 6. **Googleカレンダーイベント作成**:
    - リリース日の12:00-13:00でイベントを作成
-   - **実行者のスクラムマスターとTask担当者のみ**をゲストとして招待（他のスクラムマスターは招待しない）
-   - イベントIDをNotionのリリースDBに保存（後で更新するため）
+   - **ゲストリスト**: 実行者のスクラムマスター + 実装関連Task担当者 + プロダクトのPdM + プロダクトのPdM補佐（重複排除）
+   - イベントIDをGoogle DriveのJSONLログファイルに保存（後で更新するため）
 
 #### 2.1.2 リリース日が変更されたときの処理
 1. **変更検出**: リリース日プロパティが変更されたリリースを検出
 2. **イベント更新**: 保存されたイベントIDを使用してGoogleカレンダーイベントの日付を更新
 3. **時間の維持**: イベント時間は変更せず、日付のみを更新
+
+#### 2.1.3 Issue・Task担当者の変更時の処理（実装済み）
+1. **変更検出**: 既存イベントの説明文とゲストリストを最新のIssue・Task情報と比較
+2. **説明文の更新**: 
+   - リリースに紐づくIssueの変更を検出
+   - 「バージョン名 リリース」パターンのIssueは除外
+   - Issue名のリストを更新
+3. **ゲストリストの更新**:
+   - 実装関連Task担当者の変更を検出
+   - プロダクトのPdM・PdM補佐の変更を検出
+   - 新しい担当者を追加、削除された担当者を削除（主催者は除く）
 
 ### 2.2 詳細仕様
 
@@ -66,10 +86,15 @@
 - **プロダクトプロパティ**: Relation型（プロダクト DBへのリレーション）
 - **カレンダーイベントIDプロパティ**: **使用しない**（各実行者がScript Propertiesで個別管理）
 
-**イベントID管理の方針変更**:
-- 従来案: Notion DBのカレンダーイベントIDプロパティに保存
-- **新方針**: 各実行者のScript Propertiesに保存（キー: `EVENT_CACHE_{リリースID}`）
-- **理由**: 1つのリリースに複数のプロダクトが紐づく場合、各スクラムマスターが個別にイベントを作成するため、1つのプロパティでは管理できない
+**イベントID管理の方針**:
+- **実装方式**: Google Drive上のJSONLファイル（`event_ids.jsonl`）に保存
+- **ファイルパス**: Script Propertiesで`EVENT_LOG_FOLDER_ID`として指定されたフォルダ内
+- **保存形式**: JSON Lines形式（1行1レコード）
+  - `releaseId`: リリースページID
+  - `executorNotionUserId`: 実行者のNotionユーザーID
+  - `eventId`: GoogleカレンダーイベントID
+  - `timestamp`: 保存日時
+- **理由**: 1つのリリースに複数のプロダクトが紐づく場合、各スクラムマスターが個別にイベントを作成するため、1つのプロパティでは管理できない。JSONLファイルにより、監査ログとしても機能
 
 #### 2.2.2 全社共通Issue DBの構造（想定）
 - **全社共通Taskプロパティ**: Relation型（全社共通Task DBへのリレーション）
@@ -77,16 +102,24 @@
 #### 2.2.3 全社共通Task DBの構造（想定）
 - **担当者プロパティ**: People型（担当者のNotionユーザー情報）
 - **タスク名プロパティ**: Title型またはText型
+- **実装関連タスクの判定**: 
+  - タスク名に「実装」または「implement」が含まれる場合、実装関連とみなす
+  - **除外キーワード**: 「設計」「QA」「デザイン」「検討」「テスト」「test」「design」「qa」「review」「レビュー」「仕様」「要件」を含むタスクは除外
 
 #### 2.2.4 プロダクト DBの構造（想定）
 - **スクラムマスタープロパティ**: People型（スクラムマスターのNotionユーザー情報）
 - **プロダクト名プロパティ**: Title型またはText型
+- **PdMプロパティ**: People型（プロダクトマネージャーのNotionユーザー情報）
+- **PdM補佐プロパティ**: People型（プロダクトマネージャー補佐のNotionユーザー情報）
 
 #### 2.2.5 Notionユーザー情報からメールアドレスへの変換
 - NotionユーザーIDは取得できるが、Googleカレンダーに招待するにはメールアドレスが必要
-- ユーザー情報マッピングファイル（`docs/slack/user_room_mapping.md`）のデータを参考に、コード内にNotionユーザーID → メールアドレスのマッピングを定義
-- 既存スクリプト（`product_project_task-notifier.js`）のパターンに合わせて実装
+- **メールアドレス取得の優先順位**:
+  1. **Notion APIから直接取得**: Task担当者取得時に`person.person.email`が利用可能な場合、これを優先
+  2. **ユーザーマッピングファイル**: Google Drive上の`docs/slack/user_room_mapping.md`を参照（UUID形式のNotionユーザーIDのみ有効）
+  3. **Notion Users API**: 上記で見つからない場合、`/users/{user_id}`エンドポイントで取得を試行
 - メールアドレスが見つからない場合は、スキップしてログに記録
+- キャッシュ機能は無効化済み（常に最新のマッピングファイルを読み込む）
 
 #### 2.2.6 イベント時間の設定
 - リリースDBには時間が入力されないため、**一律で12:00-13:00に設定**
@@ -97,23 +130,26 @@
 - **タイトル**: 「[リリース]リリース名」（リリースDBのタイトル/名前プロパティを使用）
 - **説明**: 
   - **該当リリースのNotion URL**（必須）
-  - 関連する全社共通IssueへのNotionリンク（オプション）
+  - 関連する全社共通Issue名の箇条書きリスト（「バージョン名 リリース」パターンのIssueは除外）
   - 関連する全社共通Taskへのリンクは含めない（説明文が長くなりすぎるため）
 - **場所**: 必要に応じて設定可能（デフォルトは空欄）
 - **時間**: リリース日の12:00-13:00（JST）
 - **主催者**: **GASスクリプトを実行するスクラムマスター自身**（イベントの作成者として自動設定）
 - **ゲスト**: 
-  - **実行者のスクラムマスター自身**（主催者と同一のため、基本的に主催者のみ。ただし、他のカレンダーに招待する場合はゲストとして追加）
-  - 全社共通Taskの担当者（重複排除）
+  - **実行者のスクラムマスター自身**
+  - 実装関連全社共通Taskの担当者（重複排除）
+  - プロダクトのPdM（重複排除）
+  - プロダクトのPdM補佐（重複排除）
   - **注意**: 他のプロダクトのスクラムマスターは招待しない（実行者が担当しているプロダクトのリリースのみ処理するため）
 
 **説明文のフォーマット例**:
 ```
-リリース情報: https://www.notion.so/0cc4931427714c6bafe5f05bdc66ac22
+https://www.notion.so/0cc4931427714c6bafe5f05bdc66ac22
 
 関連Issue:
-- https://www.notion.so/61b50f425ae14687b44ba250869f09ae
-- https://www.notion.so/xxx
+- アカウント登録時のメールアドレス必須化
+- PartnerAPI基盤の構築
+- OAuthスコープを追加する
 ```
 
 ### 2.3 実行タイミング
@@ -121,7 +157,8 @@
 #### 2.3.1 実行方法
 1. **定期実行**: GASトリガーで定期的（例: 1時間ごと、または30分ごと）に実行
 2. **手動実行**: 必要に応じて手動で実行
-3. **Notion Webhook**: 将来的にNotion Webhookに対応できれば、リアルタイム実行が可能（現時点では定期実行）
+3. **DRY-RUNモード**: Script Propertiesで`DRY_RUN=true`に設定すると、カレンダーイベントの作成・更新・削除は実行せず、ログ出力のみ（テスト用）
+4. **Notion Webhook**: 将来的にNotion Webhookに対応できれば、リアルタイム実行が可能（現時点では定期実行）
 
 #### 2.3.2 実行頻度
 - 推奨: 30分〜1時間ごと
@@ -255,33 +292,54 @@ const targetReleases = notionQueryAll(NOTION_RELEASE_DB_ID, releaseFilter);
 4. リリースDBから、対象プロダクトに紐づくリリースのみを抽出
 5. 対象リリースのみを処理（他のプロダクトのリリースはスキップ）
 
-##### 3.1.1.5 イベントIDの保存（Script Properties）
-**方針変更**: カレンダーイベントIDをNotion DBには保存せず、各実行者のScript Propertiesに保存
+##### 3.1.1.5 イベントIDの保存（Google Drive JSONLファイル）
+**実装方式**: カレンダーイベントIDをGoogle Drive上のJSONLファイルに保存
 
 ```javascript
-// イベントIDをScript Propertiesに保存
-const eventCacheKey = `EVENT_CACHE_${releaseId}`;
-PropertiesService.getScriptProperties().setProperty(eventCacheKey, eventId);
+// イベントIDをJSONLファイルに保存
+function saveEventIdToLog(releaseId, eventId, executorNotionUserId) {
+  const logFile = getOrCreateEventLogFile(); // イベントログファイルを取得または作成
+  const record = {
+    releaseId: releaseId,
+    executorNotionUserId: executorNotionUserId,
+    eventId: eventId,
+    timestamp: new Date().toISOString()
+  };
+  // JSON Lines形式で追記
+  const line = JSON.stringify(record) + '\n';
+  const existingContent = logFile.getBlob().getDataAsString();
+  logFile.setContent(existingContent + line);
+}
 
 // イベントIDを取得（更新時など）
-const cachedEventId = PropertiesService.getScriptProperties().getProperty(eventCacheKey);
-
-// イベントIDを削除（リリース日削除時など）
-PropertiesService.getScriptProperties().deleteProperty(eventCacheKey);
+function getEventIdFromLog(releaseId, executorNotionUserId) {
+  const logFile = getOrCreateEventLogFile();
+  const lines = logFile.getBlob().getDataAsString().split('\n');
+  // 最新の一致するレコードを検索
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const record = JSON.parse(lines[i]);
+    if (record.releaseId === releaseId && record.executorNotionUserId === executorNotionUserId) {
+      return record.eventId;
+    }
+  }
+  return null;
+}
 ```
 
 **保存形式**:
-- キー: `EVENT_CACHE_{リリースページID}`
-- 値: GoogleカレンダーのイベントID
+- ファイル名: `event_ids.jsonl`
+- 保存場所: Script Propertiesで`EVENT_LOG_FOLDER_ID`として指定されたGoogle Driveフォルダ
+- フォーマット: JSON Lines形式（各行が独立したJSONオブジェクト）
 
 **メリット**:
 - 各実行者が個別にイベントIDを管理できる
 - 1つのリリースに複数のプロダクトが紐づく場合でも、各スクラムマスターが個別にイベントIDを保持可能
-- Notion DBのプロパティ追加が不要
+- 監査ログとして機能（タイムスタンプ付き）
+- ファイル形式のため、外部から確認・分析が容易
 
 **デメリット**:
-- Script Propertiesはスクリプトごとに独立しているため、他の実行者のイベントIDは参照できない
-- GASスクリプトを削除・再作成すると、イベントIDの情報が失われる可能性がある
+- Google Drive APIの呼び出しが必要（パフォーマンスへの影響は軽微）
+- ファイルの読み書き操作が必要
 
 #### 3.1.2 Google Calendar API
 
@@ -419,10 +477,9 @@ try {
 6. 見つからない場合は、ログに記録してスキップ（そのユーザーはカレンダー招待から除外）
 
 **キャッシュ戦略**:
-- キャッシュ有効期限: 1時間（3600秒）
-- キャッシュキー: `USER_MAPPING_CACHE`
-- キャッシュ値: JSON形式のマッピングデータ + タイムスタンプ
-- ファイル読み込みエラー時は、フォールバックとしてコード内のデフォルトマッピングを使用（オプション）
+- **実装状況**: キャッシュ機能は無効化済み
+- **理由**: ユーザーマッピングファイルの更新を即座に反映するため、常に最新のファイルを読み込む
+- ファイル読み込みエラー時は、エラーログを出力して処理を中断
 
 ### 3.3 設定値（GAS Script Properties）
 - `NOTION_API_TOKEN`: Notion APIトークン
@@ -432,6 +489,8 @@ try {
 - `NOTION_PRODUCT_DB_ID`: `0d0b0f9639454862af2b2c401f229ca6`（プロダクト DB）
 - `CALENDAR_ID`: GoogleカレンダーのID（デフォルトカレンダーの場合は空欄でも可）
 - `USER_MAPPING_FILE_ID`: Google Drive上のユーザーマッピングファイルID（`docs/slack/user_room_mapping.md`）
+- `EVENT_LOG_FOLDER_ID`: Google Drive上のイベントログファイル保存フォルダID
+- `DRY_RUN`: `true`または`false`（テストモード。`true`の場合、カレンダーイベントの作成・更新・削除は実行されず、ログのみ出力）
 
 ### 3.4 処理フロー
 
@@ -528,10 +587,21 @@ try {
   - リリースDBのリリース日と、実行者が作成したイベントの日付を比較
   - 実行者が作成したイベントを検索（タイトル「[リリース]リリース名」で検索）
 
-#### 3.4.5 担当者が変更された場合の処理（将来対応）
-- 現在の実装では、担当者が変更されてもイベントのゲストを自動更新しない
-- ゲストの追加/削除は手動で対応する想定
-- 将来的に必要になった場合は、毎回イベントのゲストを再取得して更新する機能を追加
+#### 3.4.5 担当者が変更された場合の処理（実装済み）
+- **実装状況**: ✅ 実装済み
+- **処理内容**:
+  1. 既存イベントの説明文とゲストリストを取得
+  2. 最新のIssue・Task情報から新しい説明文とゲストリストを生成
+  3. 説明文に変更がある場合、イベントの説明文を更新
+  4. ゲストリストに変更がある場合:
+     - 新しいゲストを追加
+     - 削除されたゲストを削除（主催者は削除不可のため除外）
+- **説明文の更新条件**:
+  - Issueの追加・削除
+  - 「バージョン名 リリース」パターンのIssueは説明文から除外されるため、該当Issueが追加されても説明文には反映されない
+- **ゲストリストの更新条件**:
+  - 実装関連Task担当者の変更
+  - プロダクトのPdM・PdM補佐の変更
 
 ### 3.5 データ構造
 

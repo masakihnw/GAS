@@ -293,7 +293,24 @@ function callNotionAPI(endpoint, method = 'GET', payload = null) {
         return data;
       } else {
         const errorText = response.getContentText();
-        console.warn(`Notion API呼び出し失敗 (試行${attempt}回目): ${statusCode} - ${errorText}`);
+        let errorMessage = `Notion API呼び出し失敗 (試行${attempt}回目): ${statusCode}`;
+        
+        // エラーメッセージを解析してより詳細な情報を提供
+        try {
+          const errorData = JSON.parse(errorText);
+          if (errorData.message) {
+            errorMessage += ` - ${errorData.message}`;
+          }
+          if (errorData.code === 'restricted_resource') {
+            errorMessage += '\n  → 権限エラー: Notionインテグレーションにページへの書き込み権限がない、またはページが接続されていません';
+          } else if (errorData.code === 'validation_error') {
+            errorMessage += '\n  → プロパティ名エラー: 指定されたプロパティ名が存在しません';
+          }
+        } catch (e) {
+          errorMessage += ` - ${errorText}`;
+        }
+        
+        console.warn(errorMessage);
         
         if (attempt === 3) {
           throw new Error(`Notion API エラー: ${statusCode} - ${errorText}`);
@@ -315,21 +332,41 @@ function callNotionAPI(endpoint, method = 'GET', payload = null) {
 
 /**
  * Slackユーザー情報を取得
+ * エラーが発生した場合でも処理を続行できるように改善
  */
 function getSlackUserInfo(userId) {
+  if (!userId) {
+    return {
+      displayName: '不明',
+      realName: '不明'
+    };
+  }
+  
   try {
     const data = callSlackAPI(SLACK_API.USERS_INFO, { user: userId });
     if (data.ok && data.user) {
       const profile = data.user.profile || {};
       return {
-        displayName: profile.display_name || profile.real_name || data.user.name || '不明',
-        realName: profile.real_name || profile.display_name || data.user.name || '不明'
+        displayName: profile.display_name || profile.real_name || data.user.name || userId,
+        realName: profile.real_name || profile.display_name || data.user.name || userId
       };
     }
   } catch (error) {
-    console.warn(`Slackユーザー情報取得エラー (${userId}):`, error);
+    // user_not_found エラーは無視して、ユーザーIDをそのまま返す
+    if (error.message && error.message.includes('user_not_found')) {
+      console.warn(`Slackユーザー情報が見つかりません (${userId}): ユーザーIDをそのまま使用します`);
+      return {
+        displayName: userId,
+        realName: userId
+      };
+    }
+    console.warn(`Slackユーザー情報取得エラー (${userId}):`, error.message || error);
   }
-  return null;
+  // エラーが発生した場合も、ユーザーIDを返して処理を続行
+  return {
+    displayName: userId,
+    realName: userId
+  };
 }
 
 /**
@@ -340,50 +377,93 @@ function getSlackUserInfo(userId) {
 function extractProductName(text) {
   if (!text) return null;
   
-  // 最初の行を取得（改行で分割）
-  const firstLine = text.split('\n')[0].trim();
+  // SlackのメンションやHTMLタグをクリーンアップ
+  // <@U0992P6EK5K> のようなメンションを除去
+  let cleanedText = text.replace(/<@[A-Z0-9]+>/g, '');
+  // <!channel> などの特殊メンションを除去
+  cleanedText = cleanedText.replace(/<!channel>/g, '');
+  cleanedText = cleanedText.replace(/<!here>/g, '');
   
-  // パターン1: [プロダクト名 バージョン]リリースしました
-  // 例: [Eitoku v3.4.1(369)]リリースしました:tada: @channel
-  let match = firstLine.match(/^\[([^\]]+?)\s+v?\d+[^\]]*?\]リリース/);
+  // 最初の数行を取得（改行で分割）
+  const lines = cleanedText.split('\n').filter(line => line.trim().length > 0);
+  if (lines.length === 0) return null;
+  
+  const firstLine = lines[0].trim();
+  
+  // 太字テキスト（*...*）の処理
+  // パターン1: *プロダクト名 バージョン* をリリースしました
+  // 例: *抽選プロダクト v1.2.0* をリリースしました！
+  let match = firstLine.match(/\*([^*]+?)\s+v?\d+[\d\.]*\s*\*/);
   if (match) {
     return match[1].trim();
   }
   
-  // パターン2: [プロダクト名] バージョンをリリースしました
+  // パターン2: *プロダクト名* バージョンをリリースしました
+  // 例: *Rick* 1.22.0 をリリースしました！
+  match = firstLine.match(/\*([^*]+?)\*\s+v?\d+[\d\.]*/);
+  if (match) {
+    return match[1].trim();
+  }
+  
+  // パターン3: [プロダクト名 バージョン]リリースしました
+  // 例: [Eitoku v3.4.1(369)]リリースしました:tada: @channel
+  match = firstLine.match(/^\[([^\]]+?)\s+v?\d+[^\]]*?\]リリース/);
+  if (match) {
+    return match[1].trim();
+  }
+  
+  // パターン4: [プロダクト名] バージョンをリリースしました
   // 例: [Karaku Admin] v2.9.3をリリースしました！@channel
   match = firstLine.match(/^\[([^\]]+)\]\s+v?\d+/);
   if (match) {
     return match[1].trim();
   }
   
-  // パターン3: プロダクト名 バージョン をリリースしました
+  // パターン5: プロダクト名 バージョン をリリースしました（太字なし）
   // 例: Juko 1.28.0 をリリースしました！
-  match = firstLine.match(/^([A-Za-z0-9\s]+?)\s+v?\d+[\d\.]*\s*をリリース/);
+  match = firstLine.match(/(?:^|\*)\s*([A-Za-z0-9\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\s]+?)\s+v?\d+[\d\.]*\s*をリリース/);
   if (match) {
-    return match[1].trim();
+    const candidate = match[1].trim();
+    // 明らかに違うものは除外
+    if (candidate && candidate.length > 0 && candidate.length < 50) {
+      return candidate;
+    }
   }
   
-  // パターン4: プロダクト名 バージョンをリリースしました（漢字なし）
+  // パターン6: プロダクト名 バージョンをリリースしました（漢字なし）
   // 例: Juko 1.28.0をリリースしました！
-  match = firstLine.match(/^([A-Za-z0-9\s]+?)\s+v?\d+[\d\.]*をリリース/);
+  match = firstLine.match(/(?:^|\*)\s*([A-Za-z0-9\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\s]+?)\s+v?\d+[\d\.]*をリリース/);
   if (match) {
-    return match[1].trim();
+    const candidate = match[1].trim();
+    if (candidate && candidate.length > 0 && candidate.length < 50) {
+      return candidate;
+    }
   }
   
-  // パターン5: [プロダクト名]リリース（バージョンなし）
+  // パターン7: [プロダクト名]リリース（バージョンなし）
   match = firstLine.match(/^\[([^\]]+)\][リリース]/);
   if (match) {
     return match[1].trim();
   }
   
-  // フォールバック: 最初の単語をプロダクト名とする（アルファベット・数字・スペースのみ）
-  match = firstLine.match(/^([A-Za-z0-9\s]+?)[\sリリース]/);
+  // パターン8: *プロダクト名* リリース（バージョンなし）
+  match = firstLine.match(/\*([^*]+?)\*/);
   if (match) {
     const candidate = match[1].trim();
-    // 明らかに違うもの（チャンネル名、絵文字など）は除外
-    if (candidate && !candidate.match(/^[@:]/) && candidate.length > 0 && candidate.length < 50) {
+    if (candidate && !candidate.match(/^(channel|here|everyone)$/i) && candidate.length < 50) {
       return candidate;
+    }
+  }
+  
+  // フォールバック: 2行目以降も確認（最初の行にプロダクト名がある可能性）
+  if (lines.length > 1) {
+    for (let i = 1; i < Math.min(lines.length, 3); i++) {
+      const line = lines[i].trim();
+      // 太字のプロダクト名を探す
+      match = line.match(/\*([^*]+?)\s+v?\d+[\d\.]*\s*\*/);
+      if (match) {
+        return match[1].trim();
+      }
     }
   }
   
@@ -456,12 +536,9 @@ function getSlackReleaseNotifications(oldestTs, latestTs) {
     if (message.user) {
       if (!seenUsers[message.user]) {
         const userInfo = getSlackUserInfo(message.user);
-        if (userInfo) {
-          seenUsers[message.user] = userInfo;
-          authorName = userInfo.displayName || userInfo.realName || message.user;
-        } else {
-          authorName = message.user; // ユーザー情報が取得できない場合
-        }
+        // getSlackUserInfoは常にオブジェクトを返すようになった
+        seenUsers[message.user] = userInfo;
+        authorName = userInfo.displayName || userInfo.realName || message.user;
       } else {
         const userInfo = seenUsers[message.user];
         authorName = userInfo.displayName || userInfo.realName || message.user;
@@ -908,5 +985,206 @@ function main() {
     console.error('メイン処理エラー:', error);
     throw error;
   }
+}
+
+/**
+ * テスト実行関数（実行条件を回避）
+ * 実際に稼働するかテストするための関数
+ * 実行条件チェックをスキップして、強制的に実行します
+ */
+function testMain() {
+  try {
+    console.log('=== テスト実行: Slackリリース通知のNotion追加処理 ===');
+    console.log('⚠️ 実行条件チェックをスキップしています');
+    const startTime = new Date();
+    
+    // 設定値の検証
+    validateConfig();
+    
+    // 実行日の日付を取得
+    const today = new Date();
+    const todayStr = getJSTToday();
+    console.log(`実行日: ${todayStr}`);
+    
+    // 前営業日の8:59を計算
+    const previousBusinessDayEnd = getPreviousBusinessDayEnd(today);
+    const previousBusinessDayEndStr = Utilities.formatDate(previousBusinessDayEnd, 'Asia/Tokyo', 'yyyy-MM-dd HH:mm:ss');
+    console.log(`対象期間終了: ${previousBusinessDayEndStr}`);
+    
+    // タイムスタンプに変換
+    const oldestTs = Math.floor(previousBusinessDayEnd.getTime() / 1000);
+    const latestTs = Math.floor(today.getTime() / 1000);
+    
+    // Slack投稿取得
+    console.log('\n[Slack投稿取得]');
+    const notifications = getSlackReleaseNotifications(oldestTs, latestTs);
+    console.log(`取得件数: ${notifications.length}件`);
+    
+    if (notifications.length > 0) {
+      notifications.forEach(notif => {
+        console.log(`- [共有] ${notif.productName}リリース - ${notif.authorName}`);
+      });
+    }
+    
+    // Notionページ検索
+    console.log('\n[Notionページ検索]');
+    const pageId = findNotionPage(todayStr);
+    
+    if (!pageId) {
+      throw new Error(`当日の朝会議事録ページが見つかりませんでした: ${todayStr}`);
+    }
+    
+    console.log(`ページID: ${pageId}`);
+    
+    // Notionページ更新
+    console.log('\n[Notionページ更新]');
+    updateNotionPage(pageId, notifications);
+    
+    if (notifications.length > 0) {
+      console.log(`通知を${notifications.length}件追加しました`);
+    } else {
+      console.log('通知がないため、「なし」を記載しました');
+    }
+    
+    // 注意: テスト実行のため、実行日記録はスキップ
+    console.log('\n⚠️ テスト実行のため、実行日記録をスキップしました');
+    
+    const endTime = new Date();
+    const duration = (endTime.getTime() - startTime.getTime()) / 1000;
+    console.log(`\n=== テスト実行完了 (実行時間: ${duration.toFixed(2)}秒) ===`);
+    
+    return {
+      success: true,
+      notificationsCount: notifications.length,
+      pageId: pageId,
+      duration: duration
+    };
+    
+  } catch (error) {
+    console.error('テスト実行エラー:', error);
+    return {
+      success: false,
+      error: error.toString()
+    };
+  }
+}
+
+/**
+ * Notionデータベースのプロパティ名を取得して表示
+ */
+function checkNotionProperties() {
+  console.log('=== Notionデータベースのプロパティ確認 ===\n');
+  
+  try {
+    const dbId = CONFIG.NOTION_DB_ID || CONSTANTS.NOTION.DB_ID;
+    console.log(`データベースID: ${dbId}\n`);
+    
+    const data = callNotionAPI(`/databases/${dbId}`, 'GET');
+    
+    if (data.properties) {
+      console.log('プロパティ一覧:');
+      Object.keys(data.properties).forEach(propName => {
+        const prop = data.properties[propName];
+        console.log(`  - ${propName} (型: ${prop.type})`);
+      });
+      
+      // タイトルプロパティを探す
+      const titleProps = Object.keys(data.properties).filter(name => {
+        const prop = data.properties[name];
+        return prop.type === 'title';
+      });
+      
+      if (titleProps.length > 0) {
+        console.log(`\n✅ タイトルプロパティ: ${titleProps.join(', ')}`);
+        if (!titleProps.includes(NOTION_PROP.TITLE)) {
+          console.log(`⚠️  現在の設定 (${NOTION_PROP.TITLE}) と実際のプロパティ名が異なります`);
+        }
+      } else {
+        console.log('\n⚠️  タイトルプロパティが見つかりませんでした');
+      }
+      
+      // 日付プロパティを探す
+      const dateProps = Object.keys(data.properties).filter(name => {
+        const prop = data.properties[name];
+        return prop.type === 'date';
+      });
+      
+      if (dateProps.length > 0) {
+        console.log(`日付プロパティ: ${dateProps.join(', ')}`);
+        if (!dateProps.includes(NOTION_PROP.DATE)) {
+          console.log(`⚠️  現在の設定 (${NOTION_PROP.DATE}) と実際のプロパティ名が異なります`);
+        }
+      } else {
+        console.log('\n⚠️  日付プロパティが見つかりませんでした');
+      }
+      
+    } else {
+      console.log('⚠️  プロパティ情報が取得できませんでした');
+    }
+    
+  } catch (error) {
+    console.error('エラー:', error.message || error);
+    console.log('\n考えられる原因:');
+    console.log('  1. NOTION_API_TOKENが正しく設定されていない');
+    console.log('  2. データベースIDが間違っている');
+    console.log('  3. Notion APIトークンにデータベースへのアクセス権限がない');
+    console.log('  4. データベースがNotionインテグレーションに接続されていない');
+  }
+}
+
+/**
+ * 設定値確認関数
+ * Script Propertiesが正しく設定されているか確認します
+ */
+function checkConfig() {
+  console.log('=== 設定値確認 ===\n');
+  
+  const props = PropertiesService.getScriptProperties().getProperties();
+  
+  console.log('Script Properties一覧:');
+  Object.keys(props).forEach(key => {
+    if (key.includes('TOKEN') || key.includes('SECRET')) {
+      // トークンはマスキング
+      const value = props[key];
+      const masked = value ? `${value.substring(0, 10)}...` : '(未設定)';
+      console.log(`  ${key}: ${masked}`);
+    } else {
+      console.log(`  ${key}: ${props[key] || '(未設定)'}`);
+    }
+  });
+  
+  console.log('\n必須設定値チェック:');
+  const requiredKeys = ['SLACK_BOT_TOKEN', 'NOTION_API_TOKEN'];
+  let allSet = true;
+  
+  requiredKeys.forEach(key => {
+    const value = props[key];
+    if (value) {
+      console.log(`  ✅ ${key}: 設定済み`);
+    } else {
+      console.log(`  ❌ ${key}: 未設定`);
+      allSet = false;
+    }
+  });
+  
+  console.log('\nオプション設定値:');
+  const optionalKeys = ['NOTION_DB_ID', 'SLACK_CHANNEL_ID'];
+  optionalKeys.forEach(key => {
+    const value = props[key];
+    if (value) {
+      console.log(`  ✅ ${key}: ${value}`);
+    } else {
+      console.log(`  ⚠️  ${key}: 未設定（デフォルト値を使用）`);
+    }
+  });
+  
+  if (allSet) {
+    console.log('\n✅ 全ての必須設定値が設定されています');
+    console.log('\n💡 Notionプロパティ名を確認する場合は checkNotionProperties() を実行してください');
+  } else {
+    console.log('\n❌ 必須設定値が不足しています。Script Propertiesを設定してください。');
+  }
+  
+  return allSet;
 }
 
